@@ -134,6 +134,34 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     handleExport(msg.history, msg.format, msg.content);
     return false;
   }
+
+  if (msg.type === 'get-sessions') {
+    chrome.storage.local.get({ ltccSessions: [] }, (data) => {
+      sendResponse(data.ltccSessions || []);
+    });
+    return true;
+  }
+
+  if (msg.type === 'delete-session') {
+    chrome.storage.local.get({ ltccSessions: [] }, async (data) => {
+      const sessions = (data.ltccSessions || []).filter((s) => s.id !== msg.sessionId);
+      await chrome.storage.local.set({ ltccSessions: sessions });
+      await chrome.storage.local.remove(`ltccHistory_${msg.sessionId}`);
+      sendResponse({ ok: true });
+    });
+    return true;
+  }
+
+  if (msg.type === 'export-session') {
+    chrome.storage.local.get({ [`ltccHistory_${msg.sessionId}`]: [] }, (data) => {
+      const history = data[`ltccHistory_${msg.sessionId}`] || [];
+      if (history.length) {
+        handleExport(history, msg.format || 'txt', msg.content || 'both');
+      }
+      sendResponse({ ok: true, count: history.length });
+    });
+    return true;
+  }
 });
 
 // --- Keyboard shortcut commands -------------------------------------------

@@ -236,6 +236,121 @@ body {
   margin: 0 4px;
 }
 
+/* ── Session list ───────────────────────────────────────────────────────── */
+
+.session-hint {
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.session-list {
+  max-height: 160px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.session-empty {
+  font-size: 12px;
+  color: #bbb;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  background: #fafafa;
+}
+
+.session-item.active {
+  border-color: #4a9eff;
+  background: #f0f7ff;
+}
+
+.session-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-title {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-meta {
+  font-size: 10px;
+  color: #999;
+}
+
+.session-badge {
+  font-size: 10px;
+  background: #4a9eff;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.session-actions {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  transition: background 0.1s;
+}
+
+.btn-icon:hover {
+  background: #e8e8e8;
+  color: #333;
+}
+
+.btn-icon.delete:hover {
+  background: #fde8e8;
+  color: #e74c3c;
+}
+
+.btn-danger {
+  background: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-danger:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.btn-sm {
+  font-size: 11px;
+  padding: 3px 10px;
+}
+
 /* ── Conditional visibility for backend-specific fields ─────────────────── */
 
 #apiKeyField.hidden,

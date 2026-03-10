@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     exportContent: document.getElementById('exportContent'),
     exportFormat: document.getElementById('exportFormat'),
     exportBtn: document.getElementById('exportBtn'),
+    sessionList: document.getElementById('sessionList'),
+    clearAllBtn: document.getElementById('clearAllBtn'),
   };
 
   const DEFAULTS = {
@@ -150,4 +152,79 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.tabs.sendMessage(tabs[0].id, { type: 'trigger-export' });
     });
   });
+
+  // ── Sessions list ───────────────────────────────────────────────────
+
+  function loadSessions() {
+    chrome.runtime.sendMessage({ type: 'get-sessions' }, (sessions) => {
+      renderSessions(sessions || []);
+    });
+  }
+
+  function renderSessions(sessions) {
+    if (!sessions.length) {
+      els.sessionList.innerHTML = '<p class="session-empty">No saved sessions</p>';
+      return;
+    }
+
+    els.sessionList.innerHTML = '';
+    for (const s of sessions) {
+      const item = document.createElement('div');
+      item.className = 'session-item';
+
+      const dateStr = new Date(s.startedAt).toLocaleDateString(undefined, {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
+
+      item.innerHTML = `
+        <div class="session-info">
+          <div class="session-title" title="${esc(s.title)}">${esc(s.title)}</div>
+          <div class="session-meta">${dateStr}</div>
+        </div>
+        <span class="session-badge">${s.entryCount || 0}</span>
+        <div class="session-actions">
+          <button class="btn-icon export-session" data-sid="${esc(s.id)}" title="Export">&#8615;</button>
+          <button class="btn-icon delete delete-session" data-sid="${esc(s.id)}" title="Delete">&times;</button>
+        </div>
+      `;
+
+      els.sessionList.appendChild(item);
+    }
+
+    els.sessionList.querySelectorAll('.export-session').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const sid = btn.getAttribute('data-sid');
+        const format = els.exportFormat.value;
+        const content = els.exportContent.value;
+        chrome.runtime.sendMessage({ type: 'export-session', sessionId: sid, format, content });
+      });
+    });
+
+    els.sessionList.querySelectorAll('.delete-session').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const sid = btn.getAttribute('data-sid');
+        chrome.runtime.sendMessage({ type: 'delete-session', sessionId: sid }, () => {
+          loadSessions();
+        });
+      });
+    });
+  }
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  els.clearAllBtn.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ type: 'get-sessions' }, async (sessions) => {
+      if (!sessions?.length) return;
+      for (const s of sessions) {
+        await chrome.runtime.sendMessage({ type: 'delete-session', sessionId: s.id });
+      }
+      loadSessions();
+    });
+  });
+
+  loadSessions();
 });

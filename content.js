@@ -8,17 +8,129 @@
   let displayMode = 'inline';
   let enabled = true;
   let captionIdCounter = 0;
-  const transcriptHistory = [];
-  const captionStartTime = Date.now();
+  let transcriptHistory = [];
+  let captionStartTime = Date.now();
   const processedTexts = new Map();
+
+  // ── Session persistence ────────────────────────────────────────────────
+
+  const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+  const MAX_SESSIONS = 10;
+  const SAVE_DEBOUNCE_MS = 3000;
+  let sessionId = null;
+  let sessionMeetingUrl = null;
+  let saveTimer = null;
+  let sessionRestored = false;
+
+  function deriveMeetingId() {
+    const url = new URL(window.location.href);
+    const meetingMatch = url.pathname.match(/\/meet\/([^/?#]+)/) ||
+      url.href.match(/meetup-join[/]([^/?#]+)/) ||
+      url.href.match(/meeting[/]([^/?#]+)/);
+    if (meetingMatch) return meetingMatch[1];
+    const threadId = url.searchParams.get('threadId') ||
+      url.searchParams.get('meetingId');
+    if (threadId) return threadId;
+    return url.pathname.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 80);
+  }
+
+  function getMeetingTitle() {
+    const titleEl = document.querySelector('[data-tid="call-title"]');
+    if (titleEl) return titleEl.textContent.trim();
+    const pageTitle = document.title || '';
+    const cleaned = pageTitle.replace(/\s*\|\s*Microsoft Teams$/, '').trim();
+    return cleaned || 'Unknown Meeting';
+  }
+
+  async function initSession() {
+    const meetingId = deriveMeetingId();
+    sessionMeetingUrl = window.location.href;
+
+    const data = await chrome.storage.local.get({ ltccSessions: [] });
+    const sessions = data.ltccSessions || [];
+
+    const existing = sessions.find((s) => s.meetingId === meetingId);
+    if (existing) {
+      sessionId = existing.id;
+      const entryData = await chrome.storage.local.get({ [`ltccHistory_${sessionId}`]: [] });
+      const restored = entryData[`ltccHistory_${sessionId}`] || [];
+      if (restored.length > 0) {
+        transcriptHistory = restored;
+        sessionRestored = true;
+        captionStartTime = existing.startedAt || Date.now();
+        console.log(`[Live Translate CC] Restored session with ${restored.length} entries`);
+      }
+    } else {
+      sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const meta = {
+        id: sessionId,
+        meetingId,
+        title: getMeetingTitle(),
+        url: sessionMeetingUrl,
+        startedAt: Date.now(),
+        entryCount: 0,
+      };
+      sessions.unshift(meta);
+
+      while (sessions.length > MAX_SESSIONS) {
+        const old = sessions.pop();
+        await chrome.storage.local.remove(`ltccHistory_${old.id}`);
+      }
+
+      const now = Date.now();
+      const pruned = sessions.filter((s) => now - s.startedAt < SESSION_MAX_AGE_MS);
+      await chrome.storage.local.set({ ltccSessions: pruned });
+    }
+
+    window.__ltccTranscriptHistory = transcriptHistory;
+  }
+
+  function scheduleSave() {
+    if (saveTimer) return;
+    saveTimer = setTimeout(() => {
+      saveTimer = null;
+      persistSession();
+    }, SAVE_DEBOUNCE_MS);
+  }
+
+  async function persistSession() {
+    if (!sessionId) return;
+    try {
+      await chrome.storage.local.set({ [`ltccHistory_${sessionId}`]: transcriptHistory });
+      const data = await chrome.storage.local.get({ ltccSessions: [] });
+      const sessions = data.ltccSessions || [];
+      const meta = sessions.find((s) => s.id === sessionId);
+      if (meta) {
+        meta.entryCount = transcriptHistory.length;
+        meta.title = getMeetingTitle();
+        meta.lastUpdated = Date.now();
+        await chrome.storage.local.set({ ltccSessions: sessions });
+      }
+    } catch (err) {
+      console.error('[Live Translate CC] Failed to persist session:', err);
+    }
+  }
+
+  window.addEventListener('beforeunload', () => {
+    if (sessionId && transcriptHistory.length > 0) {
+      persistSession();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && sessionId && transcriptHistory.length > 0) {
+      persistSession();
+    }
+  });
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
 
-  chrome.runtime.sendMessage({ type: 'get-settings' }, (settings) => {
+  chrome.runtime.sendMessage({ type: 'get-settings' }, async (settings) => {
     if (settings) {
       displayMode = settings.displayMode || 'inline';
       enabled = settings.enabled !== false;
     }
+    await initSession();
     waitForCaptionContainer();
   });
 
@@ -42,6 +154,34 @@
     }
     if (msg.type === 'trigger-export') {
       triggerExport();
+    }
+    if (msg.type === 'get-session-info') {
+      // Respond via storage since sendResponse isn't available in onMessage without return true
+      chrome.runtime.sendMessage({
+        type: 'session-info-response',
+        sessionId,
+        entryCount: transcriptHistory.length,
+        restored: sessionRestored,
+      });
+    }
+    if (msg.type === 'clear-current-session') {
+      transcriptHistory.length = 0;
+      processedTexts.clear();
+      captionIdCounter = 0;
+      captionStartTime = Date.now();
+      persistSession();
+      document.querySelectorAll('.ltcc-inline').forEach((el) => el.remove());
+    }
+    if (msg.type === 'load-session-history') {
+      chrome.storage.local.get({ [`ltccHistory_${msg.sessionId}`]: [] }, (data) => {
+        const history = data[`ltccHistory_${msg.sessionId}`] || [];
+        chrome.runtime.sendMessage({
+          type: 'export-transcript',
+          history,
+          format: msg.format || 'txt',
+          content: msg.content || 'both',
+        });
+      });
     }
   });
 
@@ -250,14 +390,12 @@
     ) {
       lastEntry.translated = entry.translated;
       lastEntry.timestamp = entry.timestamp;
+      scheduleSave();
       return;
     }
 
     transcriptHistory.push(entry);
-
-    if (transcriptHistory.length % 20 === 0) {
-      chrome.storage.session?.set?.({ transcriptHistory });
-    }
+    scheduleSave();
   }
 
   function formatElapsed(ms) {
