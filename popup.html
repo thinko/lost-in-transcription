@@ -76,6 +76,31 @@
           <option value="deepseek-r1">
         </datalist>
       </div>
+      <div class="field" id="openaiPromptField">
+        <label for="openaiSystemPrompt">System prompt</label>
+        <textarea id="openaiSystemPrompt" rows="4" placeholder="Custom translation instructions…"></textarea>
+        <div class="prompt-footer">
+          <span class="field-hint">Use {{SOURCE_LANG}} and {{TARGET_LANG}} as placeholders.</span>
+          <button type="button" id="resetPromptBtn" class="btn-link">Reset</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="debounceStrategy">Send frequency</label>
+        <select id="debounceStrategy">
+          <option value="realtime">Each update (~300ms)</option>
+          <option value="sentence">End of sentence</option>
+          <option value="stable">Stable text (~1.5s pause)</option>
+          <option value="timed">Timed batch (custom)</option>
+        </select>
+        <p class="field-hint" id="debounceHint"></p>
+      </div>
+      <div class="field" id="debounceMsField">
+        <label for="debounceMs">Batch window</label>
+        <div class="range-row">
+          <input type="range" id="debounceMs" min="1000" max="15000" step="500" value="5000">
+          <span id="debounceMsVal">5.0s</span>
+        </div>
+      </div>
       <div class="lang-row">
         <div class="field">
           <label for="sourceLang">From</label>

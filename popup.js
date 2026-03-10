@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     openaiBaseUrlField: document.getElementById('openaiBaseUrlField'),
     openaiModel: document.getElementById('openaiModel'),
     openaiModelField: document.getElementById('openaiModelField'),
+    openaiSystemPrompt: document.getElementById('openaiSystemPrompt'),
+    openaiPromptField: document.getElementById('openaiPromptField'),
+    resetPromptBtn: document.getElementById('resetPromptBtn'),
+    debounceStrategy: document.getElementById('debounceStrategy'),
+    debounceHint: document.getElementById('debounceHint'),
+    debounceMs: document.getElementById('debounceMs'),
+    debounceMsVal: document.getElementById('debounceMsVal'),
+    debounceMsField: document.getElementById('debounceMsField'),
     sourceLang: document.getElementById('sourceLang'),
     targetLang: document.getElementById('targetLang'),
     exportContent: document.getElementById('exportContent'),
@@ -35,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     libreUrl: 'https://libretranslate.com',
     openaiModel: 'gpt-4o-mini',
     openaiBaseUrl: 'https://api.openai.com',
+    openaiSystemPrompt: '',
+    debounceStrategy: 'realtime',
+    debounceMs: 5000,
     lastExportFormat: 'txt',
     lastExportContent: 'both',
   };
@@ -51,6 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
     els.libreUrl.value = settings.libreUrl;
     els.openaiBaseUrl.value = settings.openaiBaseUrl;
     els.openaiModel.value = settings.openaiModel;
+    els.openaiSystemPrompt.value = settings.openaiSystemPrompt;
+    els.debounceStrategy.value = settings.debounceStrategy;
+    els.debounceMs.value = settings.debounceMs;
+    els.debounceMsVal.textContent = (settings.debounceMs / 1000).toFixed(1) + 's';
+    updateDebounceFields(settings.debounceStrategy);
     els.sourceLang.value = settings.sourceLang;
     els.targetLang.value = settings.targetLang;
     els.exportContent.value = settings.lastExportContent;
@@ -75,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     els.libreUrlField.classList.toggle('hidden', !isLibre);
     els.openaiBaseUrlField.classList.toggle('hidden', !isOpenai);
     els.openaiModelField.classList.toggle('hidden', !isOpenai);
+    els.openaiPromptField.classList.toggle('hidden', !isOpenai);
   }
 
   // ── Save on change ────────────────────────────────────────────────────
@@ -136,6 +153,45 @@ document.addEventListener('DOMContentLoaded', () => {
   els.openaiModel.addEventListener('change', () => {
     save('openaiModel', els.openaiModel.value.trim());
   });
+
+  els.openaiSystemPrompt.addEventListener('change', () => {
+    save('openaiSystemPrompt', els.openaiSystemPrompt.value);
+  });
+
+  els.resetPromptBtn.addEventListener('click', () => {
+    const defaultPrompt = [
+      'You are a real-time caption translator. Translate the following {{SOURCE_LANG}} text to {{TARGET_LANG}}.',
+      'The source is Quebec French (Québécois) — handle colloquialisms, joual expressions, and informal contractions accurately.',
+      'Examples: "C\'est tu" = "Is it", "pantoute" = "not at all", "j\'va" = "I\'m going to", "faque" = "so/therefore".',
+      'Return ONLY the translated text with no commentary, quotes, or formatting.',
+    ].join(' ');
+    els.openaiSystemPrompt.value = defaultPrompt;
+    save('openaiSystemPrompt', defaultPrompt);
+  });
+
+  els.debounceStrategy.addEventListener('change', () => {
+    const strategy = els.debounceStrategy.value;
+    updateDebounceFields(strategy);
+    save('debounceStrategy', strategy);
+  });
+
+  els.debounceMs.addEventListener('input', () => {
+    const ms = parseInt(els.debounceMs.value, 10);
+    els.debounceMsVal.textContent = (ms / 1000).toFixed(1) + 's';
+    save('debounceMs', ms);
+  });
+
+  function updateDebounceFields(strategy) {
+    const showSlider = strategy === 'timed' || strategy === 'sentence';
+    els.debounceMsField.classList.toggle('hidden', !showSlider);
+    const hints = {
+      realtime: 'Sends after each small text change. Best for local/fast models.',
+      sentence: 'Waits for sentence-ending punctuation (.?!) or the batch window, whichever comes first.',
+      stable: 'Waits for text to stop changing for ~1.5s. Good balance of cost and latency.',
+      timed: 'Accumulates text for the batch window before translating. Best for rate-limited APIs.',
+    };
+    els.debounceHint.textContent = hints[strategy] || '';
+  }
 
   els.sourceLang.addEventListener('change', () => {
     save('sourceLang', els.sourceLang.value);

@@ -37,9 +37,10 @@ class LRUCache {
 
 const cache = new LRUCache(500);
 
-// --- Debounce map (per-caption-id) ----------------------------------------
+// --- Debounce / batching state --------------------------------------------
 
 const pendingDebounce = new Map();
+const SENTENCE_ENDERS = /[.?!。？！]\s*$/;
 
 // --- Settings helper ------------------------------------------------------
 
@@ -55,11 +56,40 @@ async function getSettings() {
     libreUrl: 'https://libretranslate.com',
     openaiModel: 'gpt-4o-mini',
     openaiBaseUrl: 'https://api.openai.com',
+    openaiSystemPrompt: '',
+    debounceStrategy: 'realtime',
+    debounceMs: 5000,
     lastExportFormat: 'txt',
     lastExportContent: 'both',
   };
   const stored = await chrome.storage.sync.get(defaults);
   return { ...defaults, ...stored };
+}
+
+// --- Debounce strategy ----------------------------------------------------
+
+function computeDebounceDelay(text, settings) {
+  const strategy = settings.debounceStrategy || 'realtime';
+
+  switch (strategy) {
+    case 'realtime':
+      return 300;
+
+    case 'sentence':
+      // If text ends with sentence-terminating punctuation, send quickly.
+      // Otherwise wait up to debounceMs for more text.
+      return SENTENCE_ENDERS.test(text) ? 400 : (settings.debounceMs || 5000);
+
+    case 'stable':
+      // Wait for text to stop changing for 1.5s
+      return 1500;
+
+    case 'timed':
+      return settings.debounceMs || 5000;
+
+    default:
+      return 300;
+  }
 }
 
 // --- Translation entry point ----------------------------------------------
@@ -80,6 +110,7 @@ async function handleTranslate(text, captionId, settings) {
     libreUrl: settings.libreUrl,
     openaiModel: settings.openaiModel,
     openaiBaseUrl: settings.openaiBaseUrl,
+    openaiSystemPrompt: settings.openaiSystemPrompt,
   });
 
   cache.set(cacheKey, translated);
@@ -92,37 +123,39 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'translate') {
     const { text, captionId } = msg;
 
-    if (pendingDebounce.has(captionId)) {
-      clearTimeout(pendingDebounce.get(captionId));
-    }
+    (async () => {
+      const settings = await getSettings();
+      if (!settings.enabled) return;
 
-    pendingDebounce.set(
-      captionId,
-      setTimeout(async () => {
-        pendingDebounce.delete(captionId);
-        try {
-          const settings = await getSettings();
-          if (!settings.enabled) {
-            sendResponse({ translated: null });
-            return;
+      const delay = computeDebounceDelay(text, settings);
+
+      if (pendingDebounce.has(captionId)) {
+        clearTimeout(pendingDebounce.get(captionId));
+      }
+
+      pendingDebounce.set(
+        captionId,
+        setTimeout(async () => {
+          pendingDebounce.delete(captionId);
+          try {
+            const translated = await handleTranslate(text, captionId, settings);
+            chrome.tabs.sendMessage(sender.tab.id, {
+              type: 'translation-result',
+              captionId,
+              original: text,
+              translated,
+            });
+          } catch (err) {
+            console.error('[Live Translate CC] Translation error:', err);
+            chrome.tabs.sendMessage(sender.tab.id, {
+              type: 'translation-error',
+              captionId,
+              error: err.message,
+            });
           }
-          const translated = await handleTranslate(text, captionId, settings);
-          chrome.tabs.sendMessage(sender.tab.id, {
-            type: 'translation-result',
-            captionId,
-            original: text,
-            translated,
-          });
-        } catch (err) {
-          console.error('[Live Translate CC] Translation error:', err);
-          chrome.tabs.sendMessage(sender.tab.id, {
-            type: 'translation-error',
-            captionId,
-            error: err.message,
-          });
-        }
-      }, 300)
-    );
+        }, delay)
+      );
+    })();
 
     return true;
   }
