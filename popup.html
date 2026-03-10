@@ -51,6 +51,10 @@
         <label for="apiKey">API Key</label>
         <input type="password" id="apiKey" placeholder="Enter API key…" autocomplete="off">
       </div>
+      <div class="test-row">
+        <button type="button" id="testBtn" class="btn-test">Test Connection</button>
+        <span id="testStatus" class="test-status"></span>
+      </div>
       <div class="field" id="libreUrlField">
         <label for="libreUrl">LibreTranslate URL</label>
         <input type="url" id="libreUrl" placeholder="https://libretranslate.com">
@@ -62,7 +66,10 @@
       </div>
       <div class="field" id="openaiModelField">
         <label for="openaiModel">Model</label>
-        <input type="text" id="openaiModel" placeholder="gpt-4o-mini" list="openaiModelSuggestions" autocomplete="off">
+        <div class="input-with-action">
+          <input type="text" id="openaiModel" placeholder="gpt-4o-mini" list="openaiModelSuggestions" autocomplete="off">
+          <button type="button" id="refreshModelsBtn" class="btn-inline" title="Fetch models from endpoint">&#8635;</button>
+        </div>
         <datalist id="openaiModelSuggestions">
           <option value="gpt-4o-mini">
           <option value="gpt-4o">
@@ -75,6 +82,7 @@
           <option value="phi3">
           <option value="deepseek-r1">
         </datalist>
+        <p class="field-hint" id="modelsHint"></p>
       </div>
       <div class="field" id="openaiPromptField">
         <label for="openaiSystemPrompt">System prompt</label>

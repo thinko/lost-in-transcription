@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     openaiSystemPrompt: document.getElementById('openaiSystemPrompt'),
     openaiPromptField: document.getElementById('openaiPromptField'),
     resetPromptBtn: document.getElementById('resetPromptBtn'),
+    testBtn: document.getElementById('testBtn'),
+    testStatus: document.getElementById('testStatus'),
+    refreshModelsBtn: document.getElementById('refreshModelsBtn'),
+    modelsHint: document.getElementById('modelsHint'),
     debounceStrategy: document.getElementById('debounceStrategy'),
     debounceHint: document.getElementById('debounceHint'),
     debounceMs: document.getElementById('debounceMs'),
@@ -207,6 +211,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
   els.exportFormat.addEventListener('change', () => {
     save('lastExportFormat', els.exportFormat.value);
+  });
+
+  // ── Test connectivity ──────────────────────────────────────────────────
+
+  els.testBtn.addEventListener('click', () => {
+    const backend = els.backend.value;
+    const apiKey = els.apiKey.value.trim();
+    const options = {
+      libreUrl: els.libreUrl.value.trim(),
+      openaiBaseUrl: els.openaiBaseUrl.value.trim(),
+    };
+
+    els.testBtn.disabled = true;
+    els.testStatus.textContent = 'Testing…';
+    els.testStatus.className = 'test-status loading';
+
+    chrome.runtime.sendMessage(
+      { type: 'test-connectivity', backend, apiKey, options },
+      (result) => {
+        els.testBtn.disabled = false;
+        if (result?.ok) {
+          els.testStatus.textContent = result.message;
+          els.testStatus.className = 'test-status success';
+        } else {
+          els.testStatus.textContent = result?.error || 'Connection failed';
+          els.testStatus.className = 'test-status error';
+        }
+      }
+    );
+  });
+
+  // ── Fetch models from endpoint ────────────────────────────────────────
+
+  els.refreshModelsBtn.addEventListener('click', () => {
+    const baseUrl = els.openaiBaseUrl.value.trim();
+    const apiKey = els.apiKey.value.trim();
+
+    els.refreshModelsBtn.disabled = true;
+    els.refreshModelsBtn.classList.add('spinning');
+    els.modelsHint.textContent = 'Fetching models…';
+    els.modelsHint.style.color = '#888';
+
+    chrome.runtime.sendMessage(
+      { type: 'fetch-models', baseUrl, apiKey },
+      (result) => {
+        els.refreshModelsBtn.disabled = false;
+        els.refreshModelsBtn.classList.remove('spinning');
+
+        if (result?.ok && result.models?.length) {
+          const datalist = document.getElementById('openaiModelSuggestions');
+          datalist.innerHTML = '';
+          for (const model of result.models) {
+            const opt = document.createElement('option');
+            opt.value = model;
+            datalist.appendChild(opt);
+          }
+          els.modelsHint.textContent = `${result.models.length} models loaded`;
+          els.modelsHint.style.color = '#2ea043';
+
+          if (!els.openaiModel.value) {
+            els.openaiModel.value = result.models[0];
+            save('openaiModel', result.models[0]);
+          }
+        } else {
+          els.modelsHint.textContent = result?.error || 'Failed to fetch models';
+          els.modelsHint.style.color = '#e74c3c';
+        }
+      }
+    );
   });
 
   // ── Export button ─────────────────────────────────────────────────────

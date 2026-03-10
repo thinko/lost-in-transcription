@@ -187,6 +187,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === 'test-connectivity') {
+    testConnectivity(msg.backend, msg.apiKey, msg.options)
+      .then((result) => sendResponse(result))
+      .catch((err) => sendResponse({ ok: false, error: err.message }));
+    return true;
+  }
+
+  if (msg.type === 'fetch-models') {
+    fetchModels(msg.baseUrl, msg.apiKey)
+      .then((result) => sendResponse(result))
+      .catch((err) => sendResponse({ ok: false, error: err.message, models: [] }));
+    return true;
+  }
+
   if (msg.type === 'export-session') {
     chrome.storage.local.get({ [`ltccHistory_${msg.sessionId}`]: [] }, (data) => {
       const history = data[`ltccHistory_${msg.sessionId}`] || [];
@@ -289,6 +303,98 @@ function handleExport(history, format, contentMode) {
     filename: `teams-captions-${dateStr}-${timeStr}.${ext}`,
     saveAs: true,
   });
+}
+
+// --- Connectivity testing -------------------------------------------------
+
+async function testConnectivity(backend, apiKey, options = {}) {
+  const timeout = (ms) => new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Connection timed out')), ms)
+  );
+
+  try {
+    switch (backend) {
+      case 'libre': {
+        const host = (options.libreUrl || 'https://libretranslate.com').replace(/\/+$/, '');
+        const res = await Promise.race([fetch(`${host}/languages`), timeout(10000)]);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const langs = await res.json();
+        return { ok: true, message: `Connected — ${langs.length} languages available` };
+      }
+
+      case 'google': {
+        const res = await Promise.race([
+          fetch(`https://translation.googleapis.com/language/translate/v2/languages?key=${encodeURIComponent(apiKey)}&target=en`),
+          timeout(10000),
+        ]);
+        if (!res.ok) {
+          const body = await res.text();
+          throw new Error(body.includes('API key') ? 'Invalid API key' : `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        return { ok: true, message: `Connected — ${data.data.languages.length} languages` };
+      }
+
+      case 'deepl': {
+        const isFree = apiKey?.endsWith(':fx');
+        const base = isFree ? 'https://api-free.deepl.com' : 'https://api.deepl.com';
+        const res = await Promise.race([
+          fetch(`${base}/v2/usage`, { headers: { Authorization: `DeepL-Auth-Key ${apiKey}` } }),
+          timeout(10000),
+        ]);
+        if (!res.ok) throw new Error(res.status === 403 ? 'Invalid API key' : `HTTP ${res.status}`);
+        const usage = await res.json();
+        const pct = Math.round((usage.character_count / usage.character_limit) * 100);
+        return { ok: true, message: `Connected — ${pct}% of quota used` };
+      }
+
+      case 'openai': {
+        const baseUrl = (options.openaiBaseUrl || 'https://api.openai.com').replace(/\/+$/, '');
+        const headers = { 'Content-Type': 'application/json' };
+        if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+        const res = await Promise.race([
+          fetch(`${baseUrl}/v1/models`, { headers }),
+          timeout(10000),
+        ]);
+        if (!res.ok) throw new Error(res.status === 401 ? 'Invalid API key' : `HTTP ${res.status}`);
+        const data = await res.json();
+        const count = Array.isArray(data.data) ? data.data.length : data.models?.length || 0;
+        return { ok: true, message: `Connected — ${count} models available` };
+      }
+
+      default:
+        throw new Error(`Unknown backend: ${backend}`);
+    }
+  } catch (err) {
+    if (err.message === 'Failed to fetch') {
+      throw new Error('Cannot reach endpoint — check URL and network');
+    }
+    throw err;
+  }
+}
+
+// --- Model list fetching --------------------------------------------------
+
+async function fetchModels(baseUrl, apiKey) {
+  const url = (baseUrl || 'https://api.openai.com').replace(/\/+$/, '');
+  const headers = {};
+  if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
+  const res = await Promise.race([
+    fetch(`${url}/v1/models`, { headers }),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timed out')), 10000)),
+  ]);
+
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const data = await res.json();
+  const rawModels = Array.isArray(data.data) ? data.data : (data.models || []);
+  const models = rawModels
+    .map((m) => m.id || m.name || m)
+    .filter((id) => typeof id === 'string')
+    .sort((a, b) => a.localeCompare(b));
+
+  return { ok: true, models };
 }
 
 function formatTimecode(seconds) {
