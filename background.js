@@ -54,6 +54,7 @@ async function getSettings() {
     fontSize: 13,
     libreUrl: 'https://libretranslate.com',
     openaiModel: 'gpt-4o-mini',
+    openaiBaseUrl: 'https://api.openai.com',
     lastExportFormat: 'txt',
     lastExportContent: 'both',
   };
@@ -78,6 +79,7 @@ async function handleTranslate(text, captionId, settings) {
     targetLang: settings.targetLang,
     libreUrl: settings.libreUrl,
     openaiModel: settings.openaiModel,
+    openaiBaseUrl: settings.openaiBaseUrl,
   });
 
   cache.set(cacheKey, translated);

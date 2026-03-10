@@ -44,7 +44,7 @@
           <option value="libre">LibreTranslate (free)</option>
           <option value="google">Google Cloud Translation</option>
           <option value="deepl">DeepL</option>
-          <option value="openai">OpenAI (best for Québécois)</option>
+          <option value="openai">OpenAI Compatible (best for Québécois)</option>
         </select>
       </div>
       <div class="field" id="apiKeyField">
@@ -55,14 +55,26 @@
         <label for="libreUrl">LibreTranslate URL</label>
         <input type="url" id="libreUrl" placeholder="https://libretranslate.com">
       </div>
+      <div class="field" id="openaiBaseUrlField">
+        <label for="openaiBaseUrl">Endpoint URL</label>
+        <input type="url" id="openaiBaseUrl" placeholder="https://api.openai.com">
+        <p class="field-hint">Ollama: http://host:11434 &middot; LM Studio: http://host:1234</p>
+      </div>
       <div class="field" id="openaiModelField">
         <label for="openaiModel">Model</label>
-        <select id="openaiModel">
-          <option value="gpt-4o-mini">gpt-4o-mini (fast, cheap)</option>
-          <option value="gpt-4o">gpt-4o (best quality)</option>
-          <option value="gpt-4.1-mini">gpt-4.1-mini</option>
-          <option value="gpt-4.1-nano">gpt-4.1-nano (fastest)</option>
-        </select>
+        <input type="text" id="openaiModel" placeholder="gpt-4o-mini" list="openaiModelSuggestions" autocomplete="off">
+        <datalist id="openaiModelSuggestions">
+          <option value="gpt-4o-mini">
+          <option value="gpt-4o">
+          <option value="gpt-4.1-mini">
+          <option value="gpt-4.1-nano">
+          <option value="llama3.1">
+          <option value="mistral">
+          <option value="qwen2.5">
+          <option value="gemma2">
+          <option value="phi3">
+          <option value="deepseek-r1">
+        </datalist>
       </div>
       <div class="lang-row">
         <div class="field">

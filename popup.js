@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     apiKeyField: document.getElementById('apiKeyField'),
     libreUrl: document.getElementById('libreUrl'),
     libreUrlField: document.getElementById('libreUrlField'),
+    openaiBaseUrl: document.getElementById('openaiBaseUrl'),
+    openaiBaseUrlField: document.getElementById('openaiBaseUrlField'),
     openaiModel: document.getElementById('openaiModel'),
     openaiModelField: document.getElementById('openaiModelField'),
     sourceLang: document.getElementById('sourceLang'),
@@ -32,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fontSize: 13,
     libreUrl: 'https://libretranslate.com',
     openaiModel: 'gpt-4o-mini',
+    openaiBaseUrl: 'https://api.openai.com',
     lastExportFormat: 'txt',
     lastExportContent: 'both',
   };
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     els.backend.value = settings.backend;
     els.apiKey.value = settings.apiKey;
     els.libreUrl.value = settings.libreUrl;
+    els.openaiBaseUrl.value = settings.openaiBaseUrl;
     els.openaiModel.value = settings.openaiModel;
     els.sourceLang.value = settings.sourceLang;
     els.targetLang.value = settings.targetLang;
@@ -57,18 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Backend-specific field visibility ──────────────────────────────────
 
   function updateBackendFields(backend) {
-    const needsKey = backend !== 'libre';
     const isLibre = backend === 'libre';
     const isOpenai = backend === 'openai';
 
-    els.apiKeyField.classList.toggle('hidden', !needsKey && !isLibre);
+    els.apiKeyField.classList.toggle('hidden', false);
     if (isLibre) {
-      els.apiKeyField.classList.remove('hidden');
       els.apiKey.placeholder = 'API key (optional for public instances)';
+    } else if (isOpenai) {
+      els.apiKey.placeholder = 'API key (optional for local endpoints)';
     } else {
       els.apiKey.placeholder = 'Enter API key…';
     }
     els.libreUrlField.classList.toggle('hidden', !isLibre);
+    els.openaiBaseUrlField.classList.toggle('hidden', !isOpenai);
     els.openaiModelField.classList.toggle('hidden', !isOpenai);
   }
 
@@ -124,8 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
     save('libreUrl', els.libreUrl.value.trim());
   });
 
+  els.openaiBaseUrl.addEventListener('change', () => {
+    save('openaiBaseUrl', els.openaiBaseUrl.value.trim());
+  });
+
   els.openaiModel.addEventListener('change', () => {
-    save('openaiModel', els.openaiModel.value);
+    save('openaiModel', els.openaiModel.value.trim());
   });
 
   els.sourceLang.addEventListener('change', () => {

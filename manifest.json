@@ -17,7 +17,8 @@
     "*://api.openai.com/*",
     "*://libretranslate.com/*",
     "*://libretranslate.de/*",
-    "http://localhost/*"
+    "http://localhost/*",
+    "http://*/*"
   ],
   "content_scripts": [
     {

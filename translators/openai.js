@@ -2,16 +2,19 @@ export async function translate(text, apiKey, options = {}) {
   const source = options.sourceLang || 'fr';
   const target = options.targetLang || 'en';
   const model = options.openaiModel || 'gpt-4o-mini';
+  const baseUrl = (options.openaiBaseUrl || 'https://api.openai.com').replace(/\/+$/, '');
 
   const sourceName = langName(source);
   const targetName = langName(target);
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const headers = { 'Content-Type': 'application/json' };
+  if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
+  const response = await fetch(`${baseUrl}/v1/chat/completions`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({
       model,
       temperature: 0.1,
@@ -33,7 +36,8 @@ export async function translate(text, apiKey, options = {}) {
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`OpenAI error ${response.status}: ${err}`);
+    const label = baseUrl.includes('openai.com') ? 'OpenAI' : 'API';
+    throw new Error(`${label} error ${response.status}: ${err}`);
   }
 
   const data = await response.json();
