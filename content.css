@@ -1,0 +1,56 @@
+/* ── Inline translation overlays ─────────────────────────────────────────── */
+
+.ltcc-inline {
+  color: #4a9eff;
+  font-style: italic;
+  font-size: 0.9em;
+  line-height: 1.35;
+  margin-top: 3px;
+  padding: 2px 0;
+  opacity: 0.95;
+  transition: opacity 0.15s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.ltcc-inline.ltcc-error {
+  color: #e74c3c;
+  font-style: normal;
+  font-size: 0.8em;
+}
+
+/* ── Side panel host positioning ────────────────────────────────────────── */
+
+#ltcc-side-panel-host {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+/* ── Dark mode adjustments for inline captions ──────────────────────────── */
+/* Teams dark mode typically sets a dark background on body or root divs.
+   We detect via both prefers-color-scheme and Teams-specific class heuristics. */
+
+@media (prefers-color-scheme: dark) {
+  .ltcc-inline {
+    color: #7ab8ff;
+  }
+  .ltcc-inline.ltcc-error {
+    color: #ff6b6b;
+  }
+}
+
+/* Teams uses fui-FluentProvider with data-fui-theme for theming.
+   Dark themes set specific background colors; we hook into that. */
+[data-fui-theme="teamsDarkTheme"] .ltcc-inline,
+[data-fui-theme="teamsHighContrastTheme"] .ltcc-inline {
+  color: #7ab8ff;
+}
+
+[data-fui-theme="teamsDarkTheme"] .ltcc-inline.ltcc-error,
+[data-fui-theme="teamsHighContrastTheme"] .ltcc-inline.ltcc-error {
+  color: #ff6b6b;
+}
