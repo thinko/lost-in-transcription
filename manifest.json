@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "Live Translate CC",
+  "version": "1.0.0",
+  "description": "Real-time translation of Microsoft Teams closed captions — supports Google, DeepL, LibreTranslate, and OpenAI backends.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "downloads"
+  ],
+  "host_permissions": [
+    "*://teams.microsoft.com/*",
+    "*://api.cognitive.microsofttranslator.com/*",
+    "*://translation.googleapis.com/*",
+    "*://api-free.deepl.com/*",
+    "*://api.deepl.com/*",
+    "*://api.openai.com/*",
+    "*://libretranslate.com/*",
+    "*://libretranslate.de/*",
+    "http://localhost/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://teams.microsoft.com/*"],
+      "js": ["content.js", "sidepanel.js", "export.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "toggle-display-mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+T"
+      },
+      "description": "Toggle between inline and side panel display"
+    },
+    "export-transcript": {
+      "suggested_key": {
+        "default": "Alt+Shift+E"
+      },
+      "description": "Export caption transcript"
+    }
+  }
+}
