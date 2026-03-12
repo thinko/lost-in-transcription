@@ -46,19 +46,19 @@
     const meetingId = deriveMeetingId();
     sessionMeetingUrl = window.location.href;
 
-    const data = await chrome.storage.local.get({ ltccSessions: [] });
-    const sessions = data.ltccSessions || [];
+    const data = await chrome.storage.local.get({ litSessions: [] });
+    const sessions = data.litSessions || [];
 
     const existing = sessions.find((s) => s.meetingId === meetingId);
     if (existing) {
       sessionId = existing.id;
-      const entryData = await chrome.storage.local.get({ [`ltccHistory_${sessionId}`]: [] });
-      const restored = entryData[`ltccHistory_${sessionId}`] || [];
+      const entryData = await chrome.storage.local.get({ [`litHistory_${sessionId}`]: [] });
+      const restored = entryData[`litHistory_${sessionId}`] || [];
       if (restored.length > 0) {
         transcriptHistory = restored;
         sessionRestored = true;
         captionStartTime = existing.startedAt || Date.now();
-        console.log(`[Live Translate CC] Restored session with ${restored.length} entries`);
+        console.log(`[Lost in Transcription] Restored session with ${restored.length} entries`);
       }
     } else {
       sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -74,15 +74,15 @@
 
       while (sessions.length > MAX_SESSIONS) {
         const old = sessions.pop();
-        await chrome.storage.local.remove(`ltccHistory_${old.id}`);
+        await chrome.storage.local.remove(`litHistory_${old.id}`);
       }
 
       const now = Date.now();
       const pruned = sessions.filter((s) => now - s.startedAt < SESSION_MAX_AGE_MS);
-      await chrome.storage.local.set({ ltccSessions: pruned });
+      await chrome.storage.local.set({ litSessions: pruned });
     }
 
-    window.__ltccTranscriptHistory = transcriptHistory;
+    window.__litTranscriptHistory = transcriptHistory;
   }
 
   function scheduleSave() {
@@ -96,18 +96,18 @@
   async function persistSession() {
     if (!sessionId) return;
     try {
-      await chrome.storage.local.set({ [`ltccHistory_${sessionId}`]: transcriptHistory });
-      const data = await chrome.storage.local.get({ ltccSessions: [] });
-      const sessions = data.ltccSessions || [];
+      await chrome.storage.local.set({ [`litHistory_${sessionId}`]: transcriptHistory });
+      const data = await chrome.storage.local.get({ litSessions: [] });
+      const sessions = data.litSessions || [];
       const meta = sessions.find((s) => s.id === sessionId);
       if (meta) {
         meta.entryCount = transcriptHistory.length;
         meta.title = getMeetingTitle();
         meta.lastUpdated = Date.now();
-        await chrome.storage.local.set({ ltccSessions: sessions });
+        await chrome.storage.local.set({ litSessions: sessions });
       }
     } catch (err) {
-      console.error('[Live Translate CC] Failed to persist session:', err);
+      console.error('[Lost in Transcription] Failed to persist session:', err);
     }
   }
 
@@ -170,11 +170,11 @@
       captionIdCounter = 0;
       captionStartTime = Date.now();
       persistSession();
-      document.querySelectorAll('.ltcc-inline').forEach((el) => el.remove());
+      document.querySelectorAll('.lit-inline').forEach((el) => el.remove());
     }
     if (msg.type === 'load-session-history') {
-      chrome.storage.local.get({ [`ltccHistory_${msg.sessionId}`]: [] }, (data) => {
-        const history = data[`ltccHistory_${msg.sessionId}`] || [];
+      chrome.storage.local.get({ [`litHistory_${msg.sessionId}`]: [] }, (data) => {
+        const history = data[`litHistory_${msg.sessionId}`] || [];
         chrome.runtime.sendMessage({
           type: 'export-transcript',
           history,
@@ -274,10 +274,10 @@
     const text = span.textContent?.trim();
     if (!text) return;
 
-    let captionId = span.getAttribute('data-ltcc-id');
+    let captionId = span.getAttribute('data-lit-id');
     if (!captionId) {
-      captionId = `ltcc-${++captionIdCounter}`;
-      span.setAttribute('data-ltcc-id', captionId);
+      captionId = `lit-${++captionIdCounter}`;
+      span.setAttribute('data-lit-id', captionId);
     }
 
     const prevText = processedTexts.get(captionId);
@@ -318,8 +318,8 @@
       showInline(captionId, translated);
     }
 
-    if (typeof window.__ltccSidePanelUpdate === 'function') {
-      window.__ltccSidePanelUpdate({ captionId, speaker, original, translated, timestamp });
+    if (typeof window.__litSidePanelUpdate === 'function') {
+      window.__litSidePanelUpdate({ captionId, speaker, original, translated, timestamp });
     }
   }
 
@@ -330,7 +330,7 @@
   }
 
   function findSpeakerForCaption(captionId) {
-    const span = document.querySelector(`[data-ltcc-id="${captionId}"]`);
+    const span = document.querySelector(`[data-lit-id="${captionId}"]`);
     if (!span) return 'Unknown';
     return extractSpeaker(span);
   }
@@ -338,29 +338,29 @@
   // ── Inline display ──────────────────────────────────────────────────────
 
   function showInline(captionId, text, isError = false) {
-    const span = document.querySelector(`[data-ltcc-id="${captionId}"]`);
+    const span = document.querySelector(`[data-lit-id="${captionId}"]`);
     if (!span) return;
 
     const parent = span.parentElement;
     if (!parent) return;
 
-    let el = parent.querySelector(`.ltcc-inline[data-for="${captionId}"]`);
+    let el = parent.querySelector(`.lit-inline[data-for="${captionId}"]`);
     if (!el) {
       el = document.createElement('div');
-      el.className = 'ltcc-inline';
+      el.className = 'lit-inline';
       el.setAttribute('data-for', captionId);
       parent.appendChild(el);
     }
 
     el.textContent = text;
-    el.classList.toggle('ltcc-error', isError);
+    el.classList.toggle('lit-error', isError);
   }
 
   // ── Display mode toggling ───────────────────────────────────────────────
 
   function onDisplayModeChanged() {
-    const inlines = document.querySelectorAll('.ltcc-inline');
-    const panel = document.getElementById('ltcc-side-panel-host');
+    const inlines = document.querySelectorAll('.lit-inline');
+    const panel = document.getElementById('lit-side-panel-host');
 
     if (displayMode === 'inline') {
       inlines.forEach((el) => (el.style.display = ''));
@@ -373,9 +373,9 @@
   }
 
   function ensureSidePanel() {
-    if (document.getElementById('ltcc-side-panel-host')) return;
-    if (typeof window.__ltccCreateSidePanel === 'function') {
-      window.__ltccCreateSidePanel(transcriptHistory);
+    if (document.getElementById('lit-side-panel-host')) return;
+    if (typeof window.__litCreateSidePanel === 'function') {
+      window.__litCreateSidePanel(transcriptHistory);
     }
   }
 
@@ -420,6 +420,6 @@
   }
 
   // Expose for side panel and export modules
-  window.__ltccTranscriptHistory = transcriptHistory;
-  window.__ltccTriggerExport = triggerExport;
+  window.__litTranscriptHistory = transcriptHistory;
+  window.__litTriggerExport = triggerExport;
 })();

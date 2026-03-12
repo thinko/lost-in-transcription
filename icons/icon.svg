@@ -1,13 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#4a9eff"/>
-      <stop offset="100%" style="stop-color:#2563eb"/>
+      <stop offset="0%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#6366f1"/>
+    </linearGradient>
+    <linearGradient id="bubbleFront" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#e0e7ff"/>
     </linearGradient>
   </defs>
-  <rect width="128" height="128" rx="24" fill="url(#bg)"/>
-  <!-- CC text -->
-  <text x="64" y="58" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-weight="700" font-size="38" fill="white">CC</text>
-  <!-- Translation arrow -->
-  <text x="64" y="90" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-weight="400" font-size="20" fill="rgba(255,255,255,0.85)">FR → EN</text>
+
+  <!-- Background rounded square -->
+  <rect width="128" height="128" rx="26" fill="url(#bg)"/>
+
+  <!-- Rear speech bubble (faded - the "lost" source language) -->
+  <g opacity="0.35">
+    <path d="M28,38 Q28,26 40,26 L72,26 Q84,26 84,38 L84,58 Q84,70 72,70 L52,70 L42,80 L42,70 L40,70 Q28,70 28,58 Z" fill="#fff"/>
+    <!-- Garbled/foreign text lines in rear bubble -->
+    <rect x="36" y="36" width="28" height="3.5" rx="1.5" fill="#6366f1" opacity="0.6"/>
+    <rect x="36" y="44" width="38" height="3.5" rx="1.5" fill="#6366f1" opacity="0.6"/>
+    <rect x="36" y="52" width="22" height="3.5" rx="1.5" fill="#6366f1" opacity="0.6"/>
+  </g>
+
+  <!-- Front speech bubble (clear - the transcription/translation) -->
+  <path d="M44,48 Q44,36 56,36 L92,36 Q104,36 104,48 L104,72 Q104,84 92,84 L72,84 L62,96 L62,84 L56,84 Q44,84 44,72 Z" fill="url(#bubbleFront)"/>
+  <!-- Clear text lines in front bubble -->
+  <rect x="52" y="48" width="32" height="4" rx="2" fill="#6366f1" opacity="0.9"/>
+  <rect x="52" y="57" width="44" height="4" rx="2" fill="#06b6d4" opacity="0.9"/>
+  <rect x="52" y="66" width="26" height="4" rx="2" fill="#6366f1" opacity="0.9"/>
+
+  <!-- Small directional arrow between bubbles -->
+  <g transform="translate(34,74) rotate(-30)">
+    <path d="M0,0 L12,0 M8,-4 L12,0 L8,4" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  </g>
 </svg>

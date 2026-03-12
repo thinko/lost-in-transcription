@@ -4,10 +4,10 @@
   'use strict';
 
   // Expose export trigger that content.js calls
-  window.__ltccTriggerExport = function () {
-    const history = window.__ltccTranscriptHistory;
+  window.__litTriggerExport = function () {
+    const history = window.__litTranscriptHistory;
     if (!history || !history.length) {
-      console.warn('[Live Translate CC] No transcript history to export.');
+      console.warn('[Lost in Transcription] No transcript history to export.');
       return;
     }
 

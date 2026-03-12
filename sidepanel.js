@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  const PANEL_ID = 'ltcc-side-panel-host';
+  const PANEL_ID = 'lit-side-panel-host';
   const DEFAULT_WIDTH = 400;
   const MIN_WIDTH = 200;
   const MAX_WIDTH = 800;
@@ -18,7 +18,7 @@
 
   // ── Create the side panel ──────────────────────────────────────────────
 
-  window.__ltccCreateSidePanel = function (existingHistory) {
+  window.__litCreateSidePanel = function (existingHistory) {
     if (document.getElementById(PANEL_ID)) return;
 
     const captionWrapper = document.querySelector(
@@ -32,25 +32,25 @@
 
     shadow.innerHTML = `
       <style>${getSidePanelCSS()}</style>
-      <div class="ltcc-panel" id="ltcc-panel">
-        <div class="ltcc-resize-handle" id="ltcc-resize"></div>
-        <div class="ltcc-collapse-btn" id="ltcc-collapse" title="Toggle panel">◀</div>
-        <div class="ltcc-header">
-          <span class="ltcc-title">Translation</span>
-          <span class="ltcc-count" id="ltcc-count">0</span>
+      <div class="lit-panel" id="lit-panel">
+        <div class="lit-resize-handle" id="lit-resize"></div>
+        <div class="lit-collapse-btn" id="lit-collapse" title="Toggle panel">◀</div>
+        <div class="lit-header">
+          <span class="lit-title">Translation</span>
+          <span class="lit-count" id="lit-count">0</span>
         </div>
-        <div class="ltcc-entries" id="ltcc-entries"></div>
+        <div class="lit-entries" id="lit-entries"></div>
       </div>
     `;
 
     captionWrapper.style.position = 'relative';
     captionWrapper.appendChild(host);
 
-    const panel = shadow.getElementById('ltcc-panel');
-    const entries = shadow.getElementById('ltcc-entries');
-    const resizeHandle = shadow.getElementById('ltcc-resize');
-    const collapseBtn = shadow.getElementById('ltcc-collapse');
-    const countBadge = shadow.getElementById('ltcc-count');
+    const panel = shadow.getElementById('lit-panel');
+    const entries = shadow.getElementById('lit-entries');
+    const resizeHandle = shadow.getElementById('lit-resize');
+    const collapseBtn = shadow.getElementById('lit-collapse');
+    const countBadge = shadow.getElementById('lit-count');
 
     panel.style.width = panelWidth + 'px';
 
@@ -63,11 +63,11 @@
 
     // ── Update hook (called from content.js) ───────────────────────────
 
-    window.__ltccSidePanelUpdate = function (entry) {
+    window.__litSidePanelUpdate = function (entry) {
       const existing = entries.querySelector(`[data-caption-id="${entry.captionId}"]`);
       if (existing) {
-        existing.querySelector('.ltcc-entry-translated').textContent = entry.translated;
-        existing.querySelector('.ltcc-entry-original').textContent = entry.original;
+        existing.querySelector('.lit-entry-translated').textContent = entry.translated;
+        existing.querySelector('.lit-entry-original').textContent = entry.original;
       } else {
         appendEntry(entries, entry, countBadge);
       }
@@ -105,7 +105,7 @@
 
     collapseBtn.addEventListener('click', () => {
       collapsed = !collapsed;
-      panel.classList.toggle('ltcc-collapsed', collapsed);
+      panel.classList.toggle('lit-collapsed', collapsed);
       collapseBtn.textContent = collapsed ? '▶' : '◀';
     });
 
@@ -125,23 +125,23 @@
 
   function appendEntry(container, entry, countBadge) {
     const div = document.createElement('div');
-    div.className = 'ltcc-entry';
+    div.className = 'lit-entry';
     if (entry.captionId) div.setAttribute('data-caption-id', entry.captionId);
 
     const ts = document.createElement('span');
-    ts.className = 'ltcc-entry-time';
+    ts.className = 'lit-entry-time';
     ts.textContent = entry.timestamp || '';
 
     const speaker = document.createElement('span');
-    speaker.className = 'ltcc-entry-speaker';
+    speaker.className = 'lit-entry-speaker';
     speaker.textContent = entry.speaker || '';
 
     const original = document.createElement('div');
-    original.className = 'ltcc-entry-original';
+    original.className = 'lit-entry-original';
     original.textContent = entry.original || '';
 
     const translated = document.createElement('div');
-    translated.className = 'ltcc-entry-translated';
+    translated.className = 'lit-entry-translated';
     translated.textContent = entry.translated || '';
 
     div.appendChild(ts);
@@ -167,7 +167,7 @@
         pointer-events: auto;
       }
 
-      .ltcc-panel {
+      .lit-panel {
         position: relative;
         height: 100%;
         background: #ffffff;
@@ -182,15 +182,15 @@
         overflow: hidden;
       }
 
-      .ltcc-panel.ltcc-collapsed {
+      .lit-panel.lit-collapsed {
         width: 8px !important;
       }
-      .ltcc-panel.ltcc-collapsed .ltcc-header,
-      .ltcc-panel.ltcc-collapsed .ltcc-entries {
+      .lit-panel.lit-collapsed .lit-header,
+      .lit-panel.lit-collapsed .lit-entries {
         display: none;
       }
 
-      .ltcc-resize-handle {
+      .lit-resize-handle {
         position: absolute;
         left: 0;
         top: 0;
@@ -199,11 +199,11 @@
         cursor: col-resize;
         z-index: 10;
       }
-      .ltcc-resize-handle:hover {
+      .lit-resize-handle:hover {
         background: #4a9eff;
       }
 
-      .ltcc-collapse-btn {
+      .lit-collapse-btn {
         position: absolute;
         left: -20px;
         top: 8px;
@@ -220,11 +220,11 @@
         z-index: 11;
         user-select: none;
       }
-      .ltcc-collapse-btn:hover {
+      .lit-collapse-btn:hover {
         background: #3580d0;
       }
 
-      .ltcc-header {
+      .lit-header {
         padding: 8px 12px;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
@@ -233,12 +233,12 @@
         flex-shrink: 0;
       }
 
-      .ltcc-title {
+      .lit-title {
         font-weight: 600;
         font-size: 13px;
       }
 
-      .ltcc-count {
+      .lit-count {
         background: #4a9eff;
         color: #fff;
         font-size: 11px;
@@ -248,33 +248,33 @@
         text-align: center;
       }
 
-      .ltcc-entries {
+      .lit-entries {
         flex: 1;
         overflow-y: auto;
         padding: 4px 0;
       }
 
-      .ltcc-entry {
+      .lit-entry {
         padding: 6px 12px;
         border-bottom: 1px solid #f0f0f0;
       }
-      .ltcc-entry:hover {
+      .lit-entry:hover {
         background: #f5f9ff;
       }
 
-      .ltcc-entry-time {
+      .lit-entry-time {
         font-size: 10px;
         color: #999;
         margin-right: 6px;
       }
 
-      .ltcc-entry-speaker {
+      .lit-entry-speaker {
         font-size: 11px;
         font-weight: 600;
         color: #4a9eff;
       }
 
-      .ltcc-entry-original {
+      .lit-entry-original {
         font-size: 12px;
         color: #888;
         font-style: italic;
@@ -282,7 +282,7 @@
         line-height: 1.3;
       }
 
-      .ltcc-entry-translated {
+      .lit-entry-translated {
         font-size: 13px;
         color: #242424;
         margin-top: 2px;
@@ -291,25 +291,25 @@
 
       /* Dark mode: detect Teams dark theme via media query or host context */
       @media (prefers-color-scheme: dark) {
-        .ltcc-panel {
+        .lit-panel {
           background: #1f1f1f;
           color: #e0e0e0;
           border-left-color: #4a9eff;
           box-shadow: -2px 0 8px rgba(0,0,0,0.4);
         }
-        .ltcc-header {
+        .lit-header {
           border-bottom-color: #333;
         }
-        .ltcc-entry {
+        .lit-entry {
           border-bottom-color: #2a2a2a;
         }
-        .ltcc-entry:hover {
+        .lit-entry:hover {
           background: #2a2a2a;
         }
-        .ltcc-entry-original {
+        .lit-entry-original {
           color: #999;
         }
-        .ltcc-entry-translated {
+        .lit-entry-translated {
           color: #e0e0e0;
         }
       }

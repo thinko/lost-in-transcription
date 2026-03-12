@@ -146,7 +146,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
               translated,
             });
           } catch (err) {
-            console.error('[Live Translate CC] Translation error:', err);
+            console.error('[Lost in Transcription] Translation error:', err);
             chrome.tabs.sendMessage(sender.tab.id, {
               type: 'translation-error',
               captionId,
@@ -171,17 +171,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'get-sessions') {
-    chrome.storage.local.get({ ltccSessions: [] }, (data) => {
-      sendResponse(data.ltccSessions || []);
+    chrome.storage.local.get({ litSessions: [] }, (data) => {
+      sendResponse(data.litSessions || []);
     });
     return true;
   }
 
   if (msg.type === 'delete-session') {
-    chrome.storage.local.get({ ltccSessions: [] }, async (data) => {
-      const sessions = (data.ltccSessions || []).filter((s) => s.id !== msg.sessionId);
-      await chrome.storage.local.set({ ltccSessions: sessions });
-      await chrome.storage.local.remove(`ltccHistory_${msg.sessionId}`);
+    chrome.storage.local.get({ litSessions: [] }, async (data) => {
+      const sessions = (data.litSessions || []).filter((s) => s.id !== msg.sessionId);
+      await chrome.storage.local.set({ litSessions: sessions });
+      await chrome.storage.local.remove(`litHistory_${msg.sessionId}`);
       sendResponse({ ok: true });
     });
     return true;
@@ -202,8 +202,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'export-session') {
-    chrome.storage.local.get({ [`ltccHistory_${msg.sessionId}`]: [] }, (data) => {
-      const history = data[`ltccHistory_${msg.sessionId}`] || [];
+    chrome.storage.local.get({ [`litHistory_${msg.sessionId}`]: [] }, (data) => {
+      const history = data[`litHistory_${msg.sessionId}`] || [];
       if (history.length) {
         handleExport(history, msg.format || 'txt', msg.content || 'both');
       }
@@ -300,7 +300,7 @@ function handleExport(history, format, contentMode) {
 
   chrome.downloads.download({
     url,
-    filename: `teams-captions-${dateStr}-${timeStr}.${ext}`,
+    filename: `transcription-${dateStr}-${timeStr}.${ext}`,
     saveAs: true,
   });
 }

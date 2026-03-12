@@ -1,6 +1,6 @@
 /* ── Inline translation overlays ─────────────────────────────────────────── */
 
-.ltcc-inline {
+.lit-inline {
   color: #4a9eff;
   font-style: italic;
   font-size: 0.9em;
@@ -13,7 +13,7 @@
   overflow-wrap: break-word;
 }
 
-.ltcc-inline.ltcc-error {
+.lit-inline.lit-error {
   color: #e74c3c;
   font-style: normal;
   font-size: 0.8em;
@@ -21,7 +21,7 @@
 
 /* ── Side panel host positioning ────────────────────────────────────────── */
 
-#ltcc-side-panel-host {
+#lit-side-panel-host {
   position: absolute;
   top: 0;
   right: 0;
@@ -35,22 +35,22 @@
    We detect via both prefers-color-scheme and Teams-specific class heuristics. */
 
 @media (prefers-color-scheme: dark) {
-  .ltcc-inline {
+  .lit-inline {
     color: #7ab8ff;
   }
-  .ltcc-inline.ltcc-error {
+  .lit-inline.lit-error {
     color: #ff6b6b;
   }
 }
 
 /* Teams uses fui-FluentProvider with data-fui-theme for theming.
    Dark themes set specific background colors; we hook into that. */
-[data-fui-theme="teamsDarkTheme"] .ltcc-inline,
-[data-fui-theme="teamsHighContrastTheme"] .ltcc-inline {
+[data-fui-theme="teamsDarkTheme"] .lit-inline,
+[data-fui-theme="teamsHighContrastTheme"] .lit-inline {
   color: #7ab8ff;
 }
 
-[data-fui-theme="teamsDarkTheme"] .ltcc-inline.ltcc-error,
-[data-fui-theme="teamsHighContrastTheme"] .ltcc-inline.ltcc-error {
+[data-fui-theme="teamsDarkTheme"] .lit-inline.lit-error,
+[data-fui-theme="teamsHighContrastTheme"] .lit-inline.lit-error {
   color: #ff6b6b;
 }
