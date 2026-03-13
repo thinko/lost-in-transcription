@@ -1,6 +1,13 @@
+import { GOOGLE_DIALECT_MAP } from '../languages.js';
+
 export async function translate(text, apiKey, options = {}) {
-  const source = options.sourceLang || 'fr';
-  const target = options.targetLang || 'en';
+  const source = options.sourceDialect && GOOGLE_DIALECT_MAP[options.sourceDialect]
+    ? GOOGLE_DIALECT_MAP[options.sourceDialect]
+    : (options.sourceLang || 'fr');
+
+  const target = options.targetDialect && GOOGLE_DIALECT_MAP[options.targetDialect]
+    ? GOOGLE_DIALECT_MAP[options.targetDialect]
+    : (options.targetLang || 'en');
 
   const response = await fetch(
     `https://translation.googleapis.com/language/translate/v2?key=${encodeURIComponent(apiKey)}`,

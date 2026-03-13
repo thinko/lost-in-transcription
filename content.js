@@ -126,6 +126,9 @@
   // ── Bootstrap ────────────────────────────────────────────────────────────
 
   chrome.runtime.sendMessage({ type: 'get-settings' }, async (settings) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'content.js:bootstrap',message:'content script initialized',data:{hasSettings:!!settings,enabled:settings?.enabled,displayMode:settings?.displayMode,backend:settings?.backend},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     if (settings) {
       displayMode = settings.displayMode || 'inline';
       enabled = settings.enabled !== false;
@@ -286,6 +289,9 @@
 
     const speaker = extractSpeaker(span);
 
+    // #region agent log
+    fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'content.js:handleCaptionNode',message:'sending translate request',data:{captionId,textLen:text.length,speaker},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     chrome.runtime.sendMessage({
       type: 'translate',
       text,

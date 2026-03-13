@@ -28,7 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     debounceMsVal: document.getElementById('debounceMsVal'),
     debounceMsField: document.getElementById('debounceMsField'),
     sourceLang: document.getElementById('sourceLang'),
+    sourceDialect: document.getElementById('sourceDialect'),
     targetLang: document.getElementById('targetLang'),
+    targetDialect: document.getElementById('targetDialect'),
     exportContent: document.getElementById('exportContent'),
     exportFormat: document.getElementById('exportFormat'),
     exportBtn: document.getElementById('exportBtn'),
@@ -41,7 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     backend: 'libre',
     apiKey: '',
     sourceLang: 'fr',
+    sourceDialect: '',
     targetLang: 'en',
+    targetDialect: '',
     displayMode: 'inline',
     fontSize: 13,
     libreUrl: 'https://libretranslate.com',
@@ -53,6 +57,25 @@ document.addEventListener('DOMContentLoaded', () => {
     lastExportFormat: 'txt',
     lastExportContent: 'both',
   };
+
+  // ── Populate language dropdowns from LANGUAGE_DIALECTS ────────────────
+
+  function populateLanguageSelect(selectEl) {
+    const langs = window.LANGUAGE_DIALECTS || {};
+    const sorted = Object.entries(langs).sort((a, b) =>
+      a[1].name.localeCompare(b[1].name)
+    );
+    selectEl.innerHTML = '';
+    for (const [code, lang] of sorted) {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = lang.name;
+      selectEl.appendChild(opt);
+    }
+  }
+
+  populateLanguageSelect(els.sourceLang);
+  populateLanguageSelect(els.targetLang);
 
   // ── Load settings ──────────────────────────────────────────────────────
 
@@ -72,7 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
     els.debounceMsVal.textContent = (settings.debounceMs / 1000).toFixed(1) + 's';
     updateDebounceFields(settings.debounceStrategy);
     els.sourceLang.value = settings.sourceLang;
+    populateDialects(els.sourceDialect, settings.sourceLang, settings.sourceDialect);
     els.targetLang.value = settings.targetLang;
+    populateDialects(els.targetDialect, settings.targetLang, settings.targetDialect);
     els.exportContent.value = settings.lastExportContent;
     els.exportFormat.value = settings.lastExportFormat;
     updateBackendFields(settings.backend);
@@ -96,6 +121,30 @@ document.addEventListener('DOMContentLoaded', () => {
     els.openaiBaseUrlField.classList.toggle('hidden', !isOpenai);
     els.openaiModelField.classList.toggle('hidden', !isOpenai);
     els.openaiPromptField.classList.toggle('hidden', !isOpenai);
+  }
+
+  // ── Dialect dropdown population ──────────────────────────────────────
+
+  function populateDialects(selectEl, langCode, currentDialect) {
+    const langData = window.LANGUAGE_DIALECTS?.[langCode];
+    const dialects = langData?.dialects || [];
+
+    selectEl.innerHTML = '';
+
+    if (dialects.length === 0) {
+      selectEl.classList.add('hidden');
+      return;
+    }
+
+    for (const d of dialects) {
+      const opt = document.createElement('option');
+      opt.value = d.code;
+      opt.textContent = d.label;
+      selectEl.appendChild(opt);
+    }
+
+    if (currentDialect) selectEl.value = currentDialect;
+    selectEl.classList.remove('hidden');
   }
 
   // ── Save on change ────────────────────────────────────────────────────
@@ -151,6 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   els.openaiBaseUrl.addEventListener('change', () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'popup.js:openaiBaseUrl-change',message:'saving openaiBaseUrl',data:{value:els.openaiBaseUrl.value.trim()},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     save('openaiBaseUrl', els.openaiBaseUrl.value.trim());
   });
 
@@ -199,10 +251,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   els.sourceLang.addEventListener('change', () => {
     save('sourceLang', els.sourceLang.value);
+    populateDialects(els.sourceDialect, els.sourceLang.value, '');
+    save('sourceDialect', '');
+  });
+
+  els.sourceDialect.addEventListener('change', () => {
+    save('sourceDialect', els.sourceDialect.value);
   });
 
   els.targetLang.addEventListener('change', () => {
     save('targetLang', els.targetLang.value);
+    populateDialects(els.targetDialect, els.targetLang.value, '');
+    save('targetDialect', '');
+  });
+
+  els.targetDialect.addEventListener('change', () => {
+    save('targetDialect', els.targetDialect.value);
   });
 
   els.exportContent.addEventListener('change', () => {

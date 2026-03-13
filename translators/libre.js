@@ -1,6 +1,14 @@
+import { LIBRE_DIALECT_MAP } from '../languages.js';
+
 export async function translate(text, apiKey, options = {}) {
-  const source = options.sourceLang || 'fr';
-  const target = options.targetLang || 'en';
+  const source = options.sourceDialect && LIBRE_DIALECT_MAP[options.sourceDialect]
+    ? LIBRE_DIALECT_MAP[options.sourceDialect]
+    : (options.sourceLang || 'fr');
+
+  const target = options.targetDialect && LIBRE_DIALECT_MAP[options.targetDialect]
+    ? LIBRE_DIALECT_MAP[options.targetDialect]
+    : (options.targetLang || 'en');
+
   const host = options.libreUrl || 'https://libretranslate.com';
 
   const body = {

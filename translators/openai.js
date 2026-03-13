@@ -1,3 +1,5 @@
+import { LANGUAGE_DIALECTS } from '../languages.js';
+
 const DEFAULT_SYSTEM_PROMPT = [
   'You are a real-time caption translator. Translate the following {{SOURCE_LANG}} text to {{TARGET_LANG}}.',
   'The source is Quebec French (Québécois) — handle colloquialisms, joual expressions, and informal contractions accurately.',
@@ -12,9 +14,12 @@ export async function translate(text, apiKey, options = {}) {
   const target = options.targetLang || 'en';
   const model = options.openaiModel || 'gpt-4o-mini';
   const baseUrl = (options.openaiBaseUrl || 'https://api.openai.com').replace(/\/+$/, '');
+  // #region agent log
+  fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'openai.js:translate',message:'resolved baseUrl',data:{rawOption:options.openaiBaseUrl,resolvedBaseUrl:baseUrl,hasApiKey:!!apiKey,model},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
-  const sourceName = langName(source);
-  const targetName = langName(target);
+  const sourceName = options.sourceDialectName || langName(source);
+  const targetName = options.targetDialectName || langName(target);
 
   const promptTemplate = options.openaiSystemPrompt || DEFAULT_SYSTEM_PROMPT;
   const systemContent = promptTemplate
@@ -51,19 +56,5 @@ export async function translate(text, apiKey, options = {}) {
 }
 
 function langName(code) {
-  const names = {
-    fr: 'French',
-    en: 'English',
-    es: 'Spanish',
-    de: 'German',
-    pt: 'Portuguese',
-    it: 'Italian',
-    nl: 'Dutch',
-    ja: 'Japanese',
-    zh: 'Chinese',
-    ko: 'Korean',
-    ar: 'Arabic',
-    ru: 'Russian',
-  };
-  return names[code] || code;
+  return LANGUAGE_DIALECTS[code]?.name || code;
 }

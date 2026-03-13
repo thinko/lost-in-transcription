@@ -176,6 +176,30 @@ body {
   color: #aaa;
 }
 
+/* ── Dialect dropdown ──────────────────────────────────────────────────── */
+
+.dialect-select {
+  width: 100%;
+  margin-top: 4px;
+  padding: 4px 6px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  background: #f5f5f5;
+  color: #555;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.dialect-select:focus {
+  border-color: #4a9eff;
+}
+
+.dialect-select.hidden {
+  display: none;
+}
+
 /* ── Export row ─────────────────────────────────────────────────────────── */
 
 .export-row {

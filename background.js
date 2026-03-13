@@ -2,6 +2,7 @@ import { translate as googleTranslate } from './translators/google.js';
 import { translate as deeplTranslate } from './translators/deepl.js';
 import { translate as libreTranslate } from './translators/libre.js';
 import { translate as openaiTranslate } from './translators/openai.js';
+import { DIALECT_DISPLAY_NAMES } from './languages.js';
 
 const translators = {
   google: googleTranslate,
@@ -50,7 +51,9 @@ async function getSettings() {
     backend: 'libre',
     apiKey: '',
     sourceLang: 'fr',
+    sourceDialect: '',
     targetLang: 'en',
+    targetDialect: '',
     displayMode: 'inline',
     fontSize: 13,
     libreUrl: 'https://libretranslate.com',
@@ -63,6 +66,9 @@ async function getSettings() {
     lastExportContent: 'both',
   };
   const stored = await chrome.storage.sync.get(defaults);
+  // #region agent log
+  fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'background.js:getSettings',message:'settings loaded',data:{storedBackend:stored.backend,storedBaseUrl:stored.openaiBaseUrl,storedApiKey:stored.apiKey?'[set]':'[empty]',storedModel:stored.openaiModel},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   return { ...defaults, ...stored };
 }
 
@@ -97,16 +103,32 @@ function computeDebounceDelay(text, settings) {
 async function handleTranslate(text, captionId, settings) {
   if (!text || !text.trim()) return null;
 
-  const cacheKey = `${settings.backend}:${settings.sourceLang}:${settings.targetLang}:${text}`;
+  const sd = settings.sourceDialect || '';
+  const td = settings.targetDialect || '';
+  const cacheKey = `${settings.backend}:${settings.sourceLang}:${sd}:${settings.targetLang}:${td}:${text}`;
   const cached = cache.get(cacheKey);
   if (cached) return cached;
 
   const fn = translators[settings.backend];
   if (!fn) throw new Error(`Unknown backend: ${settings.backend}`);
 
+  // #region agent log
+  fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'background.js:handleTranslate',message:'calling translator',data:{backend:settings.backend,baseUrl:settings.openaiBaseUrl,model:settings.openaiModel,hasApiKey:!!settings.apiKey,textLen:text.length},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
+  const sourceDialectName = settings.sourceDialect
+    ? (DIALECT_DISPLAY_NAMES[settings.sourceDialect] || settings.sourceDialect)
+    : '';
+  const targetDialectName = settings.targetDialect
+    ? (DIALECT_DISPLAY_NAMES[settings.targetDialect] || settings.targetDialect)
+    : '';
+
   const translated = await fn(text, settings.apiKey, {
     sourceLang: settings.sourceLang,
+    sourceDialect: settings.sourceDialect || '',
+    sourceDialectName,
     targetLang: settings.targetLang,
+    targetDialect: settings.targetDialect || '',
+    targetDialectName,
     libreUrl: settings.libreUrl,
     openaiModel: settings.openaiModel,
     openaiBaseUrl: settings.openaiBaseUrl,
