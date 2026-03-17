@@ -1,6 +1,6 @@
 # Lost in Transcription
 
-A Chrome/Edge extension that translates Microsoft Teams closed captions in real-time. Built for meetings with Quebec French (Québécois) speakers, but supports any language pair.
+A Chrome/Edge extension that translates Microsoft Teams® Closed Captions (meeting transcription) in real-time. Built for meetings with Quebec French (Québécois) speakers, but it's configurable and supports any language pair.
 
 ## Features
 
