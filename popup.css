@@ -22,7 +22,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid #e8e8e8;
 }
@@ -43,49 +43,99 @@ body {
   color: #888;
 }
 
-/* ── Toggle switch ──────────────────────────────────────────────────────── */
+/* ── Disable prompt (when turning off translation) ───────────────────────── */
 
-.toggle {
-  margin-left: auto;
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 22px;
+.disable-prompt {
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background: #fff8e6;
+  border: 1px solid #e6d9b3;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.disable-prompt.hidden {
+  display: none;
+}
+
+.disable-prompt p {
+  margin-bottom: 6px;
+}
+
+.disable-prompt-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.disable-prompt-actions button {
+  padding: 4px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  background: #fafafa;
+  font-size: 12px;
   cursor: pointer;
+  font-family: inherit;
 }
 
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+.disable-prompt-actions button:hover {
+  background: #f0f0f0;
+  border-color: #4a9eff;
 }
 
-.toggle-slider {
-  position: absolute;
-  inset: 0;
-  background: #ccc;
-  border-radius: 22px;
-  transition: background 0.2s;
+.disable-remember {
+  font-size: 11px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.toggle-slider::before {
-  content: "";
-  position: absolute;
-  height: 16px;
-  width: 16px;
-  left: 3px;
-  bottom: 3px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.2s;
+.disable-remember input {
+  margin: 0;
 }
 
-.toggle input:checked + .toggle-slider {
-  background: #4a9eff;
+/* ── Tab bar ────────────────────────────────────────────────────────────── */
+
+.tab-bar {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e8e8e8;
 }
 
-.toggle input:checked + .toggle-slider::before {
-  transform: translateX(18px);
+.tab {
+  flex: 1;
+  padding: 6px 4px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tab:hover {
+  background: #f5f5f5;
+}
+
+.tab.active {
+  border-bottom-color: #4a9eff;
+  font-weight: 500;
+}
+
+/* ── Tab content ─────────────────────────────────────────────────────────── */
+
+.tab-content {
+  min-height: 200px;
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
 }
 
 /* ── Sections ───────────────────────────────────────────────────────────── */
@@ -101,6 +151,44 @@ body {
   letter-spacing: 0.5px;
   color: #888;
   margin-bottom: 8px;
+}
+
+/* ── Dashboard summary ──────────────────────────────────────────────────── */
+
+.dashboard-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.summary-item:hover {
+  background: #f5f5f5;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #555;
+}
+
+.summary-value {
+  font-size: 12px;
+  font-weight: 500;
+  color: #242424;
+  text-align: right;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Fields ─────────────────────────────────────────────────────────────── */
@@ -200,12 +288,68 @@ body {
   display: none;
 }
 
-/* ── Glossary ──────────────────────────────────────────────────────────── */
+/* ── Toggle switch ──────────────────────────────────────────────────────── */
+
+.toggle {
+  margin-left: auto;
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.glossary-enabled-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.glossary-enabled-row .toggle {
+  margin-left: 0;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 22px;
+  transition: background 0.2s;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle input:checked + .toggle-slider {
+  background: #4a9eff;
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(18px);
+}
+
+/* ── Glossary (grouped layout) ──────────────────────────────────────────── */
 
 .glossary-list {
-  max-height: 160px;
+  max-height: 180px;
   overflow-y: auto;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .glossary-empty {
@@ -215,6 +359,34 @@ body {
   padding: 6px 0;
 }
 
+.glossary-group {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.glossary-group:last-child {
+  border-bottom: none;
+}
+
+.glossary-patterns {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.glossary-target {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  font-weight: 600;
+  color: #2ea043;
+  padding: 4px 0;
+  min-width: 80px;
+}
+
 .glossary-entry {
   display: flex;
   align-items: center;
@@ -222,7 +394,6 @@ body {
   padding: 4px 6px;
   border: 1px solid #e8e8e8;
   border-radius: 4px;
-  margin-bottom: 3px;
   font-size: 12px;
   background: #fafafa;
 }
@@ -239,21 +410,6 @@ body {
   text-overflow: ellipsis;
   color: #c0392b;
   font-style: italic;
-}
-
-.glossary-entry .glossary-replacement {
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: 500;
-  color: #2ea043;
-}
-
-.glossary-entry .arrow {
-  padding-bottom: 0;
-  font-size: 12px;
 }
 
 .glossary-add-row {
@@ -337,43 +493,12 @@ body {
   background: #3580d0;
 }
 
-/* ── Footer ─────────────────────────────────────────────────────────────── */
-
-.footer {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #e8e8e8;
-  font-size: 11px;
-  color: #aaa;
-  text-align: center;
-}
-
-.shortcut {
-  display: inline-block;
-  background: #f0f0f0;
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-family: monospace;
-  font-size: 10px;
-  color: #666;
-}
-
-.sep {
-  margin: 0 4px;
-}
-
 /* ── Session list ───────────────────────────────────────────────────────── */
 
-.session-hint {
-  font-size: 11px;
-  color: #aaa;
-  margin-bottom: 8px;
-}
-
 .session-list {
-  max-height: 160px;
+  max-height: 140px;
   overflow-y: auto;
-  margin-bottom: 8px;
+  margin: 8px 0;
 }
 
 .session-empty {
@@ -417,13 +542,19 @@ body {
   color: #999;
 }
 
-.session-badge {
+.session-revision-status {
   font-size: 10px;
-  background: #4a9eff;
-  color: #fff;
-  padding: 1px 5px;
-  border-radius: 8px;
-  white-space: nowrap;
+  color: #888;
+  min-width: 60px;
+  text-align: right;
+}
+
+.session-revision-status.success {
+  color: #2ea043;
+}
+
+.session-revision-status.error {
+  color: #e74c3c;
 }
 
 .session-actions {
@@ -457,6 +588,22 @@ body {
   color: #e74c3c;
 }
 
+.btn-primary {
+  background: #4a9eff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 5px 12px;
+  transition: background 0.15s;
+}
+
+.btn-primary:hover {
+  background: #3580d0;
+}
+
 .btn-danger {
   background: transparent;
   color: #e74c3c;
@@ -477,13 +624,13 @@ body {
   padding: 3px 10px;
 }
 
-/* ── Conditional visibility for backend-specific fields ─────────────────── */
+/* ── Conditional visibility ────────────────────────────────────────────── */
 
+.hidden,
 #apiKeyField.hidden,
 #libreUrlField.hidden,
 #openaiBaseUrlField.hidden,
 #openaiModelField.hidden,
-#openaiPromptField.hidden,
 #debounceMsField.hidden {
   display: none;
 }
@@ -495,7 +642,7 @@ body {
   line-height: 1.3;
 }
 
-/* ── Textarea ──────────────────────────────────────────────────────────── */
+/* ── Textarea ────────────────────────────────────────────────────────────── */
 
 .field textarea {
   width: 100%;
@@ -641,4 +788,44 @@ body {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* ── Help tab ──────────────────────────────────────────────────────────── */
+
+.shortcut-list,
+.quick-start {
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.shortcut-list li,
+.quick-start li {
+  margin-bottom: 4px;
+}
+
+.shortcut {
+  display: inline-block;
+  background: #f0f0f0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 10px;
+  color: #666;
+}
+
+.about-text {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
+#githubLink {
+  color: #4a9eff;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+#githubLink:hover {
+  text-decoration: underline;
 }

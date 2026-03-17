@@ -3,9 +3,15 @@
 document.addEventListener('DOMContentLoaded', () => {
   const els = {
     enabled: document.getElementById('enabled'),
+    disablePrompt: document.getElementById('disablePrompt'),
+    disableYes: document.getElementById('disableYes'),
+    disableNo: document.getElementById('disableNo'),
+    disableRemember: document.getElementById('disableRemember'),
     displayMode: document.getElementById('displayMode'),
     fontSize: document.getElementById('fontSize'),
     fontSizeVal: document.getElementById('fontSizeVal'),
+    historyBufferSize: document.getElementById('historyBufferSize'),
+    historyBufferSizeVal: document.getElementById('historyBufferSizeVal'),
     backend: document.getElementById('backend'),
     apiKey: document.getElementById('apiKey'),
     apiKeyField: document.getElementById('apiKeyField'),
@@ -16,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     openaiModel: document.getElementById('openaiModel'),
     openaiModelField: document.getElementById('openaiModelField'),
     openaiSystemPrompt: document.getElementById('openaiSystemPrompt'),
-    openaiPromptField: document.getElementById('openaiPromptField'),
     resetPromptBtn: document.getElementById('resetPromptBtn'),
     testBtn: document.getElementById('testBtn'),
     testStatus: document.getElementById('testStatus'),
@@ -38,8 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
     glossaryPattern: document.getElementById('glossaryPattern'),
     glossaryReplacement: document.getElementById('glossaryReplacement'),
     glossaryAddBtn: document.getElementById('glossaryAddBtn'),
+    glossaryEnabled: document.getElementById('glossaryEnabled'),
     sessionList: document.getElementById('sessionList'),
     clearAllBtn: document.getElementById('clearAllBtn'),
+    saveAndNewBtn: document.getElementById('saveAndNewBtn'),
+    dashboardSummary: document.getElementById('dashboardSummary'),
+    onPanelClose: document.getElementById('onPanelClose'),
+    onDisable: document.getElementById('onDisable'),
   };
 
   const DEFAULTS = {
@@ -60,9 +70,47 @@ document.addEventListener('DOMContentLoaded', () => {
     debounceMs: 5000,
     lastExportFormat: 'txt',
     lastExportContent: 'both',
+    glossary: [],
+    glossaryEnabled: true,
+    historyBufferSize: 100,
+    onPanelClose: 'ask',
+    onDisable: 'ask',
+    lastTab: 'tab-dashboard',
   };
 
-  // ── Populate language dropdowns from LANGUAGE_DIALECTS ────────────────
+  let currentSettings = { ...DEFAULTS };
+
+  // ── Tab switching ────────────────────────────────────────────────────────
+
+  const tabBar = document.querySelector('.tab-bar');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  function switchTab(tabId) {
+    tabBar.querySelectorAll('.tab').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+    tabPanes.forEach((pane) => {
+      pane.classList.toggle('active', pane.id === tabId);
+    });
+    chrome.storage.sync.set({ lastTab: tabId });
+  }
+
+  tabBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab');
+    if (btn?.dataset.tab) {
+      switchTab(btn.dataset.tab);
+    }
+  });
+
+  // Click on summary item navigates to tab
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('.summary-item');
+    if (item?.dataset.target) {
+      switchTab(item.dataset.target);
+    }
+  });
+
+  // ── Populate language dropdowns ───────────────────────────────────────────
 
   function populateLanguageSelect(selectEl) {
     const langs = window.LANGUAGE_DIALECTS || {};
@@ -81,33 +129,119 @@ document.addEventListener('DOMContentLoaded', () => {
   populateLanguageSelect(els.sourceLang);
   populateLanguageSelect(els.targetLang);
 
-  // ── Load settings ──────────────────────────────────────────────────────
+  // ── Load settings ────────────────────────────────────────────────────────
 
-  chrome.storage.sync.get(DEFAULTS, (settings) => {
-    els.enabled.checked = settings.enabled;
-    els.displayMode.value = settings.displayMode;
-    els.fontSize.value = settings.fontSize;
-    els.fontSizeVal.textContent = settings.fontSize + 'px';
-    els.backend.value = settings.backend;
-    els.apiKey.value = settings.apiKey;
-    els.libreUrl.value = settings.libreUrl;
-    els.openaiBaseUrl.value = settings.openaiBaseUrl;
-    els.openaiModel.value = settings.openaiModel;
-    els.openaiSystemPrompt.value = settings.openaiSystemPrompt;
-    els.debounceStrategy.value = settings.debounceStrategy;
-    els.debounceMs.value = settings.debounceMs;
-    els.debounceMsVal.textContent = (settings.debounceMs / 1000).toFixed(1) + 's';
-    updateDebounceFields(settings.debounceStrategy);
-    els.sourceLang.value = settings.sourceLang;
-    populateDialects(els.sourceDialect, settings.sourceLang, settings.sourceDialect);
-    els.targetLang.value = settings.targetLang;
-    populateDialects(els.targetDialect, settings.targetLang, settings.targetDialect);
-    els.exportContent.value = settings.lastExportContent;
-    els.exportFormat.value = settings.lastExportFormat;
-    updateBackendFields(settings.backend);
-  });
+  function loadAllSettings() {
+    chrome.storage.sync.get(DEFAULTS, (settings) => {
+      currentSettings = settings;
+      els.enabled.checked = settings.enabled;
+      els.displayMode.value = settings.displayMode;
+      els.fontSize.value = settings.fontSize;
+      els.fontSizeVal.textContent = settings.fontSize + 'px';
+      els.backend.value = settings.backend;
+      els.apiKey.value = settings.apiKey;
+      els.libreUrl.value = settings.libreUrl;
+      els.openaiBaseUrl.value = settings.openaiBaseUrl;
+      els.openaiModel.value = settings.openaiModel;
+      els.openaiSystemPrompt.value = settings.openaiSystemPrompt;
+      els.debounceStrategy.value = settings.debounceStrategy;
+      els.debounceMs.value = settings.debounceMs;
+      els.debounceMsVal.textContent = (settings.debounceMs / 1000).toFixed(1) + 's';
+      els.sourceLang.value = settings.sourceLang;
+      els.targetLang.value = settings.targetLang;
+      els.exportContent.value = settings.lastExportContent;
+      els.exportFormat.value = settings.lastExportFormat;
+      els.onPanelClose.value = settings.onPanelClose || 'ask';
+      els.onDisable.value = settings.onDisable || 'ask';
+      els.glossaryEnabled.checked = settings.glossaryEnabled !== false;
 
-  // ── Backend-specific field visibility ──────────────────────────────────
+      const histVal = settings.historyBufferSize;
+      els.historyBufferSize.value = histVal === 0 ? 510 : Math.min(Math.max(histVal, 10), 500);
+      els.historyBufferSizeVal.textContent = histVal === 0 ? 'Unlimited' : String(histVal);
+
+      updateDebounceFields(settings.debounceStrategy);
+      updateBackendFields(settings.backend);
+      populateDialects(els.sourceDialect, settings.sourceLang, settings.sourceDialect);
+      populateDialects(els.targetDialect, settings.targetLang, settings.targetDialect);
+
+      const tabId = settings.lastTab || 'tab-dashboard';
+      if (document.getElementById(tabId)) {
+        switchTab(tabId);
+      }
+
+      loadGlossary();
+      loadSessions();
+      updateDashboard(settings);
+    });
+  }
+
+  loadAllSettings();
+
+  // ── Dashboard summary ────────────────────────────────────────────────────
+
+  function updateDashboard(settings) {
+    const s = settings || currentSettings;
+    const langs = window.LANGUAGE_DIALECTS || {};
+    const getLangLabel = (code, dialect) => {
+      const base = langs[code]?.name || code;
+      if (dialect) {
+        const d = (langs[code]?.dialects || []).find((x) => x.code === dialect);
+        return d ? `${base} (${d.label})` : base;
+      }
+      return base;
+    };
+
+    const modeLabels = { inline: 'Inline', sidepanel: 'Side Panel' };
+    const backendLabels = {
+      libre: 'LibreTranslate',
+      google: 'Google',
+      deepl: 'DeepL',
+      openai: 'OpenAI',
+    };
+    const strategyLabels = {
+      realtime: 'Each update',
+      sentence: 'End of sentence',
+      stable: 'Stable text',
+      timed: 'Timed batch',
+    };
+
+    const modeVal = modeLabels[s.displayMode] || s.displayMode;
+    let backendVal = backendLabels[s.backend] || s.backend;
+    if (s.backend === 'openai' && s.openaiModel) {
+      backendVal += ` (${s.openaiModel})`;
+    }
+    const langVal = `${getLangLabel(s.sourceLang, s.sourceDialect)} → ${getLangLabel(s.targetLang, s.targetDialect)}`;
+    const freqVal = strategyLabels[s.debounceStrategy] || s.debounceStrategy;
+    const glossaryCount = (s.glossary || []).filter((e) => e.enabled !== false).length;
+    const glossaryVal = s.glossaryEnabled !== false && glossaryCount > 0
+      ? `${glossaryCount} entries active`
+      : 'Disabled';
+
+    els.dashboardSummary.innerHTML = `
+      <div class="summary-item" data-target="tab-display">
+        <span class="summary-label">Mode</span>
+        <span class="summary-value">${esc(modeVal)}</span>
+      </div>
+      <div class="summary-item" data-target="tab-translation">
+        <span class="summary-label">Backend</span>
+        <span class="summary-value">${esc(backendVal)}</span>
+      </div>
+      <div class="summary-item" data-target="tab-translation">
+        <span class="summary-label">Languages</span>
+        <span class="summary-value">${esc(langVal)}</span>
+      </div>
+      <div class="summary-item" data-target="tab-translation">
+        <span class="summary-label">Frequency</span>
+        <span class="summary-value">${esc(freqVal)}</span>
+      </div>
+      <div class="summary-item" data-target="tab-prompt">
+        <span class="summary-label">Glossary</span>
+        <span class="summary-value">${esc(glossaryVal)}</span>
+      </div>
+    `;
+  }
+
+  // ── Backend-specific field visibility ─────────────────────────────────────
 
   function updateBackendFields(backend) {
     const isLibre = backend === 'libre';
@@ -124,10 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
     els.libreUrlField.classList.toggle('hidden', !isLibre);
     els.openaiBaseUrlField.classList.toggle('hidden', !isOpenai);
     els.openaiModelField.classList.toggle('hidden', !isOpenai);
-    els.openaiPromptField.classList.toggle('hidden', !isOpenai);
   }
 
-  // ── Dialect dropdown population ──────────────────────────────────────
+  // ── Dialect dropdown population ──────────────────────────────────────────
 
   function populateDialects(selectEl, langCode, currentDialect) {
     const langData = window.LANGUAGE_DIALECTS?.[langCode];
@@ -151,11 +284,13 @@ document.addEventListener('DOMContentLoaded', () => {
     selectEl.classList.remove('hidden');
   }
 
-  // ── Save on change ────────────────────────────────────────────────────
+  // ── Save on change ───────────────────────────────────────────────────────
 
   function save(key, value) {
+    currentSettings[key] = value;
     chrome.storage.sync.set({ [key]: value });
     notifyContentScript({ [key]: value });
+    updateDashboard(currentSettings);
   }
 
   function notifyContentScript(changedSettings) {
@@ -169,7 +304,52 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   els.enabled.addEventListener('change', () => {
-    save('enabled', els.enabled.checked);
+    if (els.enabled.checked) {
+      save('enabled', true);
+      els.disablePrompt.classList.add('hidden');
+      return;
+    }
+
+    const onDisable = currentSettings.onDisable || 'ask';
+    if (onDisable === 'ask') {
+      els.disablePrompt.classList.remove('hidden');
+    } else if (onDisable === 'hide') {
+      save('enabled', false);
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: 'display-mode-changed',
+            mode: 'none',
+          });
+        }
+      });
+    } else {
+      save('enabled', false);
+    }
+  });
+
+  els.disableYes.addEventListener('click', () => {
+    save('enabled', false);
+    if (els.disableRemember.checked) {
+      save('onDisable', 'hide');
+    }
+    els.disablePrompt.classList.add('hidden');
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: 'display-mode-changed',
+          mode: 'none',
+        });
+      }
+    });
+  });
+
+  els.disableNo.addEventListener('click', () => {
+    save('enabled', false);
+    if (els.disableRemember.checked) {
+      save('onDisable', 'keep');
+    }
+    els.disablePrompt.classList.add('hidden');
   });
 
   els.displayMode.addEventListener('change', () => {
@@ -187,6 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
   els.fontSize.addEventListener('input', () => {
     els.fontSizeVal.textContent = els.fontSize.value + 'px';
     save('fontSize', parseInt(els.fontSize.value, 10));
+  });
+
+  els.historyBufferSize.addEventListener('input', () => {
+    const raw = parseInt(els.historyBufferSize.value, 10);
+    const stored = raw >= 510 ? 0 : raw;
+    els.historyBufferSizeVal.textContent = stored === 0 ? 'Unlimited' : String(stored);
+    save('historyBufferSize', stored);
   });
 
   els.backend.addEventListener('change', () => {
@@ -211,8 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
     save('openaiModel', els.openaiModel.value.trim());
   });
 
-  els.openaiSystemPrompt.addEventListener('change', () => {
-    save('openaiSystemPrompt', els.openaiSystemPrompt.value);
+  els.openaiSystemPrompt.addEventListener('input', () => {
+    debounceSave('openaiSystemPrompt', () => els.openaiSystemPrompt.value);
   });
 
   els.resetPromptBtn.addEventListener('click', () => {
@@ -278,7 +465,27 @@ document.addEventListener('DOMContentLoaded', () => {
     save('lastExportFormat', els.exportFormat.value);
   });
 
-  // ── Test connectivity ──────────────────────────────────────────────────
+  els.onPanelClose.addEventListener('change', () => {
+    save('onPanelClose', els.onPanelClose.value);
+  });
+
+  els.onDisable.addEventListener('change', () => {
+    save('onDisable', els.onDisable.value);
+  });
+
+  els.glossaryEnabled.addEventListener('change', () => {
+    save('glossaryEnabled', els.glossaryEnabled.checked);
+  });
+
+  let debounceTimers = {};
+  function debounceSave(key, getValue) {
+    clearTimeout(debounceTimers[key]);
+    debounceTimers[key] = setTimeout(() => {
+      save(key, getValue());
+    }, 300);
+  }
+
+  // ── Test connectivity ────────────────────────────────────────────────────
 
   els.testBtn.addEventListener('click', () => {
     const backend = els.backend.value;
@@ -307,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
-  // ── Fetch models from endpoint ────────────────────────────────────────
+  // ── Fetch models from endpoint ──────────────────────────────────────────
 
   els.refreshModelsBtn.addEventListener('click', () => {
     const baseUrl = els.openaiBaseUrl.value.trim();
@@ -347,41 +554,70 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
-  // ── Glossary ─────────────────────────────────────────────────────────
+  // ── Glossary ─────────────────────────────────────────────────────────────
 
   let glossary = [];
 
   function loadGlossary() {
-    chrome.storage.sync.get({ glossary: [] }, (data) => {
+    chrome.storage.sync.get({ glossary: [], glossaryEnabled: true }, (data) => {
       glossary = data.glossary || [];
       renderGlossary();
     });
   }
 
   function saveGlossary() {
-    chrome.storage.sync.set({ glossary });
-    notifyContentScript({ glossary });
+    chrome.storage.sync.set({ glossary, glossaryEnabled: els.glossaryEnabled.checked });
+    notifyContentScript({ glossary, glossaryEnabled: els.glossaryEnabled.checked });
+    updateDashboard(currentSettings);
   }
 
   function renderGlossary() {
     const list = els.glossaryList;
+    list.innerHTML = '';
+
     if (!glossary.length) {
       list.innerHTML = '<p class="glossary-empty">No entries yet</p>';
       return;
     }
-    list.innerHTML = '';
+
+    const groups = {};
     glossary.forEach((entry, i) => {
-      const row = document.createElement('div');
-      row.className = 'glossary-entry' + (entry.enabled ? '' : ' disabled');
-      row.innerHTML = `
-        <span class="glossary-pattern" title="${esc(entry.pattern)}">${esc(entry.pattern)}</span>
-        <span class="arrow">→</span>
-        <span class="glossary-replacement" title="${esc(entry.replacement)}">${esc(entry.replacement)}</span>
-        <button class="btn-icon glossary-toggle" data-idx="${i}" title="${entry.enabled ? 'Disable' : 'Enable'}">${entry.enabled ? '✓' : '○'}</button>
-        <button class="btn-icon delete glossary-delete" data-idx="${i}" title="Delete">&times;</button>
-      `;
-      list.appendChild(row);
+      const rep = entry.replacement || '';
+      if (!groups[rep]) groups[rep] = [];
+      groups[rep].push({ entry, idx: i });
     });
+
+    const sortedReplacements = Object.keys(groups).sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' })
+    );
+
+    for (const replacement of sortedReplacements) {
+      const items = groups[replacement];
+      const groupEl = document.createElement('div');
+      groupEl.className = 'glossary-group';
+
+      const patternsEl = document.createElement('div');
+      patternsEl.className = 'glossary-patterns';
+
+      for (const { entry, idx } of items) {
+        const row = document.createElement('div');
+        row.className = 'glossary-entry' + (entry.enabled ? '' : ' disabled');
+        row.innerHTML = `
+          <span class="glossary-pattern" title="${esc(entry.pattern)}">${esc(entry.pattern)}</span>
+          <button class="btn-icon glossary-toggle" data-idx="${idx}" title="${entry.enabled ? 'Disable' : 'Enable'}">${entry.enabled ? '✓' : '○'}</button>
+          <button class="btn-icon delete glossary-delete" data-idx="${idx}" title="Delete">×</button>
+        `;
+        patternsEl.appendChild(row);
+      }
+
+      const targetEl = document.createElement('div');
+      targetEl.className = 'glossary-target';
+      targetEl.textContent = replacement;
+
+      groupEl.appendChild(patternsEl);
+      groupEl.appendChild(targetEl);
+      list.appendChild(groupEl);
+    }
 
     list.querySelectorAll('.glossary-toggle').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -402,7 +638,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  els.glossaryAddBtn.addEventListener('click', () => {
+  els.glossaryAddBtn.addEventListener('click', addGlossaryEntry);
+
+  function addGlossaryEntry() {
     const pattern = els.glossaryPattern.value.trim();
     const replacement = els.glossaryReplacement.value.trim();
     if (!pattern || !replacement) return;
@@ -412,19 +650,17 @@ document.addEventListener('DOMContentLoaded', () => {
     els.glossaryPattern.value = '';
     els.glossaryReplacement.value = '';
     els.glossaryPattern.focus();
-  });
+  }
 
   els.glossaryPattern.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') els.glossaryReplacement.focus();
   });
 
   els.glossaryReplacement.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') els.glossaryAddBtn.click();
+    if (e.key === 'Enter') addGlossaryEntry();
   });
 
-  loadGlossary();
-
-  // ── Export button ─────────────────────────────────────────────────────
+  // ── Export button ────────────────────────────────────────────────────────
 
   els.exportBtn.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -433,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Sessions list ───────────────────────────────────────────────────
+  // ── Sessions list ────────────────────────────────────────────────────────
 
   function loadSessions() {
     chrome.runtime.sendMessage({ type: 'get-sessions' }, (sessions) => {
@@ -451,6 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const s of sessions) {
       const item = document.createElement('div');
       item.className = 'session-item';
+      item.dataset.sid = s.id;
 
       const dateStr = new Date(s.startedAt).toLocaleDateString(undefined, {
         month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
@@ -461,10 +698,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="session-title" title="${esc(s.title)}">${esc(s.title)}</div>
           <div class="session-meta">${dateStr}</div>
         </div>
-        <span class="session-badge">${s.entryCount || 0}</span>
+        <span class="session-revision-status"></span>
         <div class="session-actions">
           <button class="btn-icon export-session" data-sid="${esc(s.id)}" title="Export">&#8615;</button>
-          <button class="btn-icon delete delete-session" data-sid="${esc(s.id)}" title="Delete">&times;</button>
+          <button class="btn-icon revise-session" data-sid="${esc(s.id)}" title="Re-apply glossary">&#8635;</button>
+          <button class="btn-icon delete delete-session" data-sid="${esc(s.id)}" title="Delete">×</button>
         </div>
       `;
 
@@ -480,6 +718,28 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
+    els.sessionList.querySelectorAll('.revise-session').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const sid = btn.getAttribute('data-sid');
+        const item = els.sessionList.querySelector(`[data-sid="${sid}"]`);
+        const statusEl = item?.querySelector('.session-revision-status');
+        if (statusEl) statusEl.textContent = '…';
+
+        chrome.runtime.sendMessage({ type: 'revise-session', sessionId: sid }, (res) => {
+          if (statusEl) {
+            if (res?.ok) {
+              statusEl.textContent = res.changed > 0 ? `Updated ${res.changed} of ${res.total}` : 'No changes';
+              statusEl.className = 'session-revision-status success';
+              setTimeout(() => { statusEl.textContent = ''; statusEl.className = 'session-revision-status'; }, 2000);
+            } else {
+              statusEl.textContent = 'Error';
+              statusEl.className = 'session-revision-status error';
+            }
+          }
+        });
+      });
+    });
+
     els.sessionList.querySelectorAll('.delete-session').forEach((btn) => {
       btn.addEventListener('click', () => {
         const sid = btn.getAttribute('data-sid');
@@ -490,21 +750,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function esc(str) {
-    const d = document.createElement('div');
-    d.textContent = str || '';
-    return d.innerHTML;
-  }
+  els.saveAndNewBtn.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ type: 'save-and-new-session' }, () => {
+      loadSessions();
+    });
+  });
 
   els.clearAllBtn.addEventListener('click', () => {
     chrome.runtime.sendMessage({ type: 'get-sessions' }, async (sessions) => {
       if (!sessions?.length) return;
       for (const s of sessions) {
-        await chrome.runtime.sendMessage({ type: 'delete-session', sessionId: s.id });
+        await new Promise((resolve) => {
+          chrome.runtime.sendMessage({ type: 'delete-session', sessionId: s.id }, resolve);
+        });
       }
       loadSessions();
     });
   });
 
-  loadSessions();
+  // ── Help tab: version ────────────────────────────────────────────────────
+
+  const versionEl = document.getElementById('version');
+  if (versionEl) {
+    try {
+      versionEl.textContent = chrome.runtime.getManifest().version || '—';
+    } catch (_) {
+      versionEl.textContent = '—';
+    }
+  }
+
+  // ── Utilities ────────────────────────────────────────────────────────────
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
 });
