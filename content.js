@@ -15,6 +15,7 @@
   // ── Session persistence ────────────────────────────────────────────────
 
   const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+  const SESSION_RESUME_WINDOW_MS = 4 * 60 * 60 * 1000; // 4 hours
   const MAX_SESSIONS = 10;
   const SAVE_DEBOUNCE_MS = 3000;
   let sessionId = null;
@@ -24,14 +25,37 @@
 
   function deriveMeetingId() {
     const url = new URL(window.location.href);
-    const meetingMatch = url.pathname.match(/\/meet\/([^/?#]+)/) ||
-      url.href.match(/meetup-join[/]([^/?#]+)/) ||
-      url.href.match(/meeting[/]([^/?#]+)/);
-    if (meetingMatch) return meetingMatch[1];
+
+    // 1. /meet/CODE format (direct meeting links)
+    const meetPath = url.pathname.match(/\/meet\/([^/?#]+)/);
+    if (meetPath) return meetPath[1];
+
+    // 2. /meetup-join/THREAD format (calendar-scheduled meetings)
+    const joinMatch = url.href.match(/meetup-join[/]([^/?#]+)/);
+    if (joinMatch) return joinMatch[1];
+
+    // 3. /light-meetings/launch — extract meetingCode from coords param
+    if (url.pathname.includes('/light-meetings/')) {
+      const coords = url.searchParams.get('coords');
+      if (coords) {
+        try {
+          const decoded = JSON.parse(atob(decodeURIComponent(coords)));
+          if (decoded.meetingCode) return decoded.meetingCode;
+        } catch {}
+      }
+      const p = url.searchParams.get('p');
+      if (p) return 'light_' + p;
+    }
+
+    // 4. Query param fallbacks
     const threadId = url.searchParams.get('threadId') ||
       url.searchParams.get('meetingId');
     if (threadId) return threadId;
-    return url.pathname.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 80);
+
+    // 5. Last resort — include p param if available
+    const p = url.searchParams.get('p');
+    const base = url.pathname.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 40);
+    return p ? base + '_' + p : base.slice(0, 80);
   }
 
   function getMeetingTitle() {
@@ -50,7 +74,8 @@
     const sessions = data.litSessions || [];
 
     const existing = sessions.find((s) => s.meetingId === meetingId);
-    if (existing) {
+    const isStale = existing && (Date.now() - (existing.lastUpdated || existing.startedAt) > SESSION_RESUME_WINDOW_MS);
+    if (existing && !isStale) {
       sessionId = existing.id;
       const entryData = await chrome.storage.local.get({ [`litHistory_${sessionId}`]: [] });
       const restored = entryData[`litHistory_${sessionId}`] || [];
@@ -182,6 +207,55 @@
           content: msg.content || 'both',
         });
       });
+    }
+    if (msg.type === 'save-and-new-session') {
+      (async () => {
+        await persistSession();
+
+        // Generate new session
+        sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const meta = {
+          id: sessionId,
+          meetingId: deriveMeetingId(),
+          title: getMeetingTitle(),
+          url: window.location.href,
+          startedAt: Date.now(),
+          entryCount: 0,
+        };
+
+        const data = await chrome.storage.local.get({ litSessions: [] });
+        const sessions = data.litSessions || [];
+        sessions.unshift(meta);
+        while (sessions.length > MAX_SESSIONS) {
+          const old = sessions.pop();
+          await chrome.storage.local.remove(`litHistory_${old.id}`);
+        }
+        await chrome.storage.local.set({ litSessions: sessions });
+
+        // Reset state
+        transcriptHistory.length = 0;
+        processedTexts.clear();
+        captionIdCounter = 0;
+        captionStartTime = Date.now();
+        sessionRestored = false;
+
+        // Clear side panel if visible
+        if (typeof window.__litSidePanelClear === 'function') {
+          window.__litSidePanelClear();
+        }
+
+        // Clear inline translations
+        document.querySelectorAll('.lit-inline').forEach(el => el.remove());
+
+        window.__litTranscriptHistory = transcriptHistory;
+      })();
+      return true; // async response not needed but keeps channel open
+    }
+    if (msg.type === 'glossary-updated') {
+      // The background will use the new glossary on next translation.
+      // For visible inline translations, we could re-request translation,
+      // but that's expensive. Just note it for now.
+      console.log('[Lost in Transcription] Glossary updated, new translations will use updated glossary');
     }
   });
 
@@ -424,4 +498,5 @@
   // Expose for side panel and export modules
   window.__litTranscriptHistory = transcriptHistory;
   window.__litTriggerExport = triggerExport;
+  window.__litPersistSession = persistSession;
 })();
