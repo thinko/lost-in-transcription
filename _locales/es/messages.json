@@ -1,0 +1,518 @@
+{
+  "app_name": {
+    "message": "Lost in Transcription"
+  },
+  "app_description": {
+    "message": "Traducción en tiempo real de los subtítulos cerrados de Microsoft Teams® — nunca más te pierdas en la transcripción."
+  },
+  "app_subtitle": {
+    "message": "Traductor de subtítulos de Teams"
+  },
+  "cmd_toggle_display": {
+    "message": "Alternar entre modo en línea y panel lateral"
+  },
+  "cmd_export": {
+    "message": "Exportar transcripción de subtítulos"
+  },
+  "toggle_enable_title": {
+    "message": "Activar / desactivar traducción"
+  },
+  "disable_prompt_text": {
+    "message": "¿También ocultar el panel de traducción?"
+  },
+  "btn_yes": {
+    "message": "Sí"
+  },
+  "btn_no": {
+    "message": "No"
+  },
+  "disable_remember": {
+    "message": "Recordar esta elección"
+  },
+  "tab_dashboard": {
+    "message": "Panel"
+  },
+  "tab_translation": {
+    "message": "Traducción"
+  },
+  "tab_display": {
+    "message": "Pantalla"
+  },
+  "tab_prompt": {
+    "message": "Prompt y glosario"
+  },
+  "tab_help": {
+    "message": "Ayuda y Acerca"
+  },
+  "section_live_config": {
+    "message": "Configuración en vivo"
+  },
+  "section_export": {
+    "message": "Exportar transcripción"
+  },
+  "section_sessions": {
+    "message": "Sesiones guardadas"
+  },
+  "section_backend": {
+    "message": "Motor"
+  },
+  "section_frequency": {
+    "message": "Frecuencia de envío"
+  },
+  "section_display": {
+    "message": "Pantalla"
+  },
+  "section_behavior": {
+    "message": "Comportamiento"
+  },
+  "section_prompt": {
+    "message": "Prompt del sistema"
+  },
+  "section_glossary": {
+    "message": "Glosario"
+  },
+  "section_version": {
+    "message": "Versión"
+  },
+  "section_shortcuts": {
+    "message": "Atajos de teclado"
+  },
+  "section_quickstart": {
+    "message": "Inicio rápido"
+  },
+  "label_from": {
+    "message": "De"
+  },
+  "label_to": {
+    "message": "A"
+  },
+  "label_backend": {
+    "message": "Motor"
+  },
+  "label_api_key": {
+    "message": "API Key"
+  },
+  "label_libre_url": {
+    "message": "URL de LibreTranslate"
+  },
+  "label_endpoint_url": {
+    "message": "URL del endpoint"
+  },
+  "label_model": {
+    "message": "Modelo"
+  },
+  "label_strategy": {
+    "message": "Estrategia"
+  },
+  "label_batch_window": {
+    "message": "Ventana de lote"
+  },
+  "label_mode": {
+    "message": "Modo"
+  },
+  "label_font_size": {
+    "message": "Tamaño de fuente"
+  },
+  "label_history_buffer": {
+    "message": "Búfer de historial"
+  },
+  "label_panel_close": {
+    "message": "Al cerrar el panel"
+  },
+  "label_disable_action": {
+    "message": "Al desactivar la traducción"
+  },
+  "label_custom_instructions": {
+    "message": "Instrucciones personalizadas"
+  },
+  "label_enable_glossary": {
+    "message": "Activar glosario"
+  },
+  "option_export_both": {
+    "message": "Original + Traducción"
+  },
+  "option_export_original": {
+    "message": "Solo original"
+  },
+  "option_export_translated": {
+    "message": "Solo traducción"
+  },
+  "option_backend_libre": {
+    "message": "LibreTranslate (gratis)"
+  },
+  "option_backend_google": {
+    "message": "Google Cloud Translation"
+  },
+  "option_backend_deepl": {
+    "message": "DeepL"
+  },
+  "option_backend_openai": {
+    "message": "OpenAI Compatible"
+  },
+  "option_strategy_realtime": {
+    "message": "Cada actualización (~300ms)"
+  },
+  "option_strategy_sentence": {
+    "message": "Fin de frase"
+  },
+  "option_strategy_stable": {
+    "message": "Texto estable (~1.5s de pausa)"
+  },
+  "option_strategy_timed": {
+    "message": "Lote por tiempo (personalizado)"
+  },
+  "option_mode_inline": {
+    "message": "En línea (debajo de subtítulos)"
+  },
+  "option_mode_sidepanel": {
+    "message": "Panel lateral"
+  },
+  "option_ask": {
+    "message": "Preguntar"
+  },
+  "option_stop_translation": {
+    "message": "Detener traducción"
+  },
+  "option_continue_bg": {
+    "message": "Continuar en segundo plano"
+  },
+  "option_turn_off": {
+    "message": "Desactivar extensión"
+  },
+  "option_hide_panel": {
+    "message": "También ocultar panel"
+  },
+  "option_keep_panel": {
+    "message": "Mantener panel visible"
+  },
+  "btn_export": {
+    "message": "Exportar"
+  },
+  "btn_save_start_new": {
+    "message": "Guardar y empezar nueva"
+  },
+  "btn_clear_all": {
+    "message": "Borrar todas las sesiones"
+  },
+  "btn_test_connection": {
+    "message": "Probar conexión"
+  },
+  "btn_reset_prompt": {
+    "message": "Restablecer"
+  },
+  "btn_add_glossary": {
+    "message": "Añadir entrada"
+  },
+  "hint_api_key": {
+    "message": "Introduce la API key…"
+  },
+  "hint_api_key_libre": {
+    "message": "API key (opcional para instancias públicas)"
+  },
+  "hint_api_key_openai": {
+    "message": "API key (opcional para endpoints locales)"
+  },
+  "hint_endpoint": {
+    "message": "Ollama: http://host:11434 · LM Studio: http://host:1234"
+  },
+  "hint_prompt_placeholders": {
+    "message": "Usar {{SOURCE_LANG}}, {{TARGET_LANG}}, {{GLOSSARY}}"
+  },
+  "hint_prompt_placeholder_text": {
+    "message": "Instrucciones de traducción personalizadas…"
+  },
+  "hint_fetch_models": {
+    "message": "Obtener modelos del endpoint"
+  },
+  "hint_mangled_text": {
+    "message": "Texto incorrecto…"
+  },
+  "hint_correct_term": {
+    "message": "Término correcto…"
+  },
+  "hint_strategy_realtime": {
+    "message": "Envía tras cada pequeño cambio de texto. Mejor para modelos locales o rápidos."
+  },
+  "hint_strategy_sentence": {
+    "message": "Espera puntuación de fin de frase (.?!) o la ventana de lote, lo que llegue primero."
+  },
+  "hint_strategy_stable": {
+    "message": "Espera a que el texto deje de cambiar durante ~1.5s. Buen equilibrio entre coste y latencia."
+  },
+  "hint_strategy_timed": {
+    "message": "Acumula texto durante la ventana de lote antes de traducir. Mejor para APIs con límite de tasa."
+  },
+  "status_testing": {
+    "message": "Probando…"
+  },
+  "status_connection_failed": {
+    "message": "Conexión fallida"
+  },
+  "status_fetching_models": {
+    "message": "Obteniendo modelos…"
+  },
+  "status_models_loaded": {
+    "message": "$COUNT$ modelos cargados",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "status_fetch_models_failed": {
+    "message": "Error al obtener modelos"
+  },
+  "status_unlimited": {
+    "message": "Ilimitado"
+  },
+  "status_entries_active": {
+    "message": "$COUNT$ entradas activas",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "status_disabled": {
+    "message": "Desactivado"
+  },
+  "status_no_entries": {
+    "message": "Sin entradas aún"
+  },
+  "status_no_sessions": {
+    "message": "Sin sesiones guardadas"
+  },
+  "status_updated": {
+    "message": "Actualizado $CHANGED$ de $TOTAL$",
+    "placeholders": {
+      "CHANGED": {
+        "content": "$1"
+      },
+      "TOTAL": {
+        "content": "$2"
+      }
+    }
+  },
+  "status_no_changes": {
+    "message": "Sin cambios"
+  },
+  "status_error": {
+    "message": "Error"
+  },
+  "summary_mode": {
+    "message": "Modo"
+  },
+  "summary_backend": {
+    "message": "Motor"
+  },
+  "summary_languages": {
+    "message": "Idiomas"
+  },
+  "summary_frequency": {
+    "message": "Frecuencia"
+  },
+  "summary_glossary": {
+    "message": "Glosario"
+  },
+  "summary_inline": {
+    "message": "En línea"
+  },
+  "summary_sidepanel": {
+    "message": "Panel lateral"
+  },
+  "summary_each_update": {
+    "message": "Cada actualización"
+  },
+  "summary_end_of_sentence": {
+    "message": "Fin de frase"
+  },
+  "summary_stable_text": {
+    "message": "Texto estable"
+  },
+  "summary_timed_batch": {
+    "message": "Lote por tiempo"
+  },
+  "tooltip_disable_entry": {
+    "message": "Desactivar"
+  },
+  "tooltip_enable_entry": {
+    "message": "Activar"
+  },
+  "tooltip_delete": {
+    "message": "Eliminar"
+  },
+  "tooltip_export_session": {
+    "message": "Exportar"
+  },
+  "tooltip_reapply_glossary": {
+    "message": "Reaplicar glosario"
+  },
+  "tooltip_close": {
+    "message": "Cerrar"
+  },
+  "panel_title": {
+    "message": "Traducción"
+  },
+  "panel_toggle": {
+    "message": "Alternar panel"
+  },
+  "panel_close": {
+    "message": "Cerrar panel"
+  },
+  "panel_dialog_title": {
+    "message": "¿Qué te gustaría hacer?"
+  },
+  "panel_stop": {
+    "message": "Detener traducción"
+  },
+  "panel_continue": {
+    "message": "Continuar en segundo plano"
+  },
+  "panel_disable": {
+    "message": "Desactivar extensión"
+  },
+  "panel_dont_ask": {
+    "message": "No preguntar de nuevo"
+  },
+  "popover_replace_with": {
+    "message": "Reemplazar por:"
+  },
+  "popover_replacement_text": {
+    "message": "Texto de reemplazo"
+  },
+  "popover_add_to_glossary": {
+    "message": "Añadir al glosario"
+  },
+  "popover_add_pattern": {
+    "message": "— añadir patrón:"
+  },
+  "popover_pattern_label": {
+    "message": "Patrón (error de audición/ortografía):"
+  },
+  "popover_pattern_hint": {
+    "message": "ej. rabit m q"
+  },
+  "popover_replacement_label": {
+    "message": "Reemplazo (prellenado):"
+  },
+  "popover_edit": {
+    "message": "Editar"
+  },
+  "popover_disable": {
+    "message": "Desactivar"
+  },
+  "popover_enable": {
+    "message": "Activar"
+  },
+  "popover_del": {
+    "message": "Del"
+  },
+  "popover_edit_title": {
+    "message": "Editar \"$TERM$\"",
+    "placeholders": {
+      "TERM": {
+        "content": "$1"
+      }
+    }
+  },
+  "popover_replacement": {
+    "message": "Reemplazo"
+  },
+  "popover_save": {
+    "message": "Guardar"
+  },
+  "popover_cancel": {
+    "message": "Cancelar"
+  },
+  "popover_replaces": {
+    "message": "reemplaza:"
+  },
+  "popover_add_variant": {
+    "message": "Añadir variante"
+  },
+  "shortcut_toggle": {
+    "message": "alternar modo de visualización"
+  },
+  "shortcut_export": {
+    "message": "exportar transcripción"
+  },
+  "shortcut_glossary": {
+    "message": "menú emergente del glosario"
+  },
+  "quickstart_1": {
+    "message": "Unirse a una reunión de Teams"
+  },
+  "quickstart_2": {
+    "message": "Activar subtítulos"
+  },
+  "quickstart_3": {
+    "message": "Activar la extensión"
+  },
+  "quickstart_4": {
+    "message": "Las traducciones aparecen en el modo de visualización elegido"
+  },
+  "about_link": {
+    "message": "GitHub"
+  },
+  "about_text": {
+    "message": "Lost in Transcription — Traducción en tiempo real de los subtítulos cerrados de Microsoft Teams®."
+  },
+  "content_unknown_meeting": {
+    "message": "Reunión desconocida"
+  },
+  "content_unknown_speaker": {
+    "message": "Desconocido"
+  },
+  "csv_header": {
+    "message": "Marca de tiempo,Hablante,Original,Traducción"
+  },
+  "error_connection_timed_out": {
+    "message": "Conexión agotada por tiempo"
+  },
+  "error_invalid_api_key": {
+    "message": "API key inválida"
+  },
+  "error_cannot_reach": {
+    "message": "No se puede alcanzar el endpoint — comprueba la URL y la red"
+  },
+  "error_unknown_backend": {
+    "message": "Motor desconocido: $BACKEND$",
+    "placeholders": {
+      "BACKEND": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_languages": {
+    "message": "Conectado — $COUNT$ idiomas disponibles",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_models": {
+    "message": "Conectado — $COUNT$ modelos disponibles",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_quota": {
+    "message": "Conectado — $PCT$% de cuota usada",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_google": {
+    "message": "Conectado — $COUNT$ idiomas",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  }
+}

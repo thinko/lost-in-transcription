@@ -1,13 +1,31 @@
-import { LANGUAGE_DIALECTS } from '../languages.js';
+import { LANGUAGE_DIALECTS, DIALECT_DISPLAY_NAMES, DIALECT_PROMPT_HINTS } from '../languages.js';
 
-const DEFAULT_SYSTEM_PROMPT = [
-  'You are a real-time caption translator. Translate the following {{SOURCE_LANG}} text to {{TARGET_LANG}}.',
-  'The source is Quebec French (Québécois) — handle colloquialisms, joual expressions, and informal contractions accurately.',
-  'Examples: "C\'est tu" = "Is it", "pantoute" = "not at all", "j\'va" = "I\'m going to", "faque" = "so/therefore".',
-  'Return ONLY the translated text with no commentary, quotes, or formatting.',
-].join(' ');
+/**
+ * Build a dialect-aware default system prompt.
+ * Exported so popup.js can call it via message passing for the "Reset" button.
+ */
+export function buildDefaultPrompt(sourceLang, sourceDialect, targetLang, targetDialect) {
+  const sourceName = (sourceDialect && DIALECT_DISPLAY_NAMES[sourceDialect])
+    || LANGUAGE_DIALECTS[sourceLang]?.name || sourceLang;
+  const targetName = (targetDialect && DIALECT_DISPLAY_NAMES[targetDialect])
+    || LANGUAGE_DIALECTS[targetLang]?.name || targetLang;
 
-export { DEFAULT_SYSTEM_PROMPT };
+  const lines = [
+    `You are a real-time caption translator. Translate the following {{SOURCE_LANG}} text to {{TARGET_LANG}}.`,
+  ];
+
+  const dialectCode = sourceDialect || sourceLang;
+  const hint = DIALECT_PROMPT_HINTS[dialectCode];
+  if (hint) {
+    lines.push(`The source is ${sourceName} — ${hint.note}.`);
+    if (hint.examples) {
+      lines.push(`Examples: ${hint.examples}.`);
+    }
+  }
+
+  lines.push('Return ONLY the translated text with no commentary, quotes, or formatting.');
+  return lines.join(' ');
+}
 
 export async function translate(text, apiKey, options = {}) {
   const source = options.sourceLang || 'fr';
@@ -23,7 +41,10 @@ export async function translate(text, apiKey, options = {}) {
     ? `\nTECHNICAL GLOSSARY — these terms may appear mangled in the source transcription. Recognize and preserve them exactly: ${glossaryTerms.join(', ')}.`
     : '';
 
-  const promptTemplate = options.openaiSystemPrompt || DEFAULT_SYSTEM_PROMPT;
+  const fallbackPrompt = buildDefaultPrompt(
+    source, options.sourceDialect || '', target, options.targetDialect || ''
+  );
+  const promptTemplate = options.openaiSystemPrompt || fallbackPrompt;
   let systemContent = promptTemplate
     .replace(/\{\{SOURCE_LANG\}\}/g, sourceName)
     .replace(/\{\{TARGET_LANG\}\}/g, targetName);

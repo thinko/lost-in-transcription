@@ -1,0 +1,518 @@
+{
+  "app_name": {
+    "message": "Lost in Transcription"
+  },
+  "app_description": {
+    "message": "Traduction en temps réel des sous-titres Microsoft Teams® — ne vous perdez plus jamais dans la transcription."
+  },
+  "app_subtitle": {
+    "message": "Traducteur de sous-titres Teams"
+  },
+  "cmd_toggle_display": {
+    "message": "Basculer entre l'affichage intégré et le panneau latéral"
+  },
+  "cmd_export": {
+    "message": "Exporter la transcription"
+  },
+  "toggle_enable_title": {
+    "message": "Activer / désactiver la traduction"
+  },
+  "disable_prompt_text": {
+    "message": "Masquer aussi le panneau de traduction ?"
+  },
+  "btn_yes": {
+    "message": "Oui"
+  },
+  "btn_no": {
+    "message": "Non"
+  },
+  "disable_remember": {
+    "message": "Mémoriser ce choix"
+  },
+  "tab_dashboard": {
+    "message": "Tableau de bord"
+  },
+  "tab_translation": {
+    "message": "Traduction"
+  },
+  "tab_display": {
+    "message": "Affichage"
+  },
+  "tab_prompt": {
+    "message": "Prompt et glossaire"
+  },
+  "tab_help": {
+    "message": "Aide et à propos"
+  },
+  "section_live_config": {
+    "message": "Configuration en direct"
+  },
+  "section_export": {
+    "message": "Exporter la transcription"
+  },
+  "section_sessions": {
+    "message": "Sessions enregistrées"
+  },
+  "section_backend": {
+    "message": "Backend"
+  },
+  "section_frequency": {
+    "message": "Fréquence d'envoi"
+  },
+  "section_display": {
+    "message": "Affichage"
+  },
+  "section_behavior": {
+    "message": "Comportement"
+  },
+  "section_prompt": {
+    "message": "Invite système"
+  },
+  "section_glossary": {
+    "message": "Glossaire"
+  },
+  "section_version": {
+    "message": "Version"
+  },
+  "section_shortcuts": {
+    "message": "Raccourcis clavier"
+  },
+  "section_quickstart": {
+    "message": "Démarrage rapide"
+  },
+  "label_from": {
+    "message": "De"
+  },
+  "label_to": {
+    "message": "Vers"
+  },
+  "label_backend": {
+    "message": "Backend"
+  },
+  "label_api_key": {
+    "message": "Clé API"
+  },
+  "label_libre_url": {
+    "message": "URL LibreTranslate"
+  },
+  "label_endpoint_url": {
+    "message": "URL du point de terminaison"
+  },
+  "label_model": {
+    "message": "Modèle"
+  },
+  "label_strategy": {
+    "message": "Stratégie"
+  },
+  "label_batch_window": {
+    "message": "Fenêtre de lot"
+  },
+  "label_mode": {
+    "message": "Mode"
+  },
+  "label_font_size": {
+    "message": "Taille de police"
+  },
+  "label_history_buffer": {
+    "message": "Historique"
+  },
+  "label_panel_close": {
+    "message": "À la fermeture du panneau"
+  },
+  "label_disable_action": {
+    "message": "À la désactivation de la traduction"
+  },
+  "label_custom_instructions": {
+    "message": "Instructions personnalisées"
+  },
+  "label_enable_glossary": {
+    "message": "Activer le glossaire"
+  },
+  "option_export_both": {
+    "message": "Original + Traduction"
+  },
+  "option_export_original": {
+    "message": "Original uniquement"
+  },
+  "option_export_translated": {
+    "message": "Traduction uniquement"
+  },
+  "option_backend_libre": {
+    "message": "LibreTranslate (gratuit)"
+  },
+  "option_backend_google": {
+    "message": "Google Cloud Translation"
+  },
+  "option_backend_deepl": {
+    "message": "DeepL"
+  },
+  "option_backend_openai": {
+    "message": "OpenAI Compatible"
+  },
+  "option_strategy_realtime": {
+    "message": "À chaque mise à jour (~300 ms)"
+  },
+  "option_strategy_sentence": {
+    "message": "Fin de phrase"
+  },
+  "option_strategy_stable": {
+    "message": "Texte stable (~1,5 s de pause)"
+  },
+  "option_strategy_timed": {
+    "message": "Lot par durée (personnalisé)"
+  },
+  "option_mode_inline": {
+    "message": "Intégré (sous les sous-titres)"
+  },
+  "option_mode_sidepanel": {
+    "message": "Panneau latéral"
+  },
+  "option_ask": {
+    "message": "Demander"
+  },
+  "option_stop_translation": {
+    "message": "Arrêter la traduction"
+  },
+  "option_continue_bg": {
+    "message": "Continuer en arrière-plan"
+  },
+  "option_turn_off": {
+    "message": "Désactiver l'extension"
+  },
+  "option_hide_panel": {
+    "message": "Masquer aussi le panneau"
+  },
+  "option_keep_panel": {
+    "message": "Garder le panneau visible"
+  },
+  "btn_export": {
+    "message": "Exporter"
+  },
+  "btn_save_start_new": {
+    "message": "Enregistrer et démarrer"
+  },
+  "btn_clear_all": {
+    "message": "Effacer toutes les sessions"
+  },
+  "btn_test_connection": {
+    "message": "Tester la connexion"
+  },
+  "btn_reset_prompt": {
+    "message": "Réinitialiser"
+  },
+  "btn_add_glossary": {
+    "message": "Ajouter une entrée"
+  },
+  "hint_api_key": {
+    "message": "Saisir la clé API…"
+  },
+  "hint_api_key_libre": {
+    "message": "Clé API (optionnelle pour les instances publiques)"
+  },
+  "hint_api_key_openai": {
+    "message": "Clé API (optionnelle pour les points de terminaison locaux)"
+  },
+  "hint_endpoint": {
+    "message": "Ollama: http://host:11434 · LM Studio: http://host:1234"
+  },
+  "hint_prompt_placeholders": {
+    "message": "Utiliser {{SOURCE_LANG}}, {{TARGET_LANG}}, {{GLOSSARY}}"
+  },
+  "hint_prompt_placeholder_text": {
+    "message": "Instructions de traduction personnalisées…"
+  },
+  "hint_fetch_models": {
+    "message": "Récupérer les modèles depuis le point de terminaison"
+  },
+  "hint_mangled_text": {
+    "message": "Texte mal compris…"
+  },
+  "hint_correct_term": {
+    "message": "Terme correct…"
+  },
+  "hint_strategy_realtime": {
+    "message": "Envoie après chaque petite modification du texte. Idéal pour les modèles locaux ou rapides."
+  },
+  "hint_strategy_sentence": {
+    "message": "Attend la ponctuation de fin de phrase (.?!) ou la fenêtre de lot, selon ce qui arrive en premier."
+  },
+  "hint_strategy_stable": {
+    "message": "Attend que le texte ne change plus pendant ~1,5 s. Bon compromis entre coût et latence."
+  },
+  "hint_strategy_timed": {
+    "message": "Accumule le texte pendant la fenêtre de lot avant de traduire. Idéal pour les API limitées en débit."
+  },
+  "status_testing": {
+    "message": "Test en cours…"
+  },
+  "status_connection_failed": {
+    "message": "Connexion échouée"
+  },
+  "status_fetching_models": {
+    "message": "Récupération des modèles…"
+  },
+  "status_models_loaded": {
+    "message": "$COUNT$ modèles chargés",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "status_fetch_models_failed": {
+    "message": "Échec de la récupération des modèles"
+  },
+  "status_unlimited": {
+    "message": "Illimité"
+  },
+  "status_entries_active": {
+    "message": "$COUNT$ entrées actives",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "status_disabled": {
+    "message": "Désactivé"
+  },
+  "status_no_entries": {
+    "message": "Aucune entrée pour l'instant"
+  },
+  "status_no_sessions": {
+    "message": "Aucune session enregistrée"
+  },
+  "status_updated": {
+    "message": "Mise à jour : $CHANGED$ sur $TOTAL$",
+    "placeholders": {
+      "CHANGED": {
+        "content": "$1"
+      },
+      "TOTAL": {
+        "content": "$2"
+      }
+    }
+  },
+  "status_no_changes": {
+    "message": "Aucun changement"
+  },
+  "status_error": {
+    "message": "Erreur"
+  },
+  "summary_mode": {
+    "message": "Mode"
+  },
+  "summary_backend": {
+    "message": "Backend"
+  },
+  "summary_languages": {
+    "message": "Langues"
+  },
+  "summary_frequency": {
+    "message": "Fréquence"
+  },
+  "summary_glossary": {
+    "message": "Glossaire"
+  },
+  "summary_inline": {
+    "message": "Intégré"
+  },
+  "summary_sidepanel": {
+    "message": "Panneau latéral"
+  },
+  "summary_each_update": {
+    "message": "Chaque mise à jour"
+  },
+  "summary_end_of_sentence": {
+    "message": "Fin de phrase"
+  },
+  "summary_stable_text": {
+    "message": "Texte stable"
+  },
+  "summary_timed_batch": {
+    "message": "Lot par durée"
+  },
+  "tooltip_disable_entry": {
+    "message": "Désactiver"
+  },
+  "tooltip_enable_entry": {
+    "message": "Activer"
+  },
+  "tooltip_delete": {
+    "message": "Supprimer"
+  },
+  "tooltip_export_session": {
+    "message": "Exporter"
+  },
+  "tooltip_reapply_glossary": {
+    "message": "Réappliquer le glossaire"
+  },
+  "tooltip_close": {
+    "message": "Fermer"
+  },
+  "panel_title": {
+    "message": "Traduction"
+  },
+  "panel_toggle": {
+    "message": "Basculer le panneau"
+  },
+  "panel_close": {
+    "message": "Fermer le panneau"
+  },
+  "panel_dialog_title": {
+    "message": "Que souhaitez-vous faire ?"
+  },
+  "panel_stop": {
+    "message": "Arrêter la traduction"
+  },
+  "panel_continue": {
+    "message": "Continuer en arrière-plan"
+  },
+  "panel_disable": {
+    "message": "Désactiver l'extension"
+  },
+  "panel_dont_ask": {
+    "message": "Ne plus demander"
+  },
+  "popover_replace_with": {
+    "message": "Remplacer par :"
+  },
+  "popover_replacement_text": {
+    "message": "Texte de remplacement"
+  },
+  "popover_add_to_glossary": {
+    "message": "Ajouter au glossaire"
+  },
+  "popover_add_pattern": {
+    "message": "— ajouter le motif :"
+  },
+  "popover_pattern_label": {
+    "message": "Motif (mauvaise audition / faute) :"
+  },
+  "popover_pattern_hint": {
+    "message": "ex. rabit m q"
+  },
+  "popover_replacement_label": {
+    "message": "Remplacement (prérempli) :"
+  },
+  "popover_edit": {
+    "message": "Modifier"
+  },
+  "popover_disable": {
+    "message": "Désactiver"
+  },
+  "popover_enable": {
+    "message": "Activer"
+  },
+  "popover_del": {
+    "message": "Suppr"
+  },
+  "popover_edit_title": {
+    "message": "Modifier « $TERM$ »",
+    "placeholders": {
+      "TERM": {
+        "content": "$1"
+      }
+    }
+  },
+  "popover_replacement": {
+    "message": "Remplacement"
+  },
+  "popover_save": {
+    "message": "Enregistrer"
+  },
+  "popover_cancel": {
+    "message": "Annuler"
+  },
+  "popover_replaces": {
+    "message": "remplace :"
+  },
+  "popover_add_variant": {
+    "message": "Ajouter une variante"
+  },
+  "shortcut_toggle": {
+    "message": "basculer le mode d'affichage"
+  },
+  "shortcut_export": {
+    "message": "exporter la transcription"
+  },
+  "shortcut_glossary": {
+    "message": "menu contextuel du glossaire"
+  },
+  "quickstart_1": {
+    "message": "Rejoindre une réunion Teams"
+  },
+  "quickstart_2": {
+    "message": "Activer les sous-titres"
+  },
+  "quickstart_3": {
+    "message": "Activer l'extension"
+  },
+  "quickstart_4": {
+    "message": "Les traductions s'affichent dans le mode choisi"
+  },
+  "about_link": {
+    "message": "GitHub"
+  },
+  "about_text": {
+    "message": "Lost in Transcription — Traduction en temps réel des sous-titres Microsoft Teams®."
+  },
+  "content_unknown_meeting": {
+    "message": "Réunion inconnue"
+  },
+  "content_unknown_speaker": {
+    "message": "Inconnu"
+  },
+  "csv_header": {
+    "message": "Horodatage,Intervenant,Original,Traduction"
+  },
+  "error_connection_timed_out": {
+    "message": "Connexion expirée"
+  },
+  "error_invalid_api_key": {
+    "message": "Clé API invalide"
+  },
+  "error_cannot_reach": {
+    "message": "Point de terminaison inaccessible — vérifier l'URL et le réseau"
+  },
+  "error_unknown_backend": {
+    "message": "Backend inconnu : $BACKEND$",
+    "placeholders": {
+      "BACKEND": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_languages": {
+    "message": "Connecté — $COUNT$ langues disponibles",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_models": {
+    "message": "Connecté — $COUNT$ modèles disponibles",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_quota": {
+    "message": "Connecté — $PCT$ % du quota utilisé",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_google": {
+    "message": "Connecté — $COUNT$ langues",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  }
+}

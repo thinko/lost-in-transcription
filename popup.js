@@ -1,6 +1,8 @@
-/* global chrome */
+/* global chrome, t, applyI18n */
 
 document.addEventListener('DOMContentLoaded', () => {
+  applyI18n();
+
   const els = {
     enabled: document.getElementById('enabled'),
     disablePrompt: document.getElementById('disablePrompt'),
@@ -102,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Click on summary item navigates to tab
   document.addEventListener('click', (e) => {
     const item = e.target.closest('.summary-item');
     if (item?.dataset.target) {
@@ -121,7 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const [code, lang] of sorted) {
       const opt = document.createElement('option');
       opt.value = code;
-      opt.textContent = lang.name;
+      opt.textContent = lang.nativeName && lang.nativeName !== lang.name
+        ? `${lang.nativeName} (${lang.name})`
+        : lang.name;
       selectEl.appendChild(opt);
     }
   }
@@ -157,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const histVal = settings.historyBufferSize;
       els.historyBufferSize.value = histVal === 0 ? 510 : Math.min(Math.max(histVal, 10), 500);
-      els.historyBufferSizeVal.textContent = histVal === 0 ? 'Unlimited' : String(histVal);
+      els.historyBufferSizeVal.textContent = histVal === 0 ? t('status_unlimited') : String(histVal);
 
       updateDebounceFields(settings.debounceStrategy);
       updateBackendFields(settings.backend);
@@ -182,7 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateDashboard(settings) {
     const s = settings || currentSettings;
     const langs = window.LANGUAGE_DIALECTS || {};
+    const displayNames = window.DIALECT_DISPLAY_NAMES || {};
+
     const getLangLabel = (code, dialect) => {
+      if (dialect && displayNames[dialect]) {
+        return displayNames[dialect];
+      }
       const base = langs[code]?.name || code;
       if (dialect) {
         const d = (langs[code]?.dialects || []).find((x) => x.code === dialect);
@@ -191,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return base;
     };
 
-    const modeLabels = { inline: 'Inline', sidepanel: 'Side Panel' };
+    const modeLabels = { inline: t('summary_inline'), sidepanel: t('summary_sidepanel') };
     const backendLabels = {
       libre: 'LibreTranslate',
       google: 'Google',
@@ -199,10 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
       openai: 'OpenAI',
     };
     const strategyLabels = {
-      realtime: 'Each update',
-      sentence: 'End of sentence',
-      stable: 'Stable text',
-      timed: 'Timed batch',
+      realtime: t('summary_each_update'),
+      sentence: t('summary_end_of_sentence'),
+      stable: t('summary_stable_text'),
+      timed: t('summary_timed_batch'),
     };
 
     const modeVal = modeLabels[s.displayMode] || s.displayMode;
@@ -214,28 +222,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const freqVal = strategyLabels[s.debounceStrategy] || s.debounceStrategy;
     const glossaryCount = (s.glossary || []).filter((e) => e.enabled !== false).length;
     const glossaryVal = s.glossaryEnabled !== false && glossaryCount > 0
-      ? `${glossaryCount} entries active`
-      : 'Disabled';
+      ? t('status_entries_active', [String(glossaryCount)])
+      : t('status_disabled');
 
     els.dashboardSummary.innerHTML = `
       <div class="summary-item" data-target="tab-display">
-        <span class="summary-label">Mode</span>
+        <span class="summary-label">${esc(t('summary_mode'))}</span>
         <span class="summary-value">${esc(modeVal)}</span>
       </div>
       <div class="summary-item" data-target="tab-translation">
-        <span class="summary-label">Backend</span>
+        <span class="summary-label">${esc(t('summary_backend'))}</span>
         <span class="summary-value">${esc(backendVal)}</span>
       </div>
       <div class="summary-item" data-target="tab-translation">
-        <span class="summary-label">Languages</span>
+        <span class="summary-label">${esc(t('summary_languages'))}</span>
         <span class="summary-value">${esc(langVal)}</span>
       </div>
       <div class="summary-item" data-target="tab-translation">
-        <span class="summary-label">Frequency</span>
+        <span class="summary-label">${esc(t('summary_frequency'))}</span>
         <span class="summary-value">${esc(freqVal)}</span>
       </div>
       <div class="summary-item" data-target="tab-prompt">
-        <span class="summary-label">Glossary</span>
+        <span class="summary-label">${esc(t('summary_glossary'))}</span>
         <span class="summary-value">${esc(glossaryVal)}</span>
       </div>
     `;
@@ -249,11 +257,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     els.apiKeyField.classList.toggle('hidden', false);
     if (isLibre) {
-      els.apiKey.placeholder = 'API key (optional for public instances)';
+      els.apiKey.placeholder = t('hint_api_key_libre');
     } else if (isOpenai) {
-      els.apiKey.placeholder = 'API key (optional for local endpoints)';
+      els.apiKey.placeholder = t('hint_api_key_openai');
     } else {
-      els.apiKey.placeholder = 'Enter API key…';
+      els.apiKey.placeholder = t('hint_api_key');
     }
     els.libreUrlField.classList.toggle('hidden', !isLibre);
     els.openaiBaseUrlField.classList.toggle('hidden', !isOpenai);
@@ -372,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
   els.historyBufferSize.addEventListener('input', () => {
     const raw = parseInt(els.historyBufferSize.value, 10);
     const stored = raw >= 510 ? 0 : raw;
-    els.historyBufferSizeVal.textContent = stored === 0 ? 'Unlimited' : String(stored);
+    els.historyBufferSizeVal.textContent = stored === 0 ? t('status_unlimited') : String(stored);
     save('historyBufferSize', stored);
   });
 
@@ -403,14 +411,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   els.resetPromptBtn.addEventListener('click', () => {
-    const defaultPrompt = [
-      'You are a real-time caption translator. Translate the following {{SOURCE_LANG}} text to {{TARGET_LANG}}.',
-      'The source is Quebec French (Québécois) — handle colloquialisms, joual expressions, and informal contractions accurately.',
-      'Examples: "C\'est tu" = "Is it", "pantoute" = "not at all", "j\'va" = "I\'m going to", "faque" = "so/therefore".',
-      'Return ONLY the translated text with no commentary, quotes, or formatting.',
-    ].join(' ');
-    els.openaiSystemPrompt.value = defaultPrompt;
-    save('openaiSystemPrompt', defaultPrompt);
+    chrome.runtime.sendMessage({
+      type: 'build-default-prompt',
+      sourceLang: currentSettings.sourceLang,
+      sourceDialect: currentSettings.sourceDialect,
+      targetLang: currentSettings.targetLang,
+      targetDialect: currentSettings.targetDialect,
+    }, (prompt) => {
+      if (prompt) {
+        els.openaiSystemPrompt.value = prompt;
+        save('openaiSystemPrompt', prompt);
+      }
+    });
   });
 
   els.debounceStrategy.addEventListener('change', () => {
@@ -429,10 +441,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const showSlider = strategy === 'timed' || strategy === 'sentence';
     els.debounceMsField.classList.toggle('hidden', !showSlider);
     const hints = {
-      realtime: 'Sends after each small text change. Best for local/fast models.',
-      sentence: 'Waits for sentence-ending punctuation (.?!) or the batch window, whichever comes first.',
-      stable: 'Waits for text to stop changing for ~1.5s. Good balance of cost and latency.',
-      timed: 'Accumulates text for the batch window before translating. Best for rate-limited APIs.',
+      realtime: t('hint_strategy_realtime'),
+      sentence: t('hint_strategy_sentence'),
+      stable: t('hint_strategy_stable'),
+      timed: t('hint_strategy_timed'),
     };
     els.debounceHint.textContent = hints[strategy] || '';
   }
@@ -496,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     els.testBtn.disabled = true;
-    els.testStatus.textContent = 'Testing…';
+    els.testStatus.textContent = t('status_testing');
     els.testStatus.className = 'test-status loading';
 
     chrome.runtime.sendMessage(
@@ -507,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
           els.testStatus.textContent = result.message;
           els.testStatus.className = 'test-status success';
         } else {
-          els.testStatus.textContent = result?.error || 'Connection failed';
+          els.testStatus.textContent = result?.error || t('status_connection_failed');
           els.testStatus.className = 'test-status error';
         }
       }
@@ -522,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     els.refreshModelsBtn.disabled = true;
     els.refreshModelsBtn.classList.add('spinning');
-    els.modelsHint.textContent = 'Fetching models…';
+    els.modelsHint.textContent = t('status_fetching_models');
     els.modelsHint.style.color = '#888';
 
     chrome.runtime.sendMessage(
@@ -539,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
             opt.value = model;
             datalist.appendChild(opt);
           }
-          els.modelsHint.textContent = `${result.models.length} models loaded`;
+          els.modelsHint.textContent = t('status_models_loaded', [String(result.models.length)]);
           els.modelsHint.style.color = '#2ea043';
 
           if (!els.openaiModel.value) {
@@ -547,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
             save('openaiModel', result.models[0]);
           }
         } else {
-          els.modelsHint.textContent = result?.error || 'Failed to fetch models';
+          els.modelsHint.textContent = result?.error || t('status_fetch_models_failed');
           els.modelsHint.style.color = '#e74c3c';
         }
       }
@@ -576,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     list.innerHTML = '';
 
     if (!glossary.length) {
-      list.innerHTML = '<p class="glossary-empty">No entries yet</p>';
+      list.innerHTML = `<p class="glossary-empty">${esc(t('status_no_entries'))}</p>`;
       return;
     }
 
@@ -602,10 +614,11 @@ document.addEventListener('DOMContentLoaded', () => {
       for (const { entry, idx } of items) {
         const row = document.createElement('div');
         row.className = 'glossary-entry' + (entry.enabled ? '' : ' disabled');
+        const toggleTitle = entry.enabled ? t('tooltip_disable_entry') : t('tooltip_enable_entry');
         row.innerHTML = `
           <span class="glossary-pattern" title="${esc(entry.pattern)}">${esc(entry.pattern)}</span>
-          <button class="btn-icon glossary-toggle" data-idx="${idx}" title="${entry.enabled ? 'Disable' : 'Enable'}">${entry.enabled ? '✓' : '○'}</button>
-          <button class="btn-icon delete glossary-delete" data-idx="${idx}" title="Delete">×</button>
+          <button class="btn-icon glossary-toggle" data-idx="${idx}" title="${esc(toggleTitle)}">${entry.enabled ? '✓' : '○'}</button>
+          <button class="btn-icon delete glossary-delete" data-idx="${idx}" title="${esc(t('tooltip_delete'))}">&times;</button>
         `;
         patternsEl.appendChild(row);
       }
@@ -679,7 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderSessions(sessions) {
     if (!sessions.length) {
-      els.sessionList.innerHTML = '<p class="session-empty">No saved sessions</p>';
+      els.sessionList.innerHTML = `<p class="session-empty">${esc(t('status_no_sessions'))}</p>`;
       return;
     }
 
@@ -700,9 +713,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <span class="session-revision-status"></span>
         <div class="session-actions">
-          <button class="btn-icon export-session" data-sid="${esc(s.id)}" title="Export">&#8615;</button>
-          <button class="btn-icon revise-session" data-sid="${esc(s.id)}" title="Re-apply glossary">&#8635;</button>
-          <button class="btn-icon delete delete-session" data-sid="${esc(s.id)}" title="Delete">×</button>
+          <button class="btn-icon export-session" data-sid="${esc(s.id)}" title="${esc(t('tooltip_export_session'))}">&#8615;</button>
+          <button class="btn-icon revise-session" data-sid="${esc(s.id)}" title="${esc(t('tooltip_reapply_glossary'))}">&#8635;</button>
+          <button class="btn-icon delete delete-session" data-sid="${esc(s.id)}" title="${esc(t('tooltip_delete'))}">&times;</button>
         </div>
       `;
 
@@ -728,11 +741,13 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.runtime.sendMessage({ type: 'revise-session', sessionId: sid }, (res) => {
           if (statusEl) {
             if (res?.ok) {
-              statusEl.textContent = res.changed > 0 ? `Updated ${res.changed} of ${res.total}` : 'No changes';
+              statusEl.textContent = res.changed > 0
+                ? t('status_updated', [String(res.changed), String(res.total)])
+                : t('status_no_changes');
               statusEl.className = 'session-revision-status success';
               setTimeout(() => { statusEl.textContent = ''; statusEl.className = 'session-revision-status'; }, 2000);
             } else {
-              statusEl.textContent = 'Error';
+              statusEl.textContent = t('status_error');
               statusEl.className = 'session-revision-status error';
             }
           }

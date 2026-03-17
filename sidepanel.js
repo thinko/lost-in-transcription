@@ -60,12 +60,12 @@
       <style>${getSidePanelCSS()}</style>
       <div class="lit-panel" id="lit-panel">
         <div class="lit-resize-handle" id="lit-resize"></div>
-        <div class="lit-collapse-btn" id="lit-collapse" title="Toggle panel">◀</div>
+        <div class="lit-collapse-btn" id="lit-collapse" title="${chrome.i18n.getMessage('panel_toggle')}">◀</div>
         <div class="lit-header">
-          <span class="lit-title">Translation</span>
+          <span class="lit-title">${chrome.i18n.getMessage('panel_title')}</span>
           <span class="lit-count" id="lit-count">0</span>
           <span class="lit-header-spacer"></span>
-          <button class="lit-close-btn" id="lit-close" title="Close panel">✕</button>
+          <button class="lit-close-btn" id="lit-close" title="${chrome.i18n.getMessage('panel_close')}">✕</button>
         </div>
         <div class="lit-entries" id="lit-entries"></div>
       </div>
@@ -163,12 +163,12 @@
             dialog.className = 'lit-close-dialog';
             dialog.id = 'lit-close-dialog';
             dialog.innerHTML = `
-              <p>What would you like to do?</p>
-              <button class="lit-dialog-btn" data-action="stop">Stop translation</button>
-              <button class="lit-dialog-btn" data-action="background">Continue in background</button>
-              <button class="lit-dialog-btn" data-action="disable">Turn off extension</button>
+              <p>${chrome.i18n.getMessage('panel_dialog_title')}</p>
+              <button class="lit-dialog-btn" data-action="stop">${chrome.i18n.getMessage('panel_stop')}</button>
+              <button class="lit-dialog-btn" data-action="background">${chrome.i18n.getMessage('panel_continue')}</button>
+              <button class="lit-dialog-btn" data-action="disable">${chrome.i18n.getMessage('panel_disable')}</button>
               <label class="lit-dialog-remember">
-                <input type="checkbox" id="lit-remember"> Don't ask again
+                <input type="checkbox" id="lit-remember"> ${chrome.i18n.getMessage('panel_dont_ask')}
               </label>
             `;
             panel.appendChild(dialog);

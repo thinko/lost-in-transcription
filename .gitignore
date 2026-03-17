@@ -34,3 +34,6 @@ _dev_docs_/
 dev_docs/
 # Chrome doesn't like an extension subdirectory name that starts/ends with an underscore
 __*__/
+
+# Pseudo-locale (dev-only, not shipped)
+_locales/qps-ploc/

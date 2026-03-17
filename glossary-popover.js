@@ -372,13 +372,13 @@
 
     const label = document.createElement('div');
     label.className = 'popover-label';
-    label.textContent = 'Replace with:';
+    label.textContent = chrome.i18n.getMessage('popover_replace_with');
     wrap.appendChild(label);
 
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'popover-input';
-    input.placeholder = 'Replacement text';
+    input.placeholder = chrome.i18n.getMessage('popover_replacement_text');
     input.autocomplete = 'off';
     wrap.appendChild(input);
 
@@ -386,11 +386,11 @@
     row.className = 'popover-row';
     const addBtn = document.createElement('button');
     addBtn.className = 'btn btn-primary';
-    addBtn.textContent = 'Add to Glossary';
+    addBtn.textContent = chrome.i18n.getMessage('popover_add_to_glossary');
     const closeBtn = document.createElement('button');
     closeBtn.className = 'btn btn-icon';
     closeBtn.textContent = '×';
-    closeBtn.title = 'Close';
+    closeBtn.title = chrome.i18n.getMessage('tooltip_close');
     row.appendChild(addBtn);
     row.appendChild(closeBtn);
     wrap.appendChild(row);
@@ -414,24 +414,24 @@
   function renderAddVariant(glossary, replacementText, wrap, closePopover, reRender) {
     const header = document.createElement('div');
     header.className = 'popover-header';
-    header.innerHTML = `"${escapeHtml(replacementText)}" — add pattern:`;
+    header.innerHTML = `"${escapeHtml(replacementText)}" ${chrome.i18n.getMessage('popover_add_pattern')}`;
     wrap.appendChild(header);
 
     const label = document.createElement('div');
     label.className = 'popover-label';
-    label.textContent = 'Pattern (mishearing/typo):';
+    label.textContent = chrome.i18n.getMessage('popover_pattern_label');
     wrap.appendChild(label);
 
     const patternInput = document.createElement('input');
     patternInput.type = 'text';
     patternInput.className = 'popover-input';
-    patternInput.placeholder = 'e.g. rabit m q';
+    patternInput.placeholder = chrome.i18n.getMessage('popover_pattern_hint');
     patternInput.autocomplete = 'off';
     wrap.appendChild(patternInput);
 
     const replLabel = document.createElement('div');
     replLabel.className = 'popover-label';
-    replLabel.textContent = 'Replacement (pre-filled):';
+    replLabel.textContent = chrome.i18n.getMessage('popover_replacement_label');
     replLabel.style.marginTop = '8px';
     wrap.appendChild(replLabel);
 
@@ -448,11 +448,11 @@
     row.className = 'popover-row';
     const addBtn = document.createElement('button');
     addBtn.className = 'btn btn-primary';
-    addBtn.textContent = 'Add to Glossary';
+    addBtn.textContent = chrome.i18n.getMessage('popover_add_to_glossary');
     const closeBtn = document.createElement('button');
     closeBtn.className = 'btn btn-icon';
     closeBtn.textContent = '×';
-    closeBtn.title = 'Close';
+    closeBtn.title = chrome.i18n.getMessage('tooltip_close');
     row.appendChild(addBtn);
     row.appendChild(closeBtn);
     wrap.appendChild(row);
@@ -485,20 +485,20 @@
 
     const editBtn = document.createElement('button');
     editBtn.className = 'btn btn-secondary';
-    editBtn.textContent = 'Edit';
+    editBtn.textContent = chrome.i18n.getMessage('popover_edit');
 
     const disableBtn = document.createElement('button');
     disableBtn.className = 'btn btn-secondary';
-    disableBtn.textContent = entry.enabled ? 'Disable' : 'Enable';
+    disableBtn.textContent = entry.enabled ? chrome.i18n.getMessage('popover_disable') : chrome.i18n.getMessage('popover_enable');
 
     const delBtn = document.createElement('button');
     delBtn.className = 'btn btn-danger';
-    delBtn.textContent = 'Del';
+    delBtn.textContent = chrome.i18n.getMessage('popover_del');
 
     const closeBtn = document.createElement('button');
     closeBtn.className = 'btn btn-icon';
     closeBtn.textContent = '×';
-    closeBtn.title = 'Close';
+    closeBtn.title = chrome.i18n.getMessage('tooltip_close');
 
     row.appendChild(editBtn);
     row.appendChild(disableBtn);
@@ -510,22 +510,22 @@
       wrap.innerHTML = '';
       const header2 = document.createElement('div');
       header2.className = 'popover-header';
-      header2.textContent = `Edit "${escapeHtml(entry.pattern)}"`;
+      header2.textContent = `${chrome.i18n.getMessage('popover_edit')} "${escapeHtml(entry.pattern)}"`;
       wrap.appendChild(header2);
       const input = document.createElement('input');
       input.type = 'text';
       input.className = 'popover-input';
       input.value = entry.replacement;
-      input.placeholder = 'Replacement';
+      input.placeholder = chrome.i18n.getMessage('popover_replacement');
       wrap.appendChild(input);
       const row2 = document.createElement('div');
       row2.className = 'popover-row btn-group';
       const saveBtn = document.createElement('button');
       saveBtn.className = 'btn btn-primary';
-      saveBtn.textContent = 'Save';
+      saveBtn.textContent = chrome.i18n.getMessage('popover_save');
       const cancelBtn = document.createElement('button');
       cancelBtn.className = 'btn btn-secondary';
-      cancelBtn.textContent = 'Cancel';
+      cancelBtn.textContent = chrome.i18n.getMessage('popover_cancel');
       row2.appendChild(saveBtn);
       row2.appendChild(cancelBtn);
       wrap.appendChild(row2);
@@ -560,7 +560,7 @@
   function renderKnownReplacement(glossary, replacementText, entries, wrap, closePopover, reRender) {
     const header = document.createElement('div');
     header.className = 'popover-header';
-    header.innerHTML = `"${escapeHtml(replacementText)}" replaces:`;
+    header.innerHTML = `"${escapeHtml(replacementText)}" ${chrome.i18n.getMessage('popover_replaces')}`;
     wrap.appendChild(header);
 
     const list = document.createElement('ul');
@@ -576,11 +576,11 @@
     row.className = 'popover-row btn-group';
     const addVariantBtn = document.createElement('button');
     addVariantBtn.className = 'btn btn-primary';
-    addVariantBtn.textContent = 'Add variant';
+    addVariantBtn.textContent = chrome.i18n.getMessage('popover_add_variant');
     const closeBtn = document.createElement('button');
     closeBtn.className = 'btn btn-icon';
     closeBtn.textContent = '×';
-    closeBtn.title = 'Close';
+    closeBtn.title = chrome.i18n.getMessage('tooltip_close');
     row.appendChild(addVariantBtn);
     row.appendChild(closeBtn);
     wrap.appendChild(row);

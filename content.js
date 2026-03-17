@@ -63,7 +63,7 @@
     if (titleEl) return titleEl.textContent.trim();
     const pageTitle = document.title || '';
     const cleaned = pageTitle.replace(/\s*\|\s*Microsoft Teams$/, '').trim();
-    return cleaned || 'Unknown Meeting';
+    return cleaned || chrome.i18n.getMessage('content_unknown_meeting') || 'Unknown Meeting';
   }
 
   async function initSession() {
@@ -372,9 +372,10 @@
     const messageEl =
       captionSpan.closest('.fui-ChatMessageCompact') ||
       captionSpan.closest('[class*="ChatMessageCompact"]');
-    if (!messageEl) return 'Unknown';
+    const fallback = chrome.i18n.getMessage('content_unknown_speaker') || 'Unknown';
+    if (!messageEl) return fallback;
     const authorEl = messageEl.querySelector('[data-tid="author"]');
-    return authorEl?.textContent?.trim() || 'Unknown';
+    return authorEl?.textContent?.trim() || fallback;
   }
 
   // ── Apply translation result ─────────────────────────────────────────────

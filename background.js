@@ -1,8 +1,8 @@
 import { translate as googleTranslate } from './translators/google.js';
 import { translate as deeplTranslate } from './translators/deepl.js';
 import { translate as libreTranslate } from './translators/libre.js';
-import { translate as openaiTranslate } from './translators/openai.js';
-import { DIALECT_DISPLAY_NAMES } from './languages.js';
+import { translate as openaiTranslate, buildDefaultPrompt } from './translators/openai.js';
+import { LANGUAGE_DIALECTS, DIALECT_DISPLAY_NAMES } from './languages.js';
 import { Glossary } from './glossary.js';
 
 const translators = {
@@ -47,13 +47,16 @@ const SENTENCE_ENDERS = /[.?!。？！]\s*$/;
 // --- Settings helper ------------------------------------------------------
 
 async function getSettings() {
+  const browserLang = (chrome.i18n.getUILanguage() || 'en').split('-')[0];
+  const detectedTarget = LANGUAGE_DIALECTS[browserLang] ? browserLang : 'en';
+
   const defaults = {
     enabled: true,
     backend: 'libre',
     apiKey: '',
     sourceLang: 'fr',
     sourceDialect: '',
-    targetLang: 'en',
+    targetLang: detectedTarget,
     targetDialect: '',
     displayMode: 'inline',
     fontSize: 13,
@@ -285,6 +288,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === 'build-default-prompt') {
+    const prompt = buildDefaultPrompt(
+      msg.sourceLang || 'fr', msg.sourceDialect || '',
+      msg.targetLang || 'en', msg.targetDialect || ''
+    );
+    sendResponse(prompt);
+    return false;
+  }
+
   if (msg.type === 'save-and-new-session') {
     (async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -327,7 +339,7 @@ function handleExport(history, format, contentMode, title) {
   if (format === 'csv') {
     ext = 'csv';
     mimeType = 'text/csv';
-    output = 'Timestamp,Speaker,Original,Translation\n';
+    output = (chrome.i18n.getMessage('csv_header') || 'Timestamp,Speaker,Original,Translation') + '\n';
     for (const entry of history) {
       const row = [entry.timestamp, entry.speaker, entry.original, entry.translated]
         .map((v) => `"${(v || '').replace(/"/g, '""')}"`)
@@ -400,7 +412,7 @@ function handleExport(history, format, contentMode, title) {
 
 async function testConnectivity(backend, apiKey, options = {}) {
   const timeout = (ms) => new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Connection timed out')), ms)
+    setTimeout(() => reject(new Error(chrome.i18n.getMessage('error_connection_timed_out') || 'Connection timed out')), ms)
   );
 
   try {
@@ -410,7 +422,7 @@ async function testConnectivity(backend, apiKey, options = {}) {
         const res = await Promise.race([fetch(`${host}/languages`), timeout(10000)]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const langs = await res.json();
-        return { ok: true, message: `Connected — ${langs.length} languages available` };
+        return { ok: true, message: chrome.i18n.getMessage('error_connected_languages', [String(langs.length)]) };
       }
 
       case 'google': {
@@ -420,10 +432,10 @@ async function testConnectivity(backend, apiKey, options = {}) {
         ]);
         if (!res.ok) {
           const body = await res.text();
-          throw new Error(body.includes('API key') ? 'Invalid API key' : `HTTP ${res.status}`);
+          throw new Error(body.includes('API key') ? (chrome.i18n.getMessage('error_invalid_api_key') || 'Invalid API key') : `HTTP ${res.status}`);
         }
         const data = await res.json();
-        return { ok: true, message: `Connected — ${data.data.languages.length} languages` };
+        return { ok: true, message: chrome.i18n.getMessage('error_connected_google', [String(data.data.languages.length)]) };
       }
 
       case 'deepl': {
@@ -433,10 +445,10 @@ async function testConnectivity(backend, apiKey, options = {}) {
           fetch(`${base}/v2/usage`, { headers: { Authorization: `DeepL-Auth-Key ${apiKey}` } }),
           timeout(10000),
         ]);
-        if (!res.ok) throw new Error(res.status === 403 ? 'Invalid API key' : `HTTP ${res.status}`);
+        if (!res.ok) throw new Error(res.status === 403 ? (chrome.i18n.getMessage('error_invalid_api_key') || 'Invalid API key') : `HTTP ${res.status}`);
         const usage = await res.json();
         const pct = Math.round((usage.character_count / usage.character_limit) * 100);
-        return { ok: true, message: `Connected — ${pct}% of quota used` };
+        return { ok: true, message: chrome.i18n.getMessage('error_connected_quota', [String(pct)]) };
       }
 
       case 'openai': {
@@ -447,10 +459,10 @@ async function testConnectivity(backend, apiKey, options = {}) {
           fetch(`${baseUrl}/v1/models`, { headers }),
           timeout(10000),
         ]);
-        if (!res.ok) throw new Error(res.status === 401 ? 'Invalid API key' : `HTTP ${res.status}`);
+        if (!res.ok) throw new Error(res.status === 401 ? (chrome.i18n.getMessage('error_invalid_api_key') || 'Invalid API key') : `HTTP ${res.status}`);
         const data = await res.json();
         const count = Array.isArray(data.data) ? data.data.length : data.models?.length || 0;
-        return { ok: true, message: `Connected — ${count} models available` };
+        return { ok: true, message: chrome.i18n.getMessage('error_connected_models', [String(count)]) };
       }
 
       default:
@@ -458,7 +470,7 @@ async function testConnectivity(backend, apiKey, options = {}) {
     }
   } catch (err) {
     if (err.message === 'Failed to fetch') {
-      throw new Error('Cannot reach endpoint — check URL and network');
+      throw new Error(chrome.i18n.getMessage('error_cannot_reach') || 'Cannot reach endpoint — check URL and network');
     }
     throw err;
   }

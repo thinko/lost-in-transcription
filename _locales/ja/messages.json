@@ -1,0 +1,518 @@
+{
+  "app_name": {
+    "message": "Lost in Transcription"
+  },
+  "app_description": {
+    "message": "Microsoft Teams® のクローズドキャプションをリアルタイムで翻訳 — もう聞き取れないことに悩まされません。"
+  },
+  "app_subtitle": {
+    "message": "Teams キャプション翻訳"
+  },
+  "cmd_toggle_display": {
+    "message": "インライン表示とサイドパネル表示を切り替え"
+  },
+  "cmd_export": {
+    "message": "キャプションの文字起こしをエクスポート"
+  },
+  "toggle_enable_title": {
+    "message": "翻訳の有効／無効"
+  },
+  "disable_prompt_text": {
+    "message": "翻訳パネルも非表示にしますか？"
+  },
+  "btn_yes": {
+    "message": "はい"
+  },
+  "btn_no": {
+    "message": "いいえ"
+  },
+  "disable_remember": {
+    "message": "この選択を記憶する"
+  },
+  "tab_dashboard": {
+    "message": "ダッシュボード"
+  },
+  "tab_translation": {
+    "message": "翻訳"
+  },
+  "tab_display": {
+    "message": "表示"
+  },
+  "tab_prompt": {
+    "message": "プロンプトと用語集"
+  },
+  "tab_help": {
+    "message": "ヘルプとバージョン情報"
+  },
+  "section_live_config": {
+    "message": "ライブ設定"
+  },
+  "section_export": {
+    "message": "文字起こしのエクスポート"
+  },
+  "section_sessions": {
+    "message": "保存されたセッション"
+  },
+  "section_backend": {
+    "message": "バックエンド"
+  },
+  "section_frequency": {
+    "message": "送信頻度"
+  },
+  "section_display": {
+    "message": "表示"
+  },
+  "section_behavior": {
+    "message": "動作"
+  },
+  "section_prompt": {
+    "message": "システムプロンプト"
+  },
+  "section_glossary": {
+    "message": "用語集"
+  },
+  "section_version": {
+    "message": "バージョン"
+  },
+  "section_shortcuts": {
+    "message": "キーボードショートカット"
+  },
+  "section_quickstart": {
+    "message": "クイックスタート"
+  },
+  "label_from": {
+    "message": "元の言語"
+  },
+  "label_to": {
+    "message": "翻訳先"
+  },
+  "label_backend": {
+    "message": "バックエンド"
+  },
+  "label_api_key": {
+    "message": "API キー"
+  },
+  "label_libre_url": {
+    "message": "LibreTranslate URL"
+  },
+  "label_endpoint_url": {
+    "message": "エンドポイント URL"
+  },
+  "label_model": {
+    "message": "モデル"
+  },
+  "label_strategy": {
+    "message": "戦略"
+  },
+  "label_batch_window": {
+    "message": "バッチウィンドウ"
+  },
+  "label_mode": {
+    "message": "モード"
+  },
+  "label_font_size": {
+    "message": "フォントサイズ"
+  },
+  "label_history_buffer": {
+    "message": "履歴バッファ"
+  },
+  "label_panel_close": {
+    "message": "パネルを閉じる時"
+  },
+  "label_disable_action": {
+    "message": "翻訳を無効にする時"
+  },
+  "label_custom_instructions": {
+    "message": "カスタム指示"
+  },
+  "label_enable_glossary": {
+    "message": "用語集を有効にする"
+  },
+  "option_export_both": {
+    "message": "原文＋翻訳"
+  },
+  "option_export_original": {
+    "message": "原文のみ"
+  },
+  "option_export_translated": {
+    "message": "翻訳のみ"
+  },
+  "option_backend_libre": {
+    "message": "LibreTranslate（無料）"
+  },
+  "option_backend_google": {
+    "message": "Google Cloud Translation"
+  },
+  "option_backend_deepl": {
+    "message": "DeepL"
+  },
+  "option_backend_openai": {
+    "message": "OpenAI Compatible"
+  },
+  "option_strategy_realtime": {
+    "message": "各更新時（約300ms）"
+  },
+  "option_strategy_sentence": {
+    "message": "文末"
+  },
+  "option_strategy_stable": {
+    "message": "テキスト安定時（約1.5秒の間隔）"
+  },
+  "option_strategy_timed": {
+    "message": "タイムバッチ（カスタム）"
+  },
+  "option_mode_inline": {
+    "message": "インライン（キャプションの下）"
+  },
+  "option_mode_sidepanel": {
+    "message": "サイドパネル"
+  },
+  "option_ask": {
+    "message": "確認する"
+  },
+  "option_stop_translation": {
+    "message": "翻訳を停止"
+  },
+  "option_continue_bg": {
+    "message": "バックグラウンドで続行"
+  },
+  "option_turn_off": {
+    "message": "拡張機能をオフにする"
+  },
+  "option_hide_panel": {
+    "message": "パネルも非表示にする"
+  },
+  "option_keep_panel": {
+    "message": "パネルを表示したまま"
+  },
+  "btn_export": {
+    "message": "エクスポート"
+  },
+  "btn_save_start_new": {
+    "message": "保存して新規開始"
+  },
+  "btn_clear_all": {
+    "message": "すべてのセッションをクリア"
+  },
+  "btn_test_connection": {
+    "message": "接続テスト"
+  },
+  "btn_reset_prompt": {
+    "message": "リセット"
+  },
+  "btn_add_glossary": {
+    "message": "エントリを追加"
+  },
+  "hint_api_key": {
+    "message": "API キーを入力…"
+  },
+  "hint_api_key_libre": {
+    "message": "API キー（公開インスタンスでは任意）"
+  },
+  "hint_api_key_openai": {
+    "message": "API キー（ローカルエンドポイントでは任意）"
+  },
+  "hint_endpoint": {
+    "message": "Ollama: http://host:11434 · LM Studio: http://host:1234"
+  },
+  "hint_prompt_placeholders": {
+    "message": "{{SOURCE_LANG}}、{{TARGET_LANG}}、{{GLOSSARY}} を使用"
+  },
+  "hint_prompt_placeholder_text": {
+    "message": "カスタム翻訳指示…"
+  },
+  "hint_fetch_models": {
+    "message": "エンドポイントからモデルを取得"
+  },
+  "hint_mangled_text": {
+    "message": "聞き違いテキスト…"
+  },
+  "hint_correct_term": {
+    "message": "正しい用語…"
+  },
+  "hint_strategy_realtime": {
+    "message": "テキストの小さな変更ごとに送信。ローカル／高速モデル向け。"
+  },
+  "hint_strategy_sentence": {
+    "message": "文末の句読点（.?!）またはバッチウィンドウまで待機。どちらか先に到達した方で送信。"
+  },
+  "hint_strategy_stable": {
+    "message": "テキストの更新が約1.5秒止まるまで待機。コストとレイテンシのバランスが良い。"
+  },
+  "hint_strategy_timed": {
+    "message": "バッチウィンドウ分のテキストを蓄積してから翻訳。レート制限付き API 向け。"
+  },
+  "status_testing": {
+    "message": "テスト中…"
+  },
+  "status_connection_failed": {
+    "message": "接続に失敗しました"
+  },
+  "status_fetching_models": {
+    "message": "モデルを取得中…"
+  },
+  "status_models_loaded": {
+    "message": "$COUNT$ 件のモデルを読み込みました",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "status_fetch_models_failed": {
+    "message": "モデルの取得に失敗しました"
+  },
+  "status_unlimited": {
+    "message": "無制限"
+  },
+  "status_entries_active": {
+    "message": "$COUNT$ 件のエントリが有効",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "status_disabled": {
+    "message": "無効"
+  },
+  "status_no_entries": {
+    "message": "エントリはまだありません"
+  },
+  "status_no_sessions": {
+    "message": "保存されたセッションはありません"
+  },
+  "status_updated": {
+    "message": "$TOTAL$ 件中 $CHANGED$ 件を更新しました",
+    "placeholders": {
+      "CHANGED": {
+        "content": "$1"
+      },
+      "TOTAL": {
+        "content": "$2"
+      }
+    }
+  },
+  "status_no_changes": {
+    "message": "変更なし"
+  },
+  "status_error": {
+    "message": "エラー"
+  },
+  "summary_mode": {
+    "message": "モード"
+  },
+  "summary_backend": {
+    "message": "バックエンド"
+  },
+  "summary_languages": {
+    "message": "言語"
+  },
+  "summary_frequency": {
+    "message": "頻度"
+  },
+  "summary_glossary": {
+    "message": "用語集"
+  },
+  "summary_inline": {
+    "message": "インライン"
+  },
+  "summary_sidepanel": {
+    "message": "サイドパネル"
+  },
+  "summary_each_update": {
+    "message": "各更新時"
+  },
+  "summary_end_of_sentence": {
+    "message": "文末"
+  },
+  "summary_stable_text": {
+    "message": "テキスト安定時"
+  },
+  "summary_timed_batch": {
+    "message": "タイムバッチ"
+  },
+  "tooltip_disable_entry": {
+    "message": "無効にする"
+  },
+  "tooltip_enable_entry": {
+    "message": "有効にする"
+  },
+  "tooltip_delete": {
+    "message": "削除"
+  },
+  "tooltip_export_session": {
+    "message": "エクスポート"
+  },
+  "tooltip_reapply_glossary": {
+    "message": "用語集を再適用"
+  },
+  "tooltip_close": {
+    "message": "閉じる"
+  },
+  "panel_title": {
+    "message": "翻訳"
+  },
+  "panel_toggle": {
+    "message": "パネルを切り替え"
+  },
+  "panel_close": {
+    "message": "パネルを閉じる"
+  },
+  "panel_dialog_title": {
+    "message": "どの操作を行いますか？"
+  },
+  "panel_stop": {
+    "message": "翻訳を停止"
+  },
+  "panel_continue": {
+    "message": "バックグラウンドで続行"
+  },
+  "panel_disable": {
+    "message": "拡張機能をオフにする"
+  },
+  "panel_dont_ask": {
+    "message": "今後は確認しない"
+  },
+  "popover_replace_with": {
+    "message": "置換後："
+  },
+  "popover_replacement_text": {
+    "message": "置換テキスト"
+  },
+  "popover_add_to_glossary": {
+    "message": "用語集に追加"
+  },
+  "popover_add_pattern": {
+    "message": "— パターンを追加："
+  },
+  "popover_pattern_label": {
+    "message": "パターン（聞き違い／誤字）："
+  },
+  "popover_pattern_hint": {
+    "message": "例：rabit m q"
+  },
+  "popover_replacement_label": {
+    "message": "置換後（事前入力）："
+  },
+  "popover_edit": {
+    "message": "編集"
+  },
+  "popover_disable": {
+    "message": "無効にする"
+  },
+  "popover_enable": {
+    "message": "有効にする"
+  },
+  "popover_del": {
+    "message": "削除"
+  },
+  "popover_edit_title": {
+    "message": "「$TERM$」を編集",
+    "placeholders": {
+      "TERM": {
+        "content": "$1"
+      }
+    }
+  },
+  "popover_replacement": {
+    "message": "置換後"
+  },
+  "popover_save": {
+    "message": "保存"
+  },
+  "popover_cancel": {
+    "message": "キャンセル"
+  },
+  "popover_replaces": {
+    "message": "置換後："
+  },
+  "popover_add_variant": {
+    "message": "バリアントを追加"
+  },
+  "shortcut_toggle": {
+    "message": "表示モードを切り替え"
+  },
+  "shortcut_export": {
+    "message": "文字起こしをエクスポート"
+  },
+  "shortcut_glossary": {
+    "message": "用語集ポップオーバー"
+  },
+  "quickstart_1": {
+    "message": "Teams ミーティングに参加"
+  },
+  "quickstart_2": {
+    "message": "キャプションをオンにする"
+  },
+  "quickstart_3": {
+    "message": "拡張機能を有効にする"
+  },
+  "quickstart_4": {
+    "message": "選択した表示モードで翻訳が表示されます"
+  },
+  "about_link": {
+    "message": "GitHub"
+  },
+  "about_text": {
+    "message": "Lost in Transcription — Microsoft Teams® のクローズドキャプションのリアルタイム翻訳。"
+  },
+  "content_unknown_meeting": {
+    "message": "不明なミーティング"
+  },
+  "content_unknown_speaker": {
+    "message": "不明"
+  },
+  "csv_header": {
+    "message": "タイムスタンプ,発話者,原文,翻訳"
+  },
+  "error_connection_timed_out": {
+    "message": "接続がタイムアウトしました"
+  },
+  "error_invalid_api_key": {
+    "message": "無効な API キー"
+  },
+  "error_cannot_reach": {
+    "message": "エンドポイントに接続できません — URL とネットワークを確認してください"
+  },
+  "error_unknown_backend": {
+    "message": "不明なバックエンド: $BACKEND$",
+    "placeholders": {
+      "BACKEND": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_languages": {
+    "message": "接続済み — $COUNT$ 言語を使用可能",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_models": {
+    "message": "接続済み — $COUNT$ 件のモデルを使用可能",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_quota": {
+    "message": "接続済み — クォータの $PCT$% を使用済み",
+    "placeholders": {
+      "PCT": {
+        "content": "$1"
+      }
+    }
+  },
+  "error_connected_google": {
+    "message": "接続済み — $COUNT$ 言語",
+    "placeholders": {
+      "COUNT": {
+        "content": "$1"
+      }
+    }
+  }
+}

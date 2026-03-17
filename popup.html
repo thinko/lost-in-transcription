@@ -9,63 +9,63 @@
     <header class="header">
       <img src="icons/icon48.png" alt="" class="logo">
       <div>
-        <h1>Lost in Transcription</h1>
-        <p class="subtitle">Teams Caption Translator</p>
+        <h1 data-i18n="app_name"></h1>
+        <p class="subtitle" data-i18n="app_subtitle"></p>
       </div>
-      <label class="toggle" title="Enable / disable translation">
+      <label class="toggle" data-i18n-title="toggle_enable_title">
         <input type="checkbox" id="enabled" checked>
         <span class="toggle-slider"></span>
       </label>
     </header>
     <div id="disablePrompt" class="disable-prompt hidden">
-      <p>Also hide the translation panel?</p>
+      <p data-i18n="disable_prompt_text"></p>
       <div class="disable-prompt-actions">
-        <button type="button" id="disableYes">Yes</button>
-        <button type="button" id="disableNo">No</button>
+        <button type="button" id="disableYes" data-i18n="btn_yes"></button>
+        <button type="button" id="disableNo" data-i18n="btn_no"></button>
       </div>
       <label class="disable-remember">
-        <input type="checkbox" id="disableRemember"> Remember this choice
+        <input type="checkbox" id="disableRemember"> <span data-i18n="disable_remember"></span>
       </label>
     </div>
 
     <nav class="tab-bar">
-      <button type="button" class="tab active" data-tab="tab-dashboard" title="Dashboard">🏠</button>
-      <button type="button" class="tab" data-tab="tab-translation" title="Translation">🌐</button>
-      <button type="button" class="tab" data-tab="tab-display" title="Display">🎨</button>
-      <button type="button" class="tab" data-tab="tab-prompt" title="Prompt & Glossary">🔧</button>
-      <button type="button" class="tab" data-tab="tab-help" title="Help & About">ℹ️</button>
+      <button type="button" class="tab active" data-tab="tab-dashboard" data-i18n-title="tab_dashboard">🏠</button>
+      <button type="button" class="tab" data-tab="tab-translation" data-i18n-title="tab_translation">🌐</button>
+      <button type="button" class="tab" data-tab="tab-display" data-i18n-title="tab_display">🎨</button>
+      <button type="button" class="tab" data-tab="tab-prompt" data-i18n-title="tab_prompt">🔧</button>
+      <button type="button" class="tab" data-tab="tab-help" data-i18n-title="tab_help">ℹ️</button>
     </nav>
 
     <div class="tab-content">
       <!-- Tab 1: Dashboard -->
       <div id="tab-dashboard" class="tab-pane active">
         <section class="section">
-          <h2>Live Config</h2>
+          <h2 data-i18n="section_live_config"></h2>
           <div id="dashboardSummary" class="dashboard-summary"></div>
         </section>
         <section class="section">
-          <h2>Export Transcript</h2>
+          <h2 data-i18n="section_export"></h2>
           <div class="export-row">
             <select id="exportContent">
-              <option value="both">Original + Translation</option>
-              <option value="original">Original only</option>
-              <option value="translated">Translated only</option>
+              <option value="both" data-i18n="option_export_both"></option>
+              <option value="original" data-i18n="option_export_original"></option>
+              <option value="translated" data-i18n="option_export_translated"></option>
             </select>
             <select id="exportFormat">
               <option value="txt">TXT</option>
               <option value="csv">CSV</option>
               <option value="srt">SRT</option>
             </select>
-            <button id="exportBtn" type="button">Export</button>
+            <button id="exportBtn" type="button" data-i18n="btn_export"></button>
           </div>
         </section>
         <section class="section">
-          <h2>Saved Sessions</h2>
-          <button id="saveAndNewBtn" type="button" class="btn-primary btn-sm">Save & Start New</button>
+          <h2 data-i18n="section_sessions"></h2>
+          <button id="saveAndNewBtn" type="button" class="btn-primary btn-sm" data-i18n="btn_save_start_new"></button>
           <div id="sessionList" class="session-list">
-            <p class="session-empty">No saved sessions</p>
+            <p class="session-empty" data-i18n="status_no_sessions"></p>
           </div>
-          <button id="clearAllBtn" type="button" class="btn-danger btn-sm">Clear All Sessions</button>
+          <button id="clearAllBtn" type="button" class="btn-danger btn-sm" data-i18n="btn_clear_all"></button>
         </section>
       </div>
 
@@ -74,51 +74,51 @@
         <section class="section">
           <div class="lang-row">
             <div class="field">
-              <label for="sourceLang">From</label>
+              <label for="sourceLang" data-i18n="label_from"></label>
               <select id="sourceLang"></select>
               <select id="sourceDialect" class="dialect-select hidden"></select>
             </div>
             <span class="arrow">→</span>
             <div class="field">
-              <label for="targetLang">To</label>
+              <label for="targetLang" data-i18n="label_to"></label>
               <select id="targetLang"></select>
               <select id="targetDialect" class="dialect-select hidden"></select>
             </div>
           </div>
         </section>
         <section class="section">
-          <h2>Backend</h2>
+          <h2 data-i18n="section_backend"></h2>
           <div class="field">
-            <label for="backend">Backend</label>
+            <label for="backend" data-i18n="label_backend"></label>
             <select id="backend">
-              <option value="libre">LibreTranslate (free)</option>
-              <option value="google">Google Cloud Translation</option>
-              <option value="deepl">DeepL</option>
-              <option value="openai">OpenAI Compatible (best for Québécois)</option>
+              <option value="libre" data-i18n="option_backend_libre"></option>
+              <option value="google" data-i18n="option_backend_google"></option>
+              <option value="deepl" data-i18n="option_backend_deepl"></option>
+              <option value="openai" data-i18n="option_backend_openai"></option>
             </select>
           </div>
           <div class="field" id="apiKeyField">
-            <label for="apiKey">API Key</label>
-            <input type="password" id="apiKey" placeholder="Enter API key…" autocomplete="off">
+            <label for="apiKey" data-i18n="label_api_key"></label>
+            <input type="password" id="apiKey" data-i18n-placeholder="hint_api_key" autocomplete="off">
           </div>
           <div class="test-row">
-            <button type="button" id="testBtn" class="btn-test">Test Connection</button>
+            <button type="button" id="testBtn" class="btn-test" data-i18n="btn_test_connection"></button>
             <span id="testStatus" class="test-status"></span>
           </div>
           <div class="field" id="libreUrlField">
-            <label for="libreUrl">LibreTranslate URL</label>
+            <label for="libreUrl" data-i18n="label_libre_url"></label>
             <input type="url" id="libreUrl" placeholder="https://libretranslate.com">
           </div>
           <div class="field" id="openaiBaseUrlField">
-            <label for="openaiBaseUrl">Endpoint URL</label>
+            <label for="openaiBaseUrl" data-i18n="label_endpoint_url"></label>
             <input type="url" id="openaiBaseUrl" placeholder="https://api.openai.com">
-            <p class="field-hint">Ollama: http://host:11434 &middot; LM Studio: http://host:1234</p>
+            <p class="field-hint" data-i18n="hint_endpoint"></p>
           </div>
           <div class="field" id="openaiModelField">
-            <label for="openaiModel">Model</label>
+            <label for="openaiModel" data-i18n="label_model"></label>
             <div class="input-with-action">
               <input type="text" id="openaiModel" placeholder="gpt-4o-mini" list="openaiModelSuggestions" autocomplete="off">
-              <button type="button" id="refreshModelsBtn" class="btn-inline" title="Fetch models from endpoint">&#8635;</button>
+              <button type="button" id="refreshModelsBtn" class="btn-inline" data-i18n-title="hint_fetch_models">&#8635;</button>
             </div>
             <datalist id="openaiModelSuggestions">
               <option value="gpt-4o-mini">
@@ -136,19 +136,19 @@
           </div>
         </section>
         <section class="section">
-          <h2>Send frequency</h2>
+          <h2 data-i18n="section_frequency"></h2>
           <div class="field">
-            <label for="debounceStrategy">Strategy</label>
+            <label for="debounceStrategy" data-i18n="label_strategy"></label>
             <select id="debounceStrategy">
-              <option value="realtime">Each update (~300ms)</option>
-              <option value="sentence">End of sentence</option>
-              <option value="stable">Stable text (~1.5s pause)</option>
-              <option value="timed">Timed batch (custom)</option>
+              <option value="realtime" data-i18n="option_strategy_realtime"></option>
+              <option value="sentence" data-i18n="option_strategy_sentence"></option>
+              <option value="stable" data-i18n="option_strategy_stable"></option>
+              <option value="timed" data-i18n="option_strategy_timed"></option>
             </select>
             <p class="field-hint" id="debounceHint"></p>
           </div>
           <div class="field" id="debounceMsField">
-            <label for="debounceMs">Batch window</label>
+            <label for="debounceMs" data-i18n="label_batch_window"></label>
             <div class="range-row">
               <input type="range" id="debounceMs" min="1000" max="15000" step="500" value="5000">
               <span id="debounceMsVal">5.0s</span>
@@ -160,23 +160,23 @@
       <!-- Tab 3: Display -->
       <div id="tab-display" class="tab-pane">
         <section class="section">
-          <h2>Display</h2>
+          <h2 data-i18n="section_display"></h2>
           <div class="field">
-            <label for="displayMode">Mode</label>
+            <label for="displayMode" data-i18n="label_mode"></label>
             <select id="displayMode">
-              <option value="inline">Inline (below captions)</option>
-              <option value="sidepanel">Side Panel</option>
+              <option value="inline" data-i18n="option_mode_inline"></option>
+              <option value="sidepanel" data-i18n="option_mode_sidepanel"></option>
             </select>
           </div>
           <div class="field">
-            <label for="fontSize">Font size</label>
+            <label for="fontSize" data-i18n="label_font_size"></label>
             <div class="range-row">
               <input type="range" id="fontSize" min="10" max="20" value="13">
               <span id="fontSizeVal">13px</span>
             </div>
           </div>
           <div class="field">
-            <label for="historyBufferSize">History buffer</label>
+            <label for="historyBufferSize" data-i18n="label_history_buffer"></label>
             <div class="range-row">
               <input type="range" id="historyBufferSize" min="10" max="510" value="100">
               <span id="historyBufferSizeVal">100</span>
@@ -184,22 +184,22 @@
           </div>
         </section>
         <section class="section">
-          <h2>Behavior</h2>
+          <h2 data-i18n="section_behavior"></h2>
           <div class="field">
-            <label for="onPanelClose">When closing panel</label>
+            <label for="onPanelClose" data-i18n="label_panel_close"></label>
             <select id="onPanelClose">
-              <option value="ask">Ask</option>
-              <option value="stop">Stop translation</option>
-              <option value="continue">Continue in background</option>
-              <option value="off">Turn off extension</option>
+              <option value="ask" data-i18n="option_ask"></option>
+              <option value="stop" data-i18n="option_stop_translation"></option>
+              <option value="continue" data-i18n="option_continue_bg"></option>
+              <option value="off" data-i18n="option_turn_off"></option>
             </select>
           </div>
           <div class="field">
-            <label for="onDisable">When disabling translation</label>
+            <label for="onDisable" data-i18n="label_disable_action"></label>
             <select id="onDisable">
-              <option value="ask">Ask</option>
-              <option value="hide">Also hide panel</option>
-              <option value="keep">Keep panel visible</option>
+              <option value="ask" data-i18n="option_ask"></option>
+              <option value="hide" data-i18n="option_hide_panel"></option>
+              <option value="keep" data-i18n="option_keep_panel"></option>
             </select>
           </div>
         </section>
@@ -208,20 +208,20 @@
       <!-- Tab 4: Prompt & Glossary -->
       <div id="tab-prompt" class="tab-pane">
         <section class="section">
-          <h2>System prompt</h2>
+          <h2 data-i18n="section_prompt"></h2>
           <div class="field">
-            <label for="openaiSystemPrompt">Custom instructions</label>
-            <textarea id="openaiSystemPrompt" rows="4" placeholder="Custom translation instructions…"></textarea>
+            <label for="openaiSystemPrompt" data-i18n="label_custom_instructions"></label>
+            <textarea id="openaiSystemPrompt" rows="4" data-i18n-placeholder="hint_prompt_placeholder_text"></textarea>
             <div class="prompt-footer">
-              <span class="field-hint">Use {{SOURCE_LANG}}, {{TARGET_LANG}}, {{GLOSSARY}}</span>
-              <button type="button" id="resetPromptBtn" class="btn-link">Reset</button>
+              <span class="field-hint" data-i18n="hint_prompt_placeholders"></span>
+              <button type="button" id="resetPromptBtn" class="btn-link" data-i18n="btn_reset_prompt"></button>
             </div>
           </div>
         </section>
         <section class="section">
-          <h2>Glossary</h2>
+          <h2 data-i18n="section_glossary"></h2>
           <div class="field glossary-enabled-row">
-            <span>Enable glossary</span>
+            <span data-i18n="label_enable_glossary"></span>
             <label class="toggle">
               <input type="checkbox" id="glossaryEnabled" checked>
               <span class="toggle-slider"></span>
@@ -229,10 +229,10 @@
           </div>
           <div id="glossaryList" class="glossary-list"></div>
           <div class="glossary-add-row">
-            <input type="text" id="glossaryPattern" placeholder="Mangled text…">
+            <input type="text" id="glossaryPattern" data-i18n-placeholder="hint_mangled_text">
             <span class="arrow">→</span>
-            <input type="text" id="glossaryReplacement" placeholder="Correct term…">
-            <button id="glossaryAddBtn" type="button" class="btn-icon" title="Add entry">+</button>
+            <input type="text" id="glossaryReplacement" data-i18n-placeholder="hint_correct_term">
+            <button id="glossaryAddBtn" type="button" class="btn-icon" data-i18n-title="btn_add_glossary">+</button>
           </div>
         </section>
       </div>
@@ -240,36 +240,37 @@
       <!-- Tab 5: Help & About -->
       <div id="tab-help" class="tab-pane">
         <section class="section">
-          <h2>Version</h2>
+          <h2 data-i18n="section_version"></h2>
           <p id="version">—</p>
         </section>
         <section class="section">
-          <h2>Keyboard shortcuts</h2>
+          <h2 data-i18n="section_shortcuts"></h2>
           <ul class="shortcut-list">
-            <li><span class="shortcut">Alt+Shift+T</span> — toggle display mode</li>
-            <li><span class="shortcut">Alt+Shift+E</span> — export transcript</li>
-            <li><span class="shortcut">Ctrl+Click</span> — glossary popover</li>
+            <li><span class="shortcut">Alt+Shift+T</span> — <span data-i18n="shortcut_toggle"></span></li>
+            <li><span class="shortcut">Alt+Shift+E</span> — <span data-i18n="shortcut_export"></span></li>
+            <li><span class="shortcut">Ctrl+Click</span> — <span data-i18n="shortcut_glossary"></span></li>
           </ul>
         </section>
         <section class="section">
-          <h2>Quick start</h2>
+          <h2 data-i18n="section_quickstart"></h2>
           <ul class="quick-start">
-            <li>Join a Teams meeting</li>
-            <li>Turn on captions</li>
-            <li>Enable the extension</li>
-            <li>Translations appear in the chosen display mode</li>
+            <li data-i18n="quickstart_1"></li>
+            <li data-i18n="quickstart_2"></li>
+            <li data-i18n="quickstart_3"></li>
+            <li data-i18n="quickstart_4"></li>
           </ul>
         </section>
         <section class="section">
-          <a href="#" id="githubLink">GitHub</a>
+          <a href="#" id="githubLink" data-i18n="about_link"></a>
         </section>
         <section class="section">
-          <p class="about-text">Lost in Transcription — Real-time translation of Microsoft Teams® Closed Captions.</p>
+          <p class="about-text" data-i18n="about_text"></p>
         </section>
       </div>
     </div>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="languages.js" type="module"></script>
   <script src="popup.js"></script>
 </body>

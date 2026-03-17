@@ -15,7 +15,7 @@
 const LANGUAGE_DIALECTS = {
   // ── Major world languages ───────────────────────────────────────────────
   ar: {
-    name: 'Arabic',
+    name: 'Arabic', nativeName: 'العربية',
     dialects: [
       { code: 'ar', label: 'Modern Standard' },
       { code: 'ar-SA', label: 'Peninsular / Gulf' },
@@ -25,11 +25,11 @@ const LANGUAGE_DIALECTS = {
       { code: 'ar-MA', label: 'Maghrebi (Darija)' },
     ],
   },
-  bn: { name: 'Bengali', dialects: [] },
-  bg: { name: 'Bulgarian', dialects: [] },
-  ca: { name: 'Catalan', dialects: [] },
+  bn: { name: 'Bengali', nativeName: 'বাংলা', dialects: [] },
+  bg: { name: 'Bulgarian', nativeName: 'Български', dialects: [] },
+  ca: { name: 'Catalan', nativeName: 'Català', dialects: [] },
   zh: {
-    name: 'Chinese',
+    name: 'Chinese', nativeName: '中文',
     dialects: [
       { code: 'zh', label: 'Simplified (Mandarin)' },
       { code: 'zh-Hant', label: 'Traditional' },
@@ -38,11 +38,11 @@ const LANGUAGE_DIALECTS = {
       { code: 'yue', label: 'Cantonese' },
     ],
   },
-  hr: { name: 'Croatian', dialects: [] },
-  cs: { name: 'Czech', dialects: [] },
-  da: { name: 'Danish', dialects: [] },
+  hr: { name: 'Croatian', nativeName: 'Hrvatski', dialects: [] },
+  cs: { name: 'Czech', nativeName: 'Čeština', dialects: [] },
+  da: { name: 'Danish', nativeName: 'Dansk', dialects: [] },
   nl: {
-    name: 'Dutch',
+    name: 'Dutch', nativeName: 'Nederlands',
     dialects: [
       { code: 'nl', label: 'Standard' },
       { code: 'nl-NL', label: 'Hollands' },
@@ -53,7 +53,7 @@ const LANGUAGE_DIALECTS = {
     ],
   },
   en: {
-    name: 'English',
+    name: 'English', nativeName: 'English',
     dialects: [
       { code: 'en', label: 'Standard' },
       { code: 'en-US', label: 'American' },
@@ -66,9 +66,9 @@ const LANGUAGE_DIALECTS = {
       { code: 'en-ZA', label: 'South African' },
     ],
   },
-  fi: { name: 'Finnish', dialects: [] },
+  fi: { name: 'Finnish', nativeName: 'Suomi', dialects: [] },
   fr: {
-    name: 'French',
+    name: 'French', nativeName: 'Français',
     dialects: [
       { code: 'fr', label: 'Standard' },
       { code: 'fr-QC', label: 'Québécois' },
@@ -78,7 +78,7 @@ const LANGUAGE_DIALECTS = {
     ],
   },
   de: {
-    name: 'German',
+    name: 'German', nativeName: 'Deutsch',
     dialects: [
       { code: 'de', label: 'Standard' },
       { code: 'de-DE', label: 'Bundesdeutsch' },
@@ -86,38 +86,38 @@ const LANGUAGE_DIALECTS = {
       { code: 'de-CH', label: 'Swiss' },
     ],
   },
-  el: { name: 'Greek', dialects: [] },
-  he: { name: 'Hebrew', dialects: [] },
-  hi: { name: 'Hindi', dialects: [] },
-  hu: { name: 'Hungarian', dialects: [] },
-  id: { name: 'Indonesian', dialects: [] },
-  it: { name: 'Italian', dialects: [] },
-  ja: { name: 'Japanese', dialects: [] },
-  ko: { name: 'Korean', dialects: [] },
-  ms: { name: 'Malay', dialects: [] },
+  el: { name: 'Greek', nativeName: 'Ελληνικά', dialects: [] },
+  he: { name: 'Hebrew', nativeName: 'עברית', dialects: [] },
+  hi: { name: 'Hindi', nativeName: 'हिन्दी', dialects: [] },
+  hu: { name: 'Hungarian', nativeName: 'Magyar', dialects: [] },
+  id: { name: 'Indonesian', nativeName: 'Bahasa Indonesia', dialects: [] },
+  it: { name: 'Italian', nativeName: 'Italiano', dialects: [] },
+  ja: { name: 'Japanese', nativeName: '日本語', dialects: [] },
+  ko: { name: 'Korean', nativeName: '한국어', dialects: [] },
+  ms: { name: 'Malay', nativeName: 'Bahasa Melayu', dialects: [] },
   nb: {
-    name: 'Norwegian',
+    name: 'Norwegian', nativeName: 'Norsk',
     dialects: [
       { code: 'nb', label: 'Bokmål' },
       { code: 'nn', label: 'Nynorsk' },
     ],
   },
-  fa: { name: 'Persian', dialects: [] },
-  pl: { name: 'Polish', dialects: [] },
+  fa: { name: 'Persian', nativeName: 'فارسی', dialects: [] },
+  pl: { name: 'Polish', nativeName: 'Polski', dialects: [] },
   pt: {
-    name: 'Portuguese',
+    name: 'Portuguese', nativeName: 'Português',
     dialects: [
       { code: 'pt', label: 'Standard' },
       { code: 'pt-BR', label: 'Brazilian' },
       { code: 'pt-PT', label: 'European' },
     ],
   },
-  ro: { name: 'Romanian', dialects: [] },
-  ru: { name: 'Russian', dialects: [] },
-  sr: { name: 'Serbian', dialects: [] },
-  sk: { name: 'Slovak', dialects: [] },
+  ro: { name: 'Romanian', nativeName: 'Română', dialects: [] },
+  ru: { name: 'Russian', nativeName: 'Русский', dialects: [] },
+  sr: { name: 'Serbian', nativeName: 'Српски', dialects: [] },
+  sk: { name: 'Slovak', nativeName: 'Slovenčina', dialects: [] },
   es: {
-    name: 'Spanish',
+    name: 'Spanish', nativeName: 'Español',
     dialects: [
       { code: 'es', label: 'Standard' },
       { code: 'es-ES', label: 'European / Castilian' },
@@ -127,14 +127,14 @@ const LANGUAGE_DIALECTS = {
       { code: 'es-CO', label: 'Colombian' },
     ],
   },
-  sw: { name: 'Swahili', dialects: [] },
-  sv: { name: 'Swedish', dialects: [] },
-  tl: { name: 'Tagalog', dialects: [] },
-  th: { name: 'Thai', dialects: [] },
-  tr: { name: 'Turkish', dialects: [] },
-  uk: { name: 'Ukrainian', dialects: [] },
-  ur: { name: 'Urdu', dialects: [] },
-  vi: { name: 'Vietnamese', dialects: [] },
+  sw: { name: 'Swahili', nativeName: 'Kiswahili', dialects: [] },
+  sv: { name: 'Swedish', nativeName: 'Svenska', dialects: [] },
+  tl: { name: 'Tagalog', nativeName: 'Tagalog', dialects: [] },
+  th: { name: 'Thai', nativeName: 'ไทย', dialects: [] },
+  tr: { name: 'Turkish', nativeName: 'Türkçe', dialects: [] },
+  uk: { name: 'Ukrainian', nativeName: 'Українська', dialects: [] },
+  ur: { name: 'Urdu', nativeName: 'اردو', dialects: [] },
+  vi: { name: 'Vietnamese', nativeName: 'Tiếng Việt', dialects: [] },
 };
 
 /**
@@ -188,6 +188,53 @@ const DIALECT_DISPLAY_NAMES = {
   'ar-MA': 'Maghrebi Arabic (Darija)',
   // Norwegian
   'nn': 'Norwegian Nynorsk',
+};
+
+/**
+ * Dialect-specific hints for AI system prompt generation.
+ * Used by buildDefaultPrompt() in openai.js.
+ */
+const DIALECT_PROMPT_HINTS = {
+  'fr-QC': {
+    note: 'handle colloquialisms, joual expressions, and informal contractions',
+    examples: '"C\'est tu" = "Is it", "pantoute" = "not at all", "j\'va" = "I\'m going to", "faque" = "so/therefore"',
+  },
+  'fr-CH': {
+    note: 'handle Swiss French expressions and numeric conventions',
+    examples: '"septante" = "seventy", "nonante" = "ninety", "huitante" = "eighty"',
+  },
+  'es-AR': {
+    note: 'handle voseo conjugation and Rioplatense slang',
+    examples: '"vos tenés" = "you have", "che" = (interjection), "re" = "very/really"',
+  },
+  'es-MX': {
+    note: 'handle Mexican Spanish slang and idioms',
+    examples: '"órale" = "alright/wow", "mande" = "pardon?", "chido" = "cool"',
+  },
+  'pt-BR': {
+    note: 'handle Brazilian Portuguese colloquialisms',
+    examples: '"tá" = "está/ok", "né" = "isn\'t it", "gente" = "folks"',
+  },
+  'de-CH': {
+    note: 'handle Swiss German (Schweizerdeutsch) expressions',
+    examples: '"grüezi" = "hello", "Velo" = "bicycle", "Natel" = "mobile phone"',
+  },
+  'de-AT': {
+    note: 'handle Austrian German expressions',
+    examples: '"Sackerl" = "bag", "Erdäpfel" = "potatoes", "Jänner" = "January"',
+  },
+  'en-SCO': {
+    note: 'handle Scottish English dialect and expressions',
+    examples: '"aye" = "yes", "wee" = "small", "braw" = "fine/good"',
+  },
+  'ar-EG': {
+    note: 'handle Egyptian Arabic colloquialisms',
+    examples: '"إزيك" = "how are you", "كدا" = "like this", "يعني" = "meaning/so"',
+  },
+  'ar-MA': {
+    note: 'handle Maghrebi Arabic (Darija) expressions',
+    examples: '"بزاف" = "a lot", "واش" = "is/do (question)", "خويا" = "brother/friend"',
+  },
 };
 
 /*
@@ -311,11 +358,13 @@ const BERGAMOT_DIALECT_MAP = {
 if (typeof window !== 'undefined') {
   window.LANGUAGE_DIALECTS = LANGUAGE_DIALECTS;
   window.DIALECT_DISPLAY_NAMES = DIALECT_DISPLAY_NAMES;
+  window.DIALECT_PROMPT_HINTS = DIALECT_PROMPT_HINTS;
 }
 
 export {
   LANGUAGE_DIALECTS,
   DIALECT_DISPLAY_NAMES,
+  DIALECT_PROMPT_HINTS,
   DEEPL_DIALECT_MAP,
   GOOGLE_DIALECT_MAP,
   LIBRE_DIALECT_MAP,
