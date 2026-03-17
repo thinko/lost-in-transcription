@@ -125,6 +125,19 @@
     </section>
 
     <section class="section">
+      <h2>Glossary</h2>
+      <p class="field-hint">Fix common transcription errors for technical terms.</p>
+      <div id="glossaryList" class="glossary-list"></div>
+      <div class="glossary-add-row">
+        <input type="text" id="glossaryPattern" placeholder="Mangled text…">
+        <span class="arrow">→</span>
+        <input type="text" id="glossaryReplacement" placeholder="Correct term…">
+        <button id="glossaryAddBtn" type="button" class="btn-icon" title="Add entry">+</button>
+      </div>
+      <p class="field-hint">Use {{GLOSSARY}} in the system prompt to control placement for AI backends.</p>
+    </section>
+
+    <section class="section">
       <h2>Export Transcript</h2>
       <div class="export-row">
         <select id="exportContent">
@@ -157,7 +170,7 @@
     </footer>
   </div>
 
-  <script src="languages.js"></script>
+  <script src="languages.js" type="module"></script>
   <script src="popup.js"></script>
 </body>
 </html>

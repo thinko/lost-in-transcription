@@ -14,17 +14,25 @@ export async function translate(text, apiKey, options = {}) {
   const target = options.targetLang || 'en';
   const model = options.openaiModel || 'gpt-4o-mini';
   const baseUrl = (options.openaiBaseUrl || 'https://api.openai.com').replace(/\/+$/, '');
-  // #region agent log
-  fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'openai.js:translate',message:'resolved baseUrl',data:{rawOption:options.openaiBaseUrl,resolvedBaseUrl:baseUrl,hasApiKey:!!apiKey,model},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
 
   const sourceName = options.sourceDialectName || langName(source);
   const targetName = options.targetDialectName || langName(target);
 
+  const glossaryTerms = options.glossaryTerms || [];
+  const glossaryBlock = glossaryTerms.length
+    ? `\nTECHNICAL GLOSSARY — these terms may appear mangled in the source transcription. Recognize and preserve them exactly: ${glossaryTerms.join(', ')}.`
+    : '';
+
   const promptTemplate = options.openaiSystemPrompt || DEFAULT_SYSTEM_PROMPT;
-  const systemContent = promptTemplate
+  let systemContent = promptTemplate
     .replace(/\{\{SOURCE_LANG\}\}/g, sourceName)
     .replace(/\{\{TARGET_LANG\}\}/g, targetName);
+
+  if (systemContent.includes('{{GLOSSARY}}')) {
+    systemContent = systemContent.replace(/\{\{GLOSSARY\}\}/g, glossaryBlock.trim());
+  } else if (glossaryBlock) {
+    systemContent += glossaryBlock;
+  }
 
   const headers = { 'Content-Type': 'application/json' };
   if (apiKey) {
@@ -47,7 +55,13 @@ export async function translate(text, apiKey, options = {}) {
 
   if (!response.ok) {
     const err = await response.text();
-    const label = baseUrl.includes('openai.com') ? 'OpenAI' : 'API';
+    const isLocal = !baseUrl.includes('openai.com');
+    const label = isLocal ? 'API' : 'OpenAI';
+    if (isLocal && response.status === 403 && !err.trim()) {
+      throw new Error(
+        `${label} returned 403 (Forbidden). If using Ollama, set OLLAMA_ORIGINS=* and restart it.`
+      );
+    }
     throw new Error(`${label} error ${response.status}: ${err}`);
   }
 

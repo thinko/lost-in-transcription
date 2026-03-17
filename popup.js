@@ -34,6 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
     exportContent: document.getElementById('exportContent'),
     exportFormat: document.getElementById('exportFormat'),
     exportBtn: document.getElementById('exportBtn'),
+    glossaryList: document.getElementById('glossaryList'),
+    glossaryPattern: document.getElementById('glossaryPattern'),
+    glossaryReplacement: document.getElementById('glossaryReplacement'),
+    glossaryAddBtn: document.getElementById('glossaryAddBtn'),
     sessionList: document.getElementById('sessionList'),
     clearAllBtn: document.getElementById('clearAllBtn'),
   };
@@ -200,9 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   els.openaiBaseUrl.addEventListener('change', () => {
-    // #region agent log
-    fetch('http://127.0.0.1:7823/ingest/ea249d66-29bb-44c3-bcab-c5e5a4a3444e',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'e115c2'},body:JSON.stringify({sessionId:'e115c2',location:'popup.js:openaiBaseUrl-change',message:'saving openaiBaseUrl',data:{value:els.openaiBaseUrl.value.trim()},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     save('openaiBaseUrl', els.openaiBaseUrl.value.trim());
   });
 
@@ -345,6 +346,83 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     );
   });
+
+  // ── Glossary ─────────────────────────────────────────────────────────
+
+  let glossary = [];
+
+  function loadGlossary() {
+    chrome.storage.sync.get({ glossary: [] }, (data) => {
+      glossary = data.glossary || [];
+      renderGlossary();
+    });
+  }
+
+  function saveGlossary() {
+    chrome.storage.sync.set({ glossary });
+    notifyContentScript({ glossary });
+  }
+
+  function renderGlossary() {
+    const list = els.glossaryList;
+    if (!glossary.length) {
+      list.innerHTML = '<p class="glossary-empty">No entries yet</p>';
+      return;
+    }
+    list.innerHTML = '';
+    glossary.forEach((entry, i) => {
+      const row = document.createElement('div');
+      row.className = 'glossary-entry' + (entry.enabled ? '' : ' disabled');
+      row.innerHTML = `
+        <span class="glossary-pattern" title="${esc(entry.pattern)}">${esc(entry.pattern)}</span>
+        <span class="arrow">→</span>
+        <span class="glossary-replacement" title="${esc(entry.replacement)}">${esc(entry.replacement)}</span>
+        <button class="btn-icon glossary-toggle" data-idx="${i}" title="${entry.enabled ? 'Disable' : 'Enable'}">${entry.enabled ? '✓' : '○'}</button>
+        <button class="btn-icon delete glossary-delete" data-idx="${i}" title="Delete">&times;</button>
+      `;
+      list.appendChild(row);
+    });
+
+    list.querySelectorAll('.glossary-toggle').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        glossary[idx].enabled = !glossary[idx].enabled;
+        saveGlossary();
+        renderGlossary();
+      });
+    });
+
+    list.querySelectorAll('.glossary-delete').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        glossary.splice(idx, 1);
+        saveGlossary();
+        renderGlossary();
+      });
+    });
+  }
+
+  els.glossaryAddBtn.addEventListener('click', () => {
+    const pattern = els.glossaryPattern.value.trim();
+    const replacement = els.glossaryReplacement.value.trim();
+    if (!pattern || !replacement) return;
+    glossary.push({ pattern, replacement, enabled: true });
+    saveGlossary();
+    renderGlossary();
+    els.glossaryPattern.value = '';
+    els.glossaryReplacement.value = '';
+    els.glossaryPattern.focus();
+  });
+
+  els.glossaryPattern.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') els.glossaryReplacement.focus();
+  });
+
+  els.glossaryReplacement.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') els.glossaryAddBtn.click();
+  });
+
+  loadGlossary();
 
   // ── Export button ─────────────────────────────────────────────────────
 
