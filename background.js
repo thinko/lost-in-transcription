@@ -3,6 +3,7 @@ import { translate as deeplTranslate } from './translators/deepl.js';
 import { translate as libreTranslate } from './translators/libre.js';
 import { translate as openaiTranslate } from './translators/openai.js';
 import { DIALECT_DISPLAY_NAMES } from './languages.js';
+import { Glossary } from './glossary.js';
 
 const translators = {
   google: googleTranslate,
@@ -61,10 +62,15 @@ async function getSettings() {
     openaiBaseUrl: 'https://api.openai.com',
     openaiSystemPrompt: '',
     glossary: [],
+    glossaryEnabled: true,
     debounceStrategy: 'realtime',
     debounceMs: 5000,
     lastExportFormat: 'txt',
     lastExportContent: 'both',
+    historyBufferSize: 200,
+    onPanelClose: 'ask',
+    onDisable: 'ask',
+    lastTab: 'dashboard',
   };
   const stored = await chrome.storage.sync.get(defaults);
   return { ...defaults, ...stored };
@@ -96,43 +102,20 @@ function computeDebounceDelay(text, settings) {
   }
 }
 
-// --- Glossary helpers -----------------------------------------------------
-
-function applyGlossary(text, glossary) {
-  if (!glossary?.length) return text;
-  let result = text;
-  for (const entry of glossary) {
-    if (!entry.enabled || !entry.pattern) continue;
-    const escaped = entry.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    result = result.replace(new RegExp(escaped, 'gi'), entry.replacement);
-  }
-  return result;
-}
-
-function glossaryHash(glossary) {
-  if (!glossary?.length) return '0';
-  const sig = glossary
-    .filter((e) => e.enabled)
-    .map((e) => `${e.pattern}>${e.replacement}`)
-    .join('|');
-  let h = 0;
-  for (let i = 0; i < sig.length; i++) {
-    h = ((h << 5) - h + sig.charCodeAt(i)) | 0;
-  }
-  return h.toString(36);
-}
-
 // --- Translation entry point ----------------------------------------------
 
 async function handleTranslate(text, captionId, settings) {
   if (!text || !text.trim()) return null;
 
-  const glossary = settings.glossary || [];
-  const correctedText = applyGlossary(text, glossary);
+  const glossary = new Glossary(
+    settings.glossary || [],
+    settings.glossaryEnabled !== false
+  );
+  const correctedText = glossary.apply(text);
 
   const sd = settings.sourceDialect || '';
   const td = settings.targetDialect || '';
-  const gh = glossaryHash(glossary);
+  const gh = glossary.hash();
   const cacheKey = `${settings.backend}:${settings.sourceLang}:${sd}:${settings.targetLang}:${td}:${gh}:${correctedText}`;
   const cached = cache.get(cacheKey);
   if (cached) return cached;
@@ -147,9 +130,7 @@ async function handleTranslate(text, captionId, settings) {
     ? (DIALECT_DISPLAY_NAMES[settings.targetDialect] || settings.targetDialect)
     : '';
 
-  const glossaryTerms = [...new Set(
-    glossary.filter((e) => e.enabled).map((e) => e.replacement)
-  )];
+  const glossaryTerms = glossary.terms;
 
   const rawTranslated = await fn(correctedText, settings.apiKey, {
     sourceLang: settings.sourceLang,
@@ -165,7 +146,7 @@ async function handleTranslate(text, captionId, settings) {
     glossaryTerms,
   });
 
-  const translated = applyGlossary(rawTranslated, glossary);
+  const translated = glossary.apply(rawTranslated);
 
   cache.set(cacheKey, translated);
   return translated;
@@ -265,6 +246,52 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
       sendResponse({ ok: true, count: history.length });
     });
+    return true;
+  }
+
+  if (msg.type === 'glossary-updated') {
+    cache.cache.clear();
+    sendResponse({ ok: true });
+    return false;
+  }
+
+  if (msg.type === 'revise-session') {
+    (async () => {
+      const settings = await getSettings();
+      const glossary = new Glossary(
+        settings.glossary || [],
+        settings.glossaryEnabled !== false
+      );
+      const data = await chrome.storage.local.get({
+        [`litHistory_${msg.sessionId}`]: [],
+      });
+      const history = data[`litHistory_${msg.sessionId}`] || [];
+      let changed = 0;
+      for (const entry of history) {
+        const origBefore = entry.original;
+        const transBefore = entry.translated;
+        entry.original = glossary.apply(entry.original || '');
+        entry.translated = glossary.apply(entry.translated || '');
+        if (entry.original !== origBefore || entry.translated !== transBefore) {
+          changed++;
+        }
+      }
+      await chrome.storage.local.set({
+        [`litHistory_${msg.sessionId}`]: history,
+      });
+      sendResponse({ ok: true, changed, total: history.length });
+    })();
+    return true;
+  }
+
+  if (msg.type === 'save-and-new-session') {
+    (async () => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab?.id) {
+        chrome.tabs.sendMessage(tab.id, { type: 'save-and-new-session' });
+      }
+      sendResponse({ ok: true });
+    })();
     return true;
   }
 });
