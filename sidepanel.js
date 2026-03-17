@@ -10,10 +10,36 @@
 
   let panelWidth = DEFAULT_WIDTH;
   let collapsed = false;
+  let historyBufferSize = 200;
 
-  // Restore persisted width
+  // Restore persisted width and history buffer size
   chrome.storage.sync.get({ sidePanelWidth: DEFAULT_WIDTH }, (v) => {
     panelWidth = v.sidePanelWidth;
+  });
+  chrome.storage.sync.get({ historyBufferSize: 200 }, (v) => {
+    historyBufferSize = v.historyBufferSize;
+  });
+
+  window.__litSidePanelClear = function () {
+    const host = document.getElementById(PANEL_ID);
+    if (!host?.shadowRoot) return;
+    const entries = host.shadowRoot.getElementById('lit-entries');
+    const countBadge = host.shadowRoot.getElementById('lit-count');
+    if (entries) entries.innerHTML = '';
+    if (countBadge) countBadge.textContent = '0';
+  };
+
+  // Listen for settings changes (e.g. historyBufferSize)
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type === 'settings-changed' && msg.settings.historyBufferSize !== undefined) {
+      historyBufferSize = msg.settings.historyBufferSize;
+      const host = document.getElementById(PANEL_ID);
+      if (host?.shadowRoot) {
+        const entries = host.shadowRoot.getElementById('lit-entries');
+        const countBadge = host.shadowRoot.getElementById('lit-count');
+        if (entries) pruneEntries(entries, countBadge);
+      }
+    }
   });
 
   // ── Create the side panel ──────────────────────────────────────────────
@@ -38,6 +64,8 @@
         <div class="lit-header">
           <span class="lit-title">Translation</span>
           <span class="lit-count" id="lit-count">0</span>
+          <span class="lit-header-spacer"></span>
+          <button class="lit-close-btn" id="lit-close" title="Close panel">✕</button>
         </div>
         <div class="lit-entries" id="lit-entries"></div>
       </div>
@@ -51,6 +79,7 @@
     const resizeHandle = shadow.getElementById('lit-resize');
     const collapseBtn = shadow.getElementById('lit-collapse');
     const countBadge = shadow.getElementById('lit-count');
+    const closeBtn = shadow.getElementById('lit-close');
 
     panel.style.width = panelWidth + 'px';
 
@@ -58,6 +87,7 @@
     if (existingHistory?.length) {
       for (const entry of existingHistory) {
         appendEntry(entries, entry, countBadge);
+        pruneEntries(entries, countBadge);
       }
     }
 
@@ -70,6 +100,7 @@
         existing.querySelector('.lit-entry-original').textContent = entry.original;
       } else {
         appendEntry(entries, entry, countBadge);
+        pruneEntries(entries, countBadge);
       }
       entries.scrollTop = entries.scrollHeight;
     };
@@ -107,6 +138,57 @@
       collapsed = !collapsed;
       panel.classList.toggle('lit-collapsed', collapsed);
       collapseBtn.textContent = collapsed ? '▶' : '◀';
+    });
+
+    // ── Close button ───────────────────────────────────────────────────
+
+    function performCloseAction(action) {
+      host.style.display = 'none';
+      if (action === 'stop' || action === 'disable') {
+        chrome.storage.sync.set({ enabled: false });
+        chrome.runtime.sendMessage({ type: 'settings-changed', settings: { enabled: false } });
+      } else if (action === 'background') {
+        chrome.storage.sync.set({ displayMode: 'none' });
+        chrome.runtime.sendMessage({ type: 'settings-changed', settings: { displayMode: 'none' } });
+      }
+    }
+
+    closeBtn.addEventListener('click', () => {
+      chrome.storage.sync.get({ onPanelClose: 'ask' }, (v) => {
+        const onPanelClose = v.onPanelClose;
+        if (onPanelClose === 'ask') {
+          let dialog = shadow.getElementById('lit-close-dialog');
+          if (!dialog) {
+            dialog = document.createElement('div');
+            dialog.className = 'lit-close-dialog';
+            dialog.id = 'lit-close-dialog';
+            dialog.innerHTML = `
+              <p>What would you like to do?</p>
+              <button class="lit-dialog-btn" data-action="stop">Stop translation</button>
+              <button class="lit-dialog-btn" data-action="background">Continue in background</button>
+              <button class="lit-dialog-btn" data-action="disable">Turn off extension</button>
+              <label class="lit-dialog-remember">
+                <input type="checkbox" id="lit-remember"> Don't ask again
+              </label>
+            `;
+            panel.appendChild(dialog);
+            dialog.querySelectorAll('.lit-dialog-btn').forEach((btn) => {
+              btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const remember = dialog.querySelector('#lit-remember').checked;
+                if (remember) {
+                  chrome.storage.sync.set({ onPanelClose: action });
+                }
+                performCloseAction(action);
+                dialog.remove();
+              });
+            });
+          }
+          dialog.style.display = 'flex';
+        } else {
+          performCloseAction(onPanelClose);
+        }
+      });
     });
 
     // ── ResizeObserver to track caption pane movement ──────────────────
@@ -153,6 +235,14 @@
     if (countBadge) {
       countBadge.textContent = container.children.length;
     }
+  }
+
+  function pruneEntries(entriesContainer, countBadge) {
+    if (historyBufferSize === 0) return; // 0 = unlimited
+    while (entriesContainer.children.length > historyBufferSize) {
+      entriesContainer.removeChild(entriesContainer.firstChild);
+    }
+    if (countBadge) countBadge.textContent = entriesContainer.children.length;
   }
 
   // ── Side panel styles ──────────────────────────────────────────────────
@@ -248,6 +338,22 @@
         text-align: center;
       }
 
+      .lit-header-spacer { flex: 1; }
+      .lit-close-btn {
+        background: none;
+        border: none;
+        color: #888;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 3px;
+        line-height: 1;
+      }
+      .lit-close-btn:hover {
+        background: #e8e8e8;
+        color: #333;
+      }
+
       .lit-entries {
         flex: 1;
         overflow-y: auto;
@@ -312,6 +418,59 @@
         .lit-entry-translated {
           color: #e0e0e0;
         }
+        .lit-close-btn:hover {
+          background: #333;
+          color: #e0e0e0;
+        }
+      }
+
+      .lit-close-dialog {
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.95);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px;
+        z-index: 20;
+      }
+      .lit-close-dialog p {
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .lit-dialog-btn {
+        width: 100%;
+        max-width: 200px;
+        padding: 7px 12px;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        background: #fafafa;
+        font-size: 12px;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .lit-dialog-btn:hover {
+        border-color: #4a9eff;
+        background: #f0f7ff;
+      }
+      .lit-dialog-remember {
+        font-size: 11px;
+        color: #888;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+      }
+      @media (prefers-color-scheme: dark) {
+        .lit-close-dialog { background: rgba(31,31,31,0.95); }
+        .lit-dialog-btn { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
+        .lit-dialog-btn:hover { border-color: #4a9eff; background: #333; }
+        .lit-dialog-remember { color: #999; }
       }
     `;
   }
