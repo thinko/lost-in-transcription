@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Lost in Transcription",
-  "version": "1.0.0",
-  "description": "Real-time translation of Microsoft Teams closed captions — never get lost in transcription again.",
+  "version": "1.2.0",
+  "description": "Real-time translation of Microsoft Teams® Closed Captions — never get lost in transcription again.",
   "permissions": [
     "storage",
     "activeTab",
