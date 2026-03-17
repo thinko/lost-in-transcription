@@ -31,3 +31,6 @@ teams-chat-example-*.html
 # Dev workspace
 _dev_tests_/
 _dev_docs_/
+dev_docs/
+# Chrome doesn't like an extension subdirectory name that starts/ends with an underscore
+__*__/
