@@ -15,9 +15,13 @@
       const format = settings?.lastExportFormat || 'txt';
       const contentMode = settings?.lastExportContent || 'both';
 
+      const titleEl = document.querySelector('[data-tid="call-title"]');
+      const title = titleEl?.textContent?.trim() || document.title?.replace(/\s*\|\s*Microsoft Teams$/, '').trim() || '';
+
       chrome.runtime.sendMessage({
         type: 'export-transcript',
         history,
+        title,
         format,
         content: contentMode,
       });
