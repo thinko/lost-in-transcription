@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const base = langs[code]?.name || code;
       if (dialect) {
         const d = (langs[code]?.dialects || []).find((x) => x.code === dialect);
-        return d ? `${base} (${d.label})` : base;
+        return d ? d.label : base;
       }
       return base;
     };

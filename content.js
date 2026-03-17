@@ -386,7 +386,7 @@
     const elapsed = Date.now() - captionStartTime;
     const timestamp = formatElapsed(elapsed);
 
-    addToHistory({ timestamp, speaker, original, translated });
+    addToHistory({ captionId, timestamp, speaker, original, translated });
 
     if (displayMode === 'inline') {
       showInline(captionId, translated);
@@ -456,16 +456,16 @@
   // ── Transcript history ──────────────────────────────────────────────────
 
   function addToHistory(entry) {
-    const lastEntry = transcriptHistory[transcriptHistory.length - 1];
-    if (
-      lastEntry &&
-      lastEntry.speaker === entry.speaker &&
-      lastEntry.original === entry.original
-    ) {
-      lastEntry.translated = entry.translated;
-      lastEntry.timestamp = entry.timestamp;
-      scheduleSave();
-      return;
+    if (entry.captionId) {
+      const existing = transcriptHistory.find((h) => h.captionId === entry.captionId);
+      if (existing) {
+        existing.original = entry.original;
+        existing.translated = entry.translated;
+        existing.timestamp = entry.timestamp;
+        existing.wallTime = Date.now();
+        scheduleSave();
+        return;
+      }
     }
 
     entry.wallTime = Date.now();

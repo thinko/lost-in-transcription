@@ -17,7 +17,7 @@ const LANGUAGE_DIALECTS = {
   ar: {
     name: 'Arabic',
     dialects: [
-      { code: '', label: 'Modern Standard' },
+      { code: 'ar', label: 'Modern Standard' },
       { code: 'ar-SA', label: 'Peninsular / Gulf' },
       { code: 'ar-EG', label: 'Egyptian' },
       { code: 'ar-LB', label: 'Levantine' },
@@ -31,7 +31,7 @@ const LANGUAGE_DIALECTS = {
   zh: {
     name: 'Chinese',
     dialects: [
-      { code: '', label: 'Simplified (Mandarin)' },
+      { code: 'zh', label: 'Simplified (Mandarin)' },
       { code: 'zh-Hant', label: 'Traditional' },
       { code: 'zh-TW', label: 'Taiwanese Mandarin' },
       { code: 'zh-HK', label: 'Hong Kong' },
@@ -44,7 +44,7 @@ const LANGUAGE_DIALECTS = {
   nl: {
     name: 'Dutch',
     dialects: [
-      { code: '', label: 'Standard' },
+      { code: 'nl', label: 'Standard' },
       { code: 'nl-NL', label: 'Hollands' },
       { code: 'nl-BE', label: 'Flemish' },
       { code: 'nl-SR', label: 'Surinamese' },
@@ -55,7 +55,7 @@ const LANGUAGE_DIALECTS = {
   en: {
     name: 'English',
     dialects: [
-      { code: '', label: 'Standard' },
+      { code: 'en', label: 'Standard' },
       { code: 'en-US', label: 'American' },
       { code: 'en-GB', label: 'British' },
       { code: 'en-SCO', label: 'Highland / Scottish' },
@@ -70,8 +70,8 @@ const LANGUAGE_DIALECTS = {
   fr: {
     name: 'French',
     dialects: [
-      { code: '', label: 'Standard' },
-      { code: 'fr-QC', label: 'Quebec (Québécois)' },
+      { code: 'fr', label: 'Standard' },
+      { code: 'fr-QC', label: 'Québécois' },
       { code: 'fr-FR', label: 'European' },
       { code: 'fr-CA', label: 'Canadian' },
       { code: 'fr-CH', label: 'Swiss' },
@@ -80,7 +80,7 @@ const LANGUAGE_DIALECTS = {
   de: {
     name: 'German',
     dialects: [
-      { code: '', label: 'Standard' },
+      { code: 'de', label: 'Standard' },
       { code: 'de-DE', label: 'Bundesdeutsch' },
       { code: 'de-AT', label: 'Austrian' },
       { code: 'de-CH', label: 'Swiss' },
@@ -98,7 +98,7 @@ const LANGUAGE_DIALECTS = {
   nb: {
     name: 'Norwegian',
     dialects: [
-      { code: '', label: 'Bokmål' },
+      { code: 'nb', label: 'Bokmål' },
       { code: 'nn', label: 'Nynorsk' },
     ],
   },
@@ -107,7 +107,7 @@ const LANGUAGE_DIALECTS = {
   pt: {
     name: 'Portuguese',
     dialects: [
-      { code: '', label: 'Standard' },
+      { code: 'pt', label: 'Standard' },
       { code: 'pt-BR', label: 'Brazilian' },
       { code: 'pt-PT', label: 'European' },
     ],
@@ -119,7 +119,7 @@ const LANGUAGE_DIALECTS = {
   es: {
     name: 'Spanish',
     dialects: [
-      { code: '', label: 'Standard' },
+      { code: 'es', label: 'Standard' },
       { code: 'es-ES', label: 'European / Castilian' },
       { code: 'es-MX', label: 'Mexican' },
       { code: 'es-AR', label: 'Rioplatense' },
@@ -143,7 +143,7 @@ const LANGUAGE_DIALECTS = {
  */
 const DIALECT_DISPLAY_NAMES = {
   // French
-  'fr-QC': 'Quebec French (Québécois)',
+  'fr-QC': 'French (Québécois)',
   'fr-FR': 'European French (Metropolitan)',
   'fr-CA': 'Canadian French',
   'fr-CH': 'Swiss French',

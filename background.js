@@ -71,6 +71,7 @@ async function getSettings() {
     onPanelClose: 'ask',
     onDisable: 'ask',
     lastTab: 'dashboard',
+    modelFilterPatterns: ['nsfw', 'naughty', 'sutra'],
   };
   const stored = await chrome.storage.sync.get(defaults);
   return { ...defaults, ...stored };
@@ -477,11 +478,16 @@ async function fetchModels(baseUrl, apiKey) {
 
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
+  const settings = await getSettings();
+  const filters = (settings.modelFilterPatterns || [])
+    .map((p) => p.toLowerCase());
+
   const data = await res.json();
   const rawModels = Array.isArray(data.data) ? data.data : (data.models || []);
   const models = rawModels
     .map((m) => m.id || m.name || m)
     .filter((id) => typeof id === 'string')
+    .filter((id) => !filters.some((f) => id.toLowerCase().includes(f)))
     .sort((a, b) => a.localeCompare(b));
 
   return { ok: true, models };
