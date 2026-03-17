@@ -1,21 +1,26 @@
 # Lost in Transcription
 
-A Chrome/Edge extension that translates Microsoft Teams® Closed Captions (meeting transcription) in real-time. Built for meetings with Quebec French (Québécois) speakers, but it's configurable and supports any language pair.
+A Chrome/Edge extension that translates Microsoft Teams® Closed Captions (meeting transcription) in real-time. Supports any source/target language pair with dialect-aware AI prompts, multiple translation backends, and a fully internationalized UI.
 
 ## Features
 
 - **Real-time translation** of Teams closed captions as they appear
 - **Dual display modes**: inline (below each caption) or side panel (adjacent pane)
 - **Multiple translation backends**: LibreTranslate, Google Cloud, DeepL, OpenAI-compatible
-- **Quebec French optimized**: OpenAI backend includes a system prompt tuned for Québécois colloquialisms (joual, contractions, informal speech)
-- **Customizable AI prompts**: tweak the system prompt for any AI model, with template variables
+- **Dialect-aware AI prompts**: dynamic system prompts adapt to the selected source dialect (Québécois, Rioplatense Spanish, Swiss German, etc.) with tailored examples and instructions
+- **Customizable AI prompts**: tweak the system prompt for any AI model, with `{{SOURCE_LANG}}`, `{{TARGET_LANG}}`, and `{{GLOSSARY}}` template variables
 - **Configurable send frequency**: real-time, end-of-sentence, stable text, or timed batching
 - **Local LLM support**: works with Ollama, LM Studio, vLLM, or any OpenAI-compatible endpoint
+- **Technical glossary correction**: user-editable glossary for fixing mangled transcription of technical vocabulary (pre- and post-translation), with Ctrl+Click popover for real-time editing
 - **Connectivity testing**: verify your backend connection with one click
 - **Model discovery**: auto-fetch available models from any OpenAI-compatible endpoint
 - **Session persistence**: transcripts survive page refreshes, browser crashes, and reconnects
+- **Session management**: save current session and start a new one; re-apply glossary to saved sessions
 - **Transcript export**: download the full caption history as TXT, CSV, or SRT
-- **Keyboard shortcuts**: `Alt+Shift+T` to toggle display mode, `Alt+Shift+E` to export
+- **Internationalized UI**: ships with English, French, Spanish, German, and Japanese locales; auto-detects browser language on first startup
+- **Hybrid language names**: dropdowns display native script alongside English name (e.g. "Français (French)")
+- **Keyboard shortcuts**: `Alt+Shift+T` to toggle display mode, `Alt+Shift+E` to export, `Ctrl+Click` for glossary popover
+- **Configurable history buffer**: limit displayed translation history from 10 lines to unlimited
 - **Dark/light mode** aware styling
 
 ## Installation
@@ -23,50 +28,47 @@ A Chrome/Edge extension that translates Microsoft Teams® Closed Captions (meeti
 1. Clone or download this repository
 2. Open Chrome and navigate to `chrome://extensions` (or `edge://extensions` for Edge)
 3. Enable **Developer mode** (toggle in the top-right corner)
-4. Click **Load unpacked** and select the `lost-in-transcription` folder
+4. Click **Load unpacked** and select the project folder
 5. The extension icon will appear in the toolbar
 
 ## Configuration
 
-Click the extension icon to open the settings popup:
+Click the extension icon to open the settings popup. The UI is organized into five tabs:
 
-### Translation Backend
+### Dashboard
+
+Shows a live summary of current settings (mode, backend, languages, frequency, glossary status). Click any item to jump to its configuration tab.
+
+### Translation
 
 | Backend | API Key Required | Best For |
 |---------|-----------------|----------|
 | **LibreTranslate** | Optional (free public instances) | Quick start, no account needed |
 | **Google Cloud Translation** | Yes | High volume, reliable |
 | **DeepL** | Yes (free tier available) | European language quality |
-| **OpenAI Compatible** | Optional (not needed for local) | Quebec French / colloquialisms / local LLMs |
+| **OpenAI Compatible** | Optional (not needed for local) | Dialect-aware translation / local LLMs |
 
-Use the **Test Connection** button to verify your backend is reachable and configured correctly.
+- **Source/target language**: 33 languages with dialect support
+- **Send frequency**: real-time (~300ms), end-of-sentence, stable text (~1.5s), or timed batch (1–15s)
+- Use the **Test Connection** button to verify your backend is reachable
 
-### Language Settings
+### Display
 
-- **Source language**: defaults to French (`fr`)
-- **Target language**: defaults to English (`en`)
-- 12 languages supported including CJK
+- **Mode**: inline (below captions) or side panel
+- **Font size**: 10–20px
+- **History buffer**: 10 lines to unlimited
+- **Panel close behavior**: ask, stop translation, continue in background, or turn off
+- **Disable behavior**: ask whether to also hide the panel
 
-### Display Modes
+### Prompt & Glossary
 
-- **Inline**: translations appear directly below each caption in the Teams caption pane
-- **Side Panel**: a separate scrollable panel appears to the right of the caption area, with speaker labels and timestamps
+- **System prompt**: customize the AI translation prompt with template variables
+- **Reset**: regenerates a dialect-aware default prompt based on the currently selected languages
+- **Glossary**: add find/replace entries for fixing mangled transcription of technical terms; toggle individual entries on/off
 
-### Send Frequency
+### Help & About
 
-Control how often text is batched and sent for translation:
-
-- **Each update**: sends after each small text change (~300ms debounce), best for fast local models
-- **End of sentence**: waits for sentence-ending punctuation or a configurable timeout
-- **Stable text**: waits for text to stop changing for ~1.5 seconds
-- **Timed batch**: accumulates text for a configurable window (1-15 seconds)
-
-### Export
-
-Export the full transcript at any time:
-- **Content**: Original only, Translated only, or Both
-- **Formats**: TXT (readable transcript), CSV (spreadsheet), SRT (subtitle file)
-- Files are named `transcription-YYYY-MM-DD-HHMM.{ext}`
+- Version info, keyboard shortcuts, quick start guide
 
 ## Usage
 
@@ -75,6 +77,7 @@ Export the full transcript at any time:
 3. The extension automatically detects caption text and begins translating
 4. Use `Alt+Shift+T` to toggle between inline and side panel display
 5. Use `Alt+Shift+E` to export the transcript
+6. Use `Ctrl+Click` on any word in the captions or translation panel to open the glossary popover
 
 ## Backend Setup
 
@@ -108,13 +111,42 @@ Works with OpenAI, Ollama, LM Studio, vLLM, or any endpoint implementing the Ope
 1. Set the **Endpoint URL** (default: `https://api.openai.com`, Ollama: `http://localhost:11434`, LM Studio: `http://localhost:1234`)
 2. Enter an **API key** if required (optional for local endpoints)
 3. Click the **refresh** button next to the model field to auto-discover available models, or type a model name manually
-4. Optionally customize the **System prompt** for your specific model
+4. Optionally customize the **System prompt** — the default adapts automatically to the selected source dialect
+
+> **Note**: If using Ollama on a LAN, you may need to set `OLLAMA_ORIGINS=*` and restart Ollama to allow requests from the browser extension.
+
+## Internationalization
+
+The extension UI is fully internationalized using Chrome's native `chrome.i18n` API. Shipped locales:
+
+| Locale | Language |
+|--------|----------|
+| `en` | English (default) |
+| `fr` | Français |
+| `es` | Español |
+| `de` | Deutsch |
+| `ja` | 日本語 |
+
+The UI language follows the browser's language setting. The target translation language also defaults to the browser language on first startup (source defaults to French).
+
+### Adding a new locale
+
+1. Create `_locales/{code}/messages.json` based on `_locales/en/messages.json`
+2. Translate all `"message"` values; keep keys, placeholders, and template syntax unchanged
+3. Reload the extension
+
+### Development QA
+
+- `_dev_tests/locale-preview.html` — renders the popup at actual width with a locale switcher and overflow detection
+- `node _dev_tests/generate-pseudo-locale.js` — generates a pseudo-locale (`_locales/qps-ploc/`) with accented, padded strings for stress-testing UI layouts
 
 ## How It Works
 
 The extension uses a `MutationObserver` to watch for Teams caption DOM nodes identified by `data-tid="closed-caption-text"`. When new captions appear or existing ones update (Teams refines text as speech recognition improves), the text is debounced and sent to the configured translation API via the extension's service worker. Translated text is then displayed inline or in the side panel.
 
-The caption list in Teams is virtualized (old entries are recycled), so the extension maintains its own in-memory transcript history for export. Transcript sessions are persisted to `chrome.storage.local` and survive page refreshes, browser restarts, and meeting reconnections.
+Caption updates for the same speech block are tracked by `captionId` and updated in-place in the transcript history, so exports contain only the final version of each caption — not every intermediate update.
+
+The caption list in Teams is virtualized (old entries are recycled), so the extension maintains its own in-memory transcript history for export. Transcript sessions are persisted to `chrome.storage.local` and survive page refreshes, browser restarts, and meeting reconnections. Sessions are isolated per meeting using a derived meeting ID.
 
 ## Edge Compatibility
 
@@ -122,4 +154,8 @@ This extension works identically in Microsoft Edge — load it via `edge://exten
 
 ## License
 
-MIT
+Copyright (c) 2026 Alex Handy <ahandy@gmail.com>
+
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+See [LICENSE](LICENSE) for the full text.
