@@ -112,13 +112,19 @@
       .filter((e) => e.replacement && e.replacement.toLowerCase() === lower);
   }
 
+  function wordBoundaryRegex(pattern) {
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const prefix = /^\w/.test(pattern) ? '\\b' : '';
+    const suffix = /\w$/.test(pattern) ? '\\b' : '';
+    return new RegExp(`${prefix}${escaped}${suffix}`, 'gi');
+  }
+
   function applyGlossaryToHistory(glossary) {
     const history = window.__litTranscriptHistory;
     if (!Array.isArray(history) || !glossary) return;
     for (const entry of glossary) {
       if (!entry.pattern || !entry.replacement) continue;
-      const escaped = entry.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp(escaped, 'gi');
+      const re = wordBoundaryRegex(entry.pattern);
       for (const h of history) {
         if (h.original) h.original = h.original.replace(re, entry.replacement);
         if (h.translated) h.translated = h.translated.replace(re, entry.replacement);
@@ -129,8 +135,7 @@
   function removeGlossaryFromHistory(pattern) {
     const history = window.__litTranscriptHistory;
     if (!Array.isArray(history) || !pattern) return;
-    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(escaped, 'gi');
+    const re = wordBoundaryRegex(pattern);
     for (const h of history) {
       if (h.original) h.original = h.original.replace(re, pattern);
       if (h.translated) h.translated = h.translated.replace(re, pattern);
@@ -140,8 +145,7 @@
   function replaceInHistory(oldPattern, newReplacement) {
     const history = window.__litTranscriptHistory;
     if (!Array.isArray(history)) return;
-    const escaped = oldPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(escaped, 'gi');
+    const re = wordBoundaryRegex(oldPattern);
     for (const h of history) {
       if (h.original) h.original = h.original.replace(re, newReplacement);
       if (h.translated) h.translated = h.translated.replace(re, newReplacement);

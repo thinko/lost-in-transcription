@@ -17,6 +17,20 @@
  * along with Lost in Transcription.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * Build a case-insensitive regex that matches `pattern` at word boundaries.
+ * Uses \b only on sides that border a word character (\w), so patterns like
+ * "C#" or ".NET" still work correctly.
+ */
+function wordBoundaryRegex(pattern) {
+  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const startsWord = /^\w/.test(pattern);
+  const endsWord = /\w$/.test(pattern);
+  const prefix = startsWord ? '\\b' : '';
+  const suffix = endsWord ? '\\b' : '';
+  return new RegExp(`${prefix}${escaped}${suffix}`, 'gi');
+}
+
 export class Glossary {
   constructor(entries = [], enabled = true) {
     this.entries = entries;
@@ -40,8 +54,7 @@ export class Glossary {
     let result = text;
     for (const entry of this.entries) {
       if (!entry.enabled || !entry.pattern) continue;
-      const escaped = entry.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      result = result.replace(new RegExp(escaped, 'gi'), entry.replacement);
+      result = result.replace(wordBoundaryRegex(entry.pattern), entry.replacement);
     }
     return result;
   }
