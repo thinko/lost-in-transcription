@@ -258,102 +258,100 @@
 
   // ── Listen for messages from background / popup ──────────────────────────
 
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === 'translation-result') {
-      applyTranslation(msg.captionId, msg.original, msg.translated);
-    }
-    if (msg.type === 'translation-error') {
-      applyTranslationError(msg.captionId, msg.error);
-    }
-    if (msg.type === 'display-mode-changed') {
-      displayMode = msg.mode;
-      onDisplayModeChanged();
-    }
-    if (msg.type === 'settings-changed') {
-      if (msg.settings.displayMode) displayMode = msg.settings.displayMode;
-      if (msg.settings.enabled !== undefined) enabled = msg.settings.enabled;
-      onDisplayModeChanged();
-    }
-    if (msg.type === 'trigger-export') {
-      triggerExport();
-    }
-    if (msg.type === 'get-session-info') {
-      safeSend({
-        type: 'session-info-response',
-        sessionId,
-        entryCount: transcriptHistory.length,
-        restored: sessionRestored,
-      });
-    }
-    if (msg.type === 'clear-current-session') {
-      transcriptHistory.length = 0;
-      processedTexts.clear();
-      captionIdCounter = 0;
-      captionStartTime = Date.now();
-      persistSession();
-      document.querySelectorAll('.lit-inline').forEach((el) => el.remove());
-    }
-    if (msg.type === 'load-session-history') {
-      chrome.storage.local.get({ [`litHistory_${msg.sessionId}`]: [] }, (data) => {
-        const history = data[`litHistory_${msg.sessionId}`] || [];
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    switch (msg.type) {
+      case 'translation-result':
+        applyTranslation(msg.captionId, msg.original, msg.translated);
+        break;
+      case 'translation-error':
+        applyTranslationError(msg.captionId, msg.error);
+        break;
+      case 'display-mode-changed':
+        displayMode = msg.mode;
+        onDisplayModeChanged();
+        break;
+      case 'settings-changed':
+        if (msg.settings.displayMode) displayMode = msg.settings.displayMode;
+        if (msg.settings.enabled !== undefined) enabled = msg.settings.enabled;
+        onDisplayModeChanged();
+        break;
+      case 'trigger-export':
+        triggerExport();
+        break;
+      case 'get-session-info':
         safeSend({
-          type: 'export-transcript',
-          history,
-          format: msg.format || 'txt',
-          content: msg.content || 'both',
+          type: 'session-info-response',
+          sessionId,
+          entryCount: transcriptHistory.length,
+          restored: sessionRestored,
         });
-      });
-    }
-    if (msg.type === 'save-and-new-session') {
-      (async () => {
-        await persistSession();
-
-        // Generate new session
-        sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-        const meta = {
-          id: sessionId,
-          meetingId: deriveMeetingId(),
-          title: getMeetingTitle(),
-          url: window.location.href,
-          startedAt: Date.now(),
-          entryCount: 0,
-        };
-
-        const data = await chrome.storage.local.get({ litSessions: [] });
-        const sessions = data.litSessions || [];
-        sessions.unshift(meta);
-        while (sessions.length > MAX_SESSIONS) {
-          const old = sessions.pop();
-          await chrome.storage.local.remove(`litHistory_${old.id}`);
-        }
-        await chrome.storage.local.set({ litSessions: sessions });
-
-        // Reset state
+        break;
+      case 'clear-current-session':
         transcriptHistory.length = 0;
         processedTexts.clear();
         captionIdCounter = 0;
         captionStartTime = Date.now();
-        sessionRestored = false;
+        persistSession();
+        document.querySelectorAll('.lit-inline').forEach((el) => el.remove());
+        break;
+      case 'load-session-history':
+        chrome.storage.local.get({ [`litHistory_${msg.sessionId}`]: [] }, (data) => {
+          const history = data[`litHistory_${msg.sessionId}`] || [];
+          safeSend({
+            type: 'export-transcript',
+            history,
+            format: msg.format || 'txt',
+            content: msg.content || 'both',
+          });
+        });
+        break;
+      case 'save-and-new-session':
+        (async () => {
+          await persistSession();
 
-        // Clear side panel if visible
-        if (typeof window.__litSidePanelClear === 'function') {
-          window.__litSidePanelClear();
+          sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+          const meta = {
+            id: sessionId,
+            meetingId: deriveMeetingId(),
+            title: getMeetingTitle(),
+            url: window.location.href,
+            startedAt: Date.now(),
+            entryCount: 0,
+          };
+
+          const data = await chrome.storage.local.get({ litSessions: [] });
+          const sessions = data.litSessions || [];
+          sessions.unshift(meta);
+          while (sessions.length > MAX_SESSIONS) {
+            const old = sessions.pop();
+            await chrome.storage.local.remove(`litHistory_${old.id}`);
+          }
+          await chrome.storage.local.set({ litSessions: sessions });
+
+          transcriptHistory.length = 0;
+          processedTexts.clear();
+          captionIdCounter = 0;
+          captionStartTime = Date.now();
+          sessionRestored = false;
+
+          if (typeof window.__litSidePanelClear === 'function') {
+            window.__litSidePanelClear();
+          }
+          document.querySelectorAll('.lit-inline').forEach(el => el.remove());
+          window.__litTranscriptHistory = transcriptHistory;
+
+          sendResponse({ ok: true });
+        })();
+        return true;
+      case 'glossary-updated':
+        console.log('[Lost in Transcription] Glossary updated, new translations will use updated glossary');
+        break;
+      case 'reconnect':
+        if (typeof window.__litReconnect === 'function') {
+          window.__litReconnect();
         }
-
-        // Clear inline translations
-        document.querySelectorAll('.lit-inline').forEach(el => el.remove());
-
-        window.__litTranscriptHistory = transcriptHistory;
-      })();
-      return true; // async response not needed but keeps channel open
-    }
-    if (msg.type === 'glossary-updated') {
-      console.log('[Lost in Transcription] Glossary updated, new translations will use updated glossary');
-    }
-    if (msg.type === 'reconnect') {
-      if (typeof window.__litReconnect === 'function') {
-        window.__litReconnect();
-      }
+        sendResponse({ ok: true });
+        break;
     }
   });
 

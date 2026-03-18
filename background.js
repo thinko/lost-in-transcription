@@ -38,12 +38,28 @@ const translators = {
 const CONTENT_SCRIPTS = ['content.js', 'sidepanel.js', 'export.js', 'glossary-popover.js'];
 const CONTENT_CSS = ['content.css'];
 
-async function reinjectContentScripts() {
+async function reinjectContentScripts(forceReinject = false) {
   const tabs = await chrome.tabs.query({ url: '*://teams.microsoft.com/*' });
   const results = [];
 
   for (const tab of tabs) {
     try {
+      // First check if existing scripts are alive — avoid duplicate injection
+      if (!forceReinject) {
+        try {
+          const response = await Promise.race([
+            chrome.tabs.sendMessage(tab.id, { type: 'reconnect' }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000)),
+          ]);
+          if (response?.ok) {
+            results.push({ tabId: tab.id, title: tab.title, ok: true, reconnected: true });
+            continue;
+          }
+        } catch {
+          // Scripts are dead or unresponsive — proceed with full re-injection
+        }
+      }
+
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => {
@@ -64,17 +80,13 @@ async function reinjectContentScripts() {
         files: CONTENT_SCRIPTS,
       });
 
-      // Signal the freshly-injected content script to reconnect
-      try {
-        await chrome.tabs.sendMessage(tab.id, { type: 'reconnect' });
-      } catch {
-        // Content script might not be ready yet, try after a short delay
+      chrome.tabs.sendMessage(tab.id, { type: 'reconnect' }).catch(() => {
         setTimeout(() => {
           chrome.tabs.sendMessage(tab.id, { type: 'reconnect' }).catch(() => {});
         }, 500);
-      }
+      });
 
-      results.push({ tabId: tab.id, title: tab.title, ok: true });
+      results.push({ tabId: tab.id, title: tab.title, ok: true, reinjected: true });
     } catch (err) {
       console.warn(`[Lost in Transcription] Failed to re-inject into tab ${tab.id}:`, err);
       results.push({ tabId: tab.id, title: tab.title, ok: false, error: err.message });
@@ -86,7 +98,7 @@ async function reinjectContentScripts() {
 
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install' || details.reason === 'update') {
-    reinjectContentScripts().then((results) => {
+    reinjectContentScripts(true).then((results) => {
       const ok = results.filter((r) => r.ok).length;
       if (results.length > 0) {
         console.log(`[Lost in Transcription] Re-injected into ${ok}/${results.length} Teams tabs after ${details.reason}`);
