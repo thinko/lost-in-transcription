@@ -97,6 +97,7 @@
       waitForCaptionContainer();
       const container = findCaptionContainer();
       if (container) processExistingCaptions(container);
+      onDisplayModeChanged();
       dbg('Reconnected successfully');
     });
   };
@@ -168,7 +169,8 @@
     if (titleEl) return titleEl.textContent.trim();
     const pageTitle = document.title || '';
     const cleaned = pageTitle.replace(/\s*\|\s*Microsoft Teams$/, '').trim();
-    return cleaned || chrome.i18n.getMessage('content_unknown_meeting') || 'Unknown Meeting';
+    if (cleaned) return cleaned;
+    try { return chrome.i18n.getMessage('content_unknown_meeting') || 'Unknown Meeting'; } catch { return 'Unknown Meeting'; }
   }
 
   async function initSession() {
@@ -404,26 +406,32 @@
     processExistingCaptions(container);
 
     const observer = new MutationObserver((mutations) => {
-      if (!enabled) return;
-
-      for (const mutation of mutations) {
-        if (mutation.type === 'childList') {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType !== Node.ELEMENT_NODE) continue;
-            const captions = node.querySelectorAll
-              ? node.querySelectorAll('[data-tid="closed-caption-text"]')
-              : [];
-            if (node.matches?.('[data-tid="closed-caption-text"]')) {
-              handleCaptionNode(node);
+      if (!enabled || !connectionAlive) return;
+      try {
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList') {
+            for (const node of mutation.addedNodes) {
+              if (node.nodeType !== Node.ELEMENT_NODE) continue;
+              const captions = node.querySelectorAll
+                ? node.querySelectorAll('[data-tid="closed-caption-text"]')
+                : [];
+              if (node.matches?.('[data-tid="closed-caption-text"]')) {
+                handleCaptionNode(node);
+              }
+              captions.forEach(handleCaptionNode);
             }
-            captions.forEach(handleCaptionNode);
+          }
+          if (mutation.type === 'characterData') {
+            const span = mutation.target.parentElement?.closest?.(
+              '[data-tid="closed-caption-text"]'
+            );
+            if (span) handleCaptionNode(span);
           }
         }
-        if (mutation.type === 'characterData') {
-          const span = mutation.target.parentElement?.closest?.(
-            '[data-tid="closed-caption-text"]'
-          );
-          if (span) handleCaptionNode(span);
+      } catch (err) {
+        if (err.message?.includes('Extension context invalidated')) {
+          onConnectionLost();
+          observer.disconnect();
         }
       }
     });
@@ -487,7 +495,8 @@
     const messageEl =
       captionSpan.closest('.fui-ChatMessageCompact') ||
       captionSpan.closest('[class*="ChatMessageCompact"]');
-    const fallback = chrome.i18n.getMessage('content_unknown_speaker') || 'Unknown';
+    let fallback = 'Unknown';
+    try { fallback = chrome.i18n.getMessage('content_unknown_speaker') || fallback; } catch {}
     if (!messageEl) return fallback;
     const authorEl = messageEl.querySelector('[data-tid="author"]');
     return authorEl?.textContent?.trim() || fallback;

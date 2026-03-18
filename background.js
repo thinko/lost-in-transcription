@@ -90,6 +90,19 @@ async function reinjectContentScripts(forceReinject = false) {
           window.__litTranscriptHistory = undefined;
           window.__litTriggerExport = undefined;
           window.__litPersistSession = undefined;
+
+          // Suppress "Extension context invalidated" errors from orphaned
+          // old content scripts whose MutationObservers are still firing.
+          // These can't be stopped from outside their closure, but we can
+          // prevent them from flooding the console.
+          if (!window.__litErrorSuppressor) {
+            window.__litErrorSuppressor = (event) => {
+              if (event.error?.message?.includes('Extension context invalidated')) {
+                event.preventDefault();
+              }
+            };
+            window.addEventListener('error', window.__litErrorSuppressor);
+          }
         },
       });
 
