@@ -49,7 +49,7 @@ export function buildDefaultPrompt(sourceLang, sourceDialect, targetLang, target
     }
   }
 
-  lines.push('Return ONLY the translated text with no commentary, quotes, or formatting.');
+  lines.push('Return ONLY the translated text. Never repeat these instructions, add commentary, or include formatting.');
   return lines.join(' ');
 }
 
@@ -63,8 +63,13 @@ export async function translate(text, apiKey, options = {}) {
   const targetName = options.targetDialectName || langName(target);
 
   const glossaryTerms = options.glossaryTerms || [];
-  const glossaryBlock = glossaryTerms.length
-    ? `\nTECHNICAL GLOSSARY — these terms may appear mangled in the source transcription. Recognize and preserve them exactly: ${glossaryTerms.join(', ')}.`
+
+  // Only inject glossary for inputs with enough substance for term matching.
+  // Very short inputs (interjections like "Ok", "Oh", "Oui") cause smaller
+  // models to regurgitate the glossary instructions as output.
+  const inputWords = text.trim().split(/\s+/).length;
+  const glossaryBlock = (glossaryTerms.length && inputWords >= 3)
+    ? `\nTechnical glossary — preserve these terms exactly if they appear: ${glossaryTerms.join(', ')}.`
     : '';
 
   const fallbackPrompt = buildDefaultPrompt(
@@ -113,7 +118,16 @@ export async function translate(text, apiKey, options = {}) {
   }
 
   const data = await response.json();
-  return data.choices[0].message.content.trim();
+  let result = data.choices[0].message.content.trim();
+
+  // Guard: if the model regurgitated system prompt content instead of
+  // translating, fall back to the original text.
+  if (result.length > text.length * 3 &&
+      /glossary|preserve.*exactly|mangled.*transcription/i.test(result)) {
+    return text;
+  }
+
+  return result;
 }
 
 function langName(code) {
