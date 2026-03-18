@@ -190,7 +190,6 @@
       }
     }
     .popover {
-      position: fixed;
       max-width: ${MAX_WIDTH}px;
       background: var(--lit-bg);
       border: 1px solid var(--lit-border);
@@ -318,14 +317,20 @@
 
   function positionPopover(host, clientX, clientY) {
     const rect = host.getBoundingClientRect();
-    let left = clientX + OFFSET_X;
-    let top = clientY + OFFSET_Y;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+
+    let left = clientX + OFFSET_X;
     if (left + rect.width > vw - 10) left = vw - rect.width - 10;
     if (left < 10) left = 10;
-    if (top + rect.height > vh - 10) top = vh - rect.height - 10;
+
+    // Place below cursor by default; flip above if it would overflow
+    let top = clientY + OFFSET_Y;
+    if (top + rect.height > vh - 10) {
+      top = clientY - rect.height - OFFSET_Y;
+    }
     if (top < 10) top = 10;
+
     host.style.left = left + 'px';
     host.style.top = top + 'px';
   }
@@ -335,7 +340,7 @@
 
     const host = document.createElement('div');
     host.id = POPOVER_ID;
-    host.style.cssText = `position:fixed;z-index:${Z_INDEX};left:0;top:0;`;
+    host.style.cssText = `position:fixed;z-index:${Z_INDEX};left:-9999px;top:-9999px;`;
     document.body.appendChild(host);
 
     const shadow = host.attachShadow({ mode: 'closed' });
@@ -368,8 +373,6 @@
       document.addEventListener('keydown', escapeKey);
     }, 0);
 
-    positionPopover(host, clientX, clientY);
-
     function render() {
       loadGlossary().then((data) => {
         const glossary = data.glossary || [];
@@ -385,7 +388,10 @@
         } else {
           renderNewTerm(text, glossary, wrap, closePopover, render);
         }
-        requestAnimationFrame(() => positionPopover(host, clientX, clientY));
+        // Double-rAF ensures layout is fully computed before measuring
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => positionPopover(host, clientX, clientY));
+        });
       });
     }
 
