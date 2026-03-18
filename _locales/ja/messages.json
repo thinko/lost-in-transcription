@@ -516,6 +516,8 @@
     }
   },
 
+  "label_debug_mode": { "message": "デバッグログ" },
+
   "btn_restart_translation": { "message": "翻訳を再起動" },
   "status_restarting": { "message": "再起動中…" },
   "status_restart_ok": {

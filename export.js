@@ -29,7 +29,7 @@
   window.__litTriggerExport = function () {
     const history = window.__litTranscriptHistory;
     if (!history || !history.length) {
-      console.warn('[Lost in Transcription] No transcript history to export.');
+      console.warn('[LiT] No transcript history to export.');
       return;
     }
 

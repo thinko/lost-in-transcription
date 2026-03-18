@@ -24,6 +24,11 @@ import { translate as openaiTranslate, buildDefaultPrompt } from './translators/
 import { LANGUAGE_DIALECTS, DIALECT_DISPLAY_NAMES } from './languages.js';
 import { Glossary } from './glossary.js';
 
+let debugMode = false;
+function dbg(...args) {
+  if (debugMode) console.log('[LiT bg]', ...args);
+}
+
 const translators = {
   google: googleTranslate,
   deepl: deeplTranslate,
@@ -88,7 +93,7 @@ async function reinjectContentScripts(forceReinject = false) {
 
       results.push({ tabId: tab.id, title: tab.title, ok: true, reinjected: true });
     } catch (err) {
-      console.warn(`[Lost in Transcription] Failed to re-inject into tab ${tab.id}:`, err);
+      console.warn(`[LiT bg] Failed to re-inject into tab ${tab.id}:`, err);
       results.push({ tabId: tab.id, title: tab.title, ok: false, error: err.message });
     }
   }
@@ -101,9 +106,15 @@ chrome.runtime.onInstalled.addListener((details) => {
     reinjectContentScripts(true).then((results) => {
       const ok = results.filter((r) => r.ok).length;
       if (results.length > 0) {
-        console.log(`[Lost in Transcription] Re-injected into ${ok}/${results.length} Teams tabs after ${details.reason}`);
+        console.log(`[LiT bg] Re-injected into ${ok}/${results.length} Teams tabs after ${details.reason}`);
       }
     });
+  }
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'sync' && changes.debugMode !== undefined) {
+    debugMode = !!changes.debugMode.newValue;
   }
 });
 
@@ -170,9 +181,12 @@ async function getSettings() {
     onDisable: 'ask',
     lastTab: 'dashboard',
     modelFilterPatterns: ['nsfw', 'naughty', 'sutra'],
+    debugMode: false,
   };
   const stored = await chrome.storage.sync.get(defaults);
-  return { ...defaults, ...stored };
+  const settings = { ...defaults, ...stored };
+  debugMode = !!settings.debugMode;
+  return settings;
 }
 
 // --- Debounce strategy ----------------------------------------------------
@@ -272,7 +286,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         setTimeout(async () => {
           pendingDebounce.delete(captionId);
           try {
+            dbg('Translating', captionId, `(${settings.backend}, delay ${delay}ms):`, text.slice(0, 80));
             const translated = await handleTranslate(text, captionId, settings);
+            dbg('Result', captionId, '→', (translated || '').slice(0, 80));
             chrome.tabs.sendMessage(sender.tab.id, {
               type: 'translation-result',
               captionId,
@@ -280,7 +296,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
               translated,
             });
           } catch (err) {
-            console.error('[Lost in Transcription] Translation error:', err);
+            console.error('[LiT bg] Translation error:', err);
             chrome.tabs.sendMessage(sender.tab.id, {
               type: 'translation-error',
               captionId,

@@ -516,6 +516,8 @@
     }
   },
 
+  "label_debug_mode": { "message": "Debug-Protokollierung" },
+
   "btn_restart_translation": { "message": "Übersetzung neu starten" },
   "status_restarting": { "message": "Neustart…" },
   "status_restart_ok": {

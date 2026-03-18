@@ -516,6 +516,8 @@
     }
   },
 
+  "label_debug_mode": { "message": "Journalisation de débogage" },
+
   "btn_restart_translation": { "message": "Redémarrer la traduction" },
   "status_restarting": { "message": "Redémarrage…" },
   "status_restart_ok": {

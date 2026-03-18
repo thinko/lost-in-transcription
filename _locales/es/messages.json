@@ -516,6 +516,8 @@
     }
   },
 
+  "label_debug_mode": { "message": "Registro de depuración" },
+
   "btn_restart_translation": { "message": "Reiniciar traducción" },
   "status_restarting": { "message": "Reiniciando…" },
   "status_restart_ok": {

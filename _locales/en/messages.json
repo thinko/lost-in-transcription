@@ -182,6 +182,8 @@
   "error_connected_quota": { "message": "Connected — $PCT$% of quota used", "placeholders": { "PCT": { "content": "$1" } } },
   "error_connected_google": { "message": "Connected — $COUNT$ languages", "placeholders": { "COUNT": { "content": "$1" } } },
 
+  "label_debug_mode": { "message": "Debug logging" },
+
   "btn_restart_translation": { "message": "Restart Translation" },
   "status_restarting": { "message": "Restarting…" },
   "status_restart_ok": { "message": "Reconnected $OK$ of $TOTAL$ tabs", "placeholders": { "OK": { "content": "$1" }, "TOTAL": { "content": "$2" } } },

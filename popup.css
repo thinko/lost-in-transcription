@@ -872,3 +872,23 @@ body {
 #githubLink:hover {
   text-decoration: underline;
 }
+
+/* ── Debug toggle ─────────────────────────────────────────────────────── */
+
+.debug-section {
+  border-top: 1px solid #e8e8e8;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.debug-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.debug-label {
+  font-size: 11px;
+  color: #999;
+}

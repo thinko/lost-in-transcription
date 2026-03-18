@@ -26,7 +26,7 @@
   // When the extension re-injects scripts into an existing tab, prevent
   // duplicate observers and state by checking a window-level flag.
   if (window.__litInitialized) {
-    console.log('[Lost in Transcription] Content script already active, skipping duplicate init');
+    console.debug('[LiT] Content script already active, skipping duplicate init');
     return;
   }
   window.__litInitialized = true;
@@ -40,6 +40,15 @@
   let captionStartTime = Date.now();
   const processedTexts = new Map();
   let connectionAlive = true;
+  let debugMode = false;
+
+  function dbg(...args) {
+    if (debugMode) console.log('[LiT]', ...args);
+  }
+
+  function dbgWarn(...args) {
+    if (debugMode) console.warn('[LiT]', ...args);
+  }
 
   // ── Resilient messaging ──────────────────────────────────────────────────
   // Wraps chrome.runtime.sendMessage with error handling for invalidated
@@ -70,25 +79,23 @@
   function onConnectionLost() {
     if (!connectionAlive) return;
     connectionAlive = false;
-    console.warn('[Lost in Transcription] Extension context lost — translation paused. Use the popup "Restart" button or reload the extension.');
+    console.warn('[LiT] Extension context lost — translation paused. Use the popup "Restart" button or reload the extension.');
   }
 
   // Called by background.js after re-injecting scripts into this tab
   window.__litReconnect = function () {
-    console.log('[Lost in Transcription] Reconnecting…');
+    dbg('Reconnecting…');
     connectionAlive = true;
-    // Re-bootstrap: fetch settings and re-attach observers
     safeSend({ type: 'get-settings' }, async (settings) => {
       if (settings) {
         displayMode = settings.displayMode || 'inline';
         enabled = settings.enabled !== false;
+        debugMode = !!settings.debugMode;
       }
-      // Re-scan for caption container in case it changed
       waitForCaptionContainer();
-      // Force re-process any visible captions
       const container = findCaptionContainer();
       if (container) processExistingCaptions(container);
-      console.log('[Lost in Transcription] Reconnected successfully');
+      dbg('Reconnected successfully');
     });
   };
 
@@ -180,7 +187,7 @@
         transcriptHistory = restored;
         sessionRestored = true;
         captionStartTime = existing.startedAt || Date.now();
-        console.log(`[Lost in Transcription] Restored session with ${restored.length} entries`);
+        dbg(`Restored session with ${restored.length} entries`);
       }
     } else {
       sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -229,7 +236,7 @@
         await chrome.storage.local.set({ litSessions: sessions });
       }
     } catch (err) {
-      console.error('[Lost in Transcription] Failed to persist session:', err);
+      console.error('[LiT] Failed to persist session:', err);
     }
   }
 
@@ -251,9 +258,11 @@
     if (settings) {
       displayMode = settings.displayMode || 'inline';
       enabled = settings.enabled !== false;
+      debugMode = !!settings.debugMode;
     }
     await initSession();
     waitForCaptionContainer();
+    dbg('Initialized — mode:', displayMode, 'enabled:', enabled);
   });
 
   // ── Listen for messages from background / popup ──────────────────────────
@@ -273,6 +282,7 @@
       case 'settings-changed':
         if (msg.settings.displayMode) displayMode = msg.settings.displayMode;
         if (msg.settings.enabled !== undefined) enabled = msg.settings.enabled;
+        if (msg.settings.debugMode !== undefined) debugMode = !!msg.settings.debugMode;
         onDisplayModeChanged();
         break;
       case 'trigger-export':
@@ -344,7 +354,7 @@
         })();
         return true;
       case 'glossary-updated':
-        console.log('[Lost in Transcription] Glossary updated, new translations will use updated glossary');
+          dbg('Glossary updated, new translations will use updated glossary');
         break;
       case 'reconnect':
         if (typeof window.__litReconnect === 'function') {
@@ -456,6 +466,8 @@
 
     const speaker = extractSpeaker(span);
 
+    dbg('Caption', captionId, `[${speaker}]:`, text);
+
     safeSend({
       type: 'translate',
       text,
@@ -478,6 +490,7 @@
 
   function applyTranslation(captionId, original, translated) {
     if (!translated) return;
+    dbg('Translation', captionId, '→', translated);
 
     const speaker = findSpeakerForCaption(captionId);
     const elapsed = Date.now() - captionStartTime;

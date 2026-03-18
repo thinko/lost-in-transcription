@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     restartStatus: document.getElementById('restartStatus'),
     onPanelClose: document.getElementById('onPanelClose'),
     onDisable: document.getElementById('onDisable'),
+    debugMode: document.getElementById('debugMode'),
   };
 
   const DEFAULTS = {
@@ -99,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onPanelClose: 'ask',
     onDisable: 'ask',
     lastTab: 'tab-dashboard',
+    debugMode: false,
   };
 
   let currentSettings = { ...DEFAULTS };
@@ -178,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
       els.onPanelClose.value = settings.onPanelClose || 'ask';
       els.onDisable.value = settings.onDisable || 'ask';
       els.glossaryEnabled.checked = settings.glossaryEnabled !== false;
+      els.debugMode.checked = !!settings.debugMode;
 
       const histVal = settings.historyBufferSize;
       els.historyBufferSize.value = histVal === 0 ? 510 : Math.min(Math.max(histVal, 10), 500);
@@ -508,6 +511,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   els.glossaryEnabled.addEventListener('change', () => {
     save('glossaryEnabled', els.glossaryEnabled.checked);
+  });
+
+  els.debugMode.addEventListener('change', () => {
+    save('debugMode', els.debugMode.checked);
   });
 
   let debounceTimers = {};
