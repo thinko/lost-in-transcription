@@ -514,5 +514,14 @@
         "content": "$1"
       }
     }
-  }
+  },
+
+  "btn_restart_translation": { "message": "Übersetzung neu starten" },
+  "status_restarting": { "message": "Neustart…" },
+  "status_restart_ok": {
+    "message": "$OK$ von $TOTAL$ Tabs wiederverbunden",
+    "placeholders": { "OK": { "content": "$1" }, "TOTAL": { "content": "$2" } }
+  },
+  "status_restart_error": { "message": "Neustart fehlgeschlagen" },
+  "status_no_teams_tabs": { "message": "Keine Teams-Tabs gefunden" }
 }

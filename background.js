@@ -31,6 +31,70 @@ const translators = {
   openai: openaiTranslate,
 };
 
+// --- Content script re-injection ------------------------------------------
+// After extension install/update, re-inject into any existing Teams tabs
+// so users don't have to reload the meeting page.
+
+const CONTENT_SCRIPTS = ['content.js', 'sidepanel.js', 'export.js', 'glossary-popover.js'];
+const CONTENT_CSS = ['content.css'];
+
+async function reinjectContentScripts() {
+  const tabs = await chrome.tabs.query({ url: '*://teams.microsoft.com/*' });
+  const results = [];
+
+  for (const tab of tabs) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => {
+          window.__litInitialized = false;
+          window.__litSidePanelInit = false;
+          window.__litExportInit = false;
+          window.__litGlossaryPopoverInit = false;
+        },
+      });
+
+      await chrome.scripting.insertCSS({
+        target: { tabId: tab.id },
+        files: CONTENT_CSS,
+      });
+
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: CONTENT_SCRIPTS,
+      });
+
+      // Signal the freshly-injected content script to reconnect
+      try {
+        await chrome.tabs.sendMessage(tab.id, { type: 'reconnect' });
+      } catch {
+        // Content script might not be ready yet, try after a short delay
+        setTimeout(() => {
+          chrome.tabs.sendMessage(tab.id, { type: 'reconnect' }).catch(() => {});
+        }, 500);
+      }
+
+      results.push({ tabId: tab.id, title: tab.title, ok: true });
+    } catch (err) {
+      console.warn(`[Lost in Transcription] Failed to re-inject into tab ${tab.id}:`, err);
+      results.push({ tabId: tab.id, title: tab.title, ok: false, error: err.message });
+    }
+  }
+
+  return results;
+}
+
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install' || details.reason === 'update') {
+    reinjectContentScripts().then((results) => {
+      const ok = results.filter((r) => r.ok).length;
+      if (results.length > 0) {
+        console.log(`[Lost in Transcription] Re-injected into ${ok}/${results.length} Teams tabs after ${details.reason}`);
+      }
+    });
+  }
+});
+
 // --- LRU Cache -----------------------------------------------------------
 
 class LRUCache {
@@ -304,6 +368,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       });
       sendResponse({ ok: true, changed, total: history.length });
     })();
+    return true;
+  }
+
+  if (msg.type === 'ping') {
+    sendResponse({ ok: true });
+    return false;
+  }
+
+  if (msg.type === 'reinject-content-scripts') {
+    reinjectContentScripts()
+      .then((results) => sendResponse({ ok: true, results }))
+      .catch((err) => sendResponse({ ok: false, error: err.message }));
     return true;
   }
 

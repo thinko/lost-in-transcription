@@ -69,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
     clearAllBtn: document.getElementById('clearAllBtn'),
     saveAndNewBtn: document.getElementById('saveAndNewBtn'),
     dashboardSummary: document.getElementById('dashboardSummary'),
+    restartBtn: document.getElementById('restartBtn'),
+    restartStatus: document.getElementById('restartStatus'),
     onPanelClose: document.getElementById('onPanelClose'),
     onDisable: document.getElementById('onDisable'),
   };
@@ -783,6 +785,44 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // ── Restart translation ──────────────────────────────────────────────────
+
+  els.restartBtn.addEventListener('click', () => {
+    els.restartBtn.disabled = true;
+    els.restartStatus.textContent = t('status_restarting') || 'Restarting…';
+    els.restartStatus.className = 'restart-status working';
+
+    chrome.runtime.sendMessage({ type: 'reinject-content-scripts' }, (response) => {
+      els.restartBtn.disabled = false;
+
+      if (!response) {
+        els.restartStatus.textContent = t('status_restart_error') || 'No response from background';
+        els.restartStatus.className = 'restart-status error';
+        return;
+      }
+
+      if (response.ok && response.results) {
+        const ok = response.results.filter((r) => r.ok).length;
+        const total = response.results.length;
+        if (total === 0) {
+          els.restartStatus.textContent = t('status_no_teams_tabs') || 'No Teams tabs found';
+          els.restartStatus.className = 'restart-status error';
+        } else {
+          els.restartStatus.textContent = t('status_restart_ok', [String(ok), String(total)]);
+          els.restartStatus.className = 'restart-status success';
+        }
+      } else {
+        els.restartStatus.textContent = response.error || t('status_restart_error');
+        els.restartStatus.className = 'restart-status error';
+      }
+
+      setTimeout(() => {
+        els.restartStatus.textContent = '';
+        els.restartStatus.className = 'restart-status';
+      }, 5000);
+    });
+  });
 
   els.saveAndNewBtn.addEventListener('click', () => {
     chrome.runtime.sendMessage({ type: 'save-and-new-session' }, () => {

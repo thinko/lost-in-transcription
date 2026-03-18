@@ -514,5 +514,14 @@
         "content": "$1"
       }
     }
-  }
+  },
+
+  "btn_restart_translation": { "message": "Reiniciar traducción" },
+  "status_restarting": { "message": "Reiniciando…" },
+  "status_restart_ok": {
+    "message": "Reconectado $OK$ de $TOTAL$ pestañas",
+    "placeholders": { "OK": { "content": "$1" }, "TOTAL": { "content": "$2" } }
+  },
+  "status_restart_error": { "message": "Error al reiniciar" },
+  "status_no_teams_tabs": { "message": "No se encontraron pestañas de Teams" }
 }

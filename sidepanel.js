@@ -22,6 +22,9 @@
 (function () {
   'use strict';
 
+  if (window.__litSidePanelInit) return;
+  window.__litSidePanelInit = true;
+
   const PANEL_ID = 'lit-side-panel-host';
   const DEFAULT_WIDTH = 400;
   const MIN_WIDTH = 200;

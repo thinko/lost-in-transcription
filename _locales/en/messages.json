@@ -180,5 +180,11 @@
   "error_connected_languages": { "message": "Connected — $COUNT$ languages available", "placeholders": { "COUNT": { "content": "$1" } } },
   "error_connected_models": { "message": "Connected — $COUNT$ models available", "placeholders": { "COUNT": { "content": "$1" } } },
   "error_connected_quota": { "message": "Connected — $PCT$% of quota used", "placeholders": { "PCT": { "content": "$1" } } },
-  "error_connected_google": { "message": "Connected — $COUNT$ languages", "placeholders": { "COUNT": { "content": "$1" } } }
+  "error_connected_google": { "message": "Connected — $COUNT$ languages", "placeholders": { "COUNT": { "content": "$1" } } },
+
+  "btn_restart_translation": { "message": "Restart Translation" },
+  "status_restarting": { "message": "Restarting…" },
+  "status_restart_ok": { "message": "Reconnected $OK$ of $TOTAL$ tabs", "placeholders": { "OK": { "content": "$1" }, "TOTAL": { "content": "$2" } } },
+  "status_restart_error": { "message": "Restart failed" },
+  "status_no_teams_tabs": { "message": "No Teams tabs found" }
 }

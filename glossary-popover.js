@@ -22,6 +22,9 @@
 (function () {
   'use strict';
 
+  if (window.__litGlossaryPopoverInit) return;
+  window.__litGlossaryPopoverInit = true;
+
   const POPOVER_ID = 'lit-glossary-popover';
   const OFFSET_X = 10;
   const OFFSET_Y = 10;

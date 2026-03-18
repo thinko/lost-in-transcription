@@ -514,5 +514,14 @@
         "content": "$1"
       }
     }
-  }
+  },
+
+  "btn_restart_translation": { "message": "翻訳を再起動" },
+  "status_restarting": { "message": "再起動中…" },
+  "status_restart_ok": {
+    "message": "$TOTAL$ タブ中 $OK$ タブを再接続",
+    "placeholders": { "OK": { "content": "$1" }, "TOTAL": { "content": "$2" } }
+  },
+  "status_restart_error": { "message": "再起動に失敗" },
+  "status_no_teams_tabs": { "message": "Teamsタブが見つかりません" }
 }

@@ -645,6 +645,28 @@ body {
   padding: 3px 10px;
 }
 
+/* ── Restart row ──────────────────────────────────────────────────────── */
+
+.restart-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.restart-status {
+  font-size: 11px;
+  color: #888;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.restart-status.success { color: #27ae60; }
+.restart-status.error { color: #e74c3c; }
+.restart-status.working { color: #f39c12; }
+
 /* ── Conditional visibility ────────────────────────────────────────────── */
 
 .hidden,

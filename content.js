@@ -22,6 +22,15 @@
 (function () {
   'use strict';
 
+  // ── Re-injection guard ──────────────────────────────────────────────────
+  // When the extension re-injects scripts into an existing tab, prevent
+  // duplicate observers and state by checking a window-level flag.
+  if (window.__litInitialized) {
+    console.log('[Lost in Transcription] Content script already active, skipping duplicate init');
+    return;
+  }
+  window.__litInitialized = true;
+
   // ── State ────────────────────────────────────────────────────────────────
 
   let displayMode = 'inline';
@@ -30,6 +39,75 @@
   let transcriptHistory = [];
   let captionStartTime = Date.now();
   const processedTexts = new Map();
+  let connectionAlive = true;
+
+  // ── Resilient messaging ──────────────────────────────────────────────────
+  // Wraps chrome.runtime.sendMessage with error handling for invalidated
+  // extension contexts (happens after extension reload / update).
+
+  function safeSend(msg, callback) {
+    try {
+      if (!chrome.runtime?.id) {
+        onConnectionLost();
+        return;
+      }
+      chrome.runtime.sendMessage(msg, (response) => {
+        if (chrome.runtime.lastError) {
+          const errMsg = chrome.runtime.lastError.message || '';
+          if (errMsg.includes('Extension context invalidated') ||
+              errMsg.includes('message port closed')) {
+            onConnectionLost();
+            return;
+          }
+        }
+        if (callback) callback(response);
+      });
+    } catch (err) {
+      onConnectionLost();
+    }
+  }
+
+  function onConnectionLost() {
+    if (!connectionAlive) return;
+    connectionAlive = false;
+    console.warn('[Lost in Transcription] Extension context lost — translation paused. Use the popup "Restart" button or reload the extension.');
+  }
+
+  // Called by background.js after re-injecting scripts into this tab
+  window.__litReconnect = function () {
+    console.log('[Lost in Transcription] Reconnecting…');
+    connectionAlive = true;
+    // Re-bootstrap: fetch settings and re-attach observers
+    safeSend({ type: 'get-settings' }, async (settings) => {
+      if (settings) {
+        displayMode = settings.displayMode || 'inline';
+        enabled = settings.enabled !== false;
+      }
+      // Re-scan for caption container in case it changed
+      waitForCaptionContainer();
+      // Force re-process any visible captions
+      const container = findCaptionContainer();
+      if (container) processExistingCaptions(container);
+      console.log('[Lost in Transcription] Reconnected successfully');
+    });
+  };
+
+  // ── Connection health heartbeat ─────────────────────────────────────────
+  // Periodically ping the background to detect silent disconnections
+  setInterval(() => {
+    if (!connectionAlive || !enabled) return;
+    try {
+      if (!chrome.runtime?.id) {
+        onConnectionLost();
+        return;
+      }
+      chrome.runtime.sendMessage({ type: 'ping' }, () => {
+        if (chrome.runtime.lastError) onConnectionLost();
+      });
+    } catch {
+      onConnectionLost();
+    }
+  }, 30000);
 
   // ── Session persistence ────────────────────────────────────────────────
 
@@ -169,7 +247,7 @@
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
 
-  chrome.runtime.sendMessage({ type: 'get-settings' }, async (settings) => {
+  safeSend({ type: 'get-settings' }, async (settings) => {
     if (settings) {
       displayMode = settings.displayMode || 'inline';
       enabled = settings.enabled !== false;
@@ -200,8 +278,7 @@
       triggerExport();
     }
     if (msg.type === 'get-session-info') {
-      // Respond via storage since sendResponse isn't available in onMessage without return true
-      chrome.runtime.sendMessage({
+      safeSend({
         type: 'session-info-response',
         sessionId,
         entryCount: transcriptHistory.length,
@@ -219,7 +296,7 @@
     if (msg.type === 'load-session-history') {
       chrome.storage.local.get({ [`litHistory_${msg.sessionId}`]: [] }, (data) => {
         const history = data[`litHistory_${msg.sessionId}`] || [];
-        chrome.runtime.sendMessage({
+        safeSend({
           type: 'export-transcript',
           history,
           format: msg.format || 'txt',
@@ -271,10 +348,12 @@
       return true; // async response not needed but keeps channel open
     }
     if (msg.type === 'glossary-updated') {
-      // The background will use the new glossary on next translation.
-      // For visible inline translations, we could re-request translation,
-      // but that's expensive. Just note it for now.
       console.log('[Lost in Transcription] Glossary updated, new translations will use updated glossary');
+    }
+    if (msg.type === 'reconnect') {
+      if (typeof window.__litReconnect === 'function') {
+        window.__litReconnect();
+      }
     }
   });
 
@@ -362,7 +441,7 @@
   // ── Handle individual caption node ───────────────────────────────────────
 
   function handleCaptionNode(span) {
-    if (!enabled) return;
+    if (!enabled || !connectionAlive) return;
 
     const text = span.textContent?.trim();
     if (!text) return;
@@ -379,7 +458,7 @@
 
     const speaker = extractSpeaker(span);
 
-    chrome.runtime.sendMessage({
+    safeSend({
       type: 'translate',
       text,
       captionId,
@@ -504,8 +583,8 @@
   // ── Export ──────────────────────────────────────────────────────────────
 
   function triggerExport() {
-    chrome.runtime.sendMessage({ type: 'get-settings' }, (settings) => {
-      chrome.runtime.sendMessage({
+    safeSend({ type: 'get-settings' }, (settings) => {
+      safeSend({
         type: 'export-transcript',
         history: transcriptHistory,
         title: getMeetingTitle(),

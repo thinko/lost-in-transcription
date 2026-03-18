@@ -22,6 +22,9 @@
 (function () {
   'use strict';
 
+  if (window.__litExportInit) return;
+  window.__litExportInit = true;
+
   // Expose export trigger that content.js calls
   window.__litTriggerExport = function () {
     const history = window.__litTranscriptHistory;
