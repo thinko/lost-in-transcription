@@ -25,6 +25,8 @@
   if (window.__litGlossaryPopoverInit) return;
   window.__litGlossaryPopoverInit = true;
 
+  if (!window.__litCleanupHandlers) window.__litCleanupHandlers = [];
+
   const POPOVER_ID = 'lit-glossary-popover';
   const OFFSET_X = 10;
   const OFFSET_Y = 10;
@@ -626,7 +628,7 @@
     if (existing) existing.remove();
   }
 
-  document.addEventListener('click', (e) => {
+  const onGlossaryClick = (e) => {
     if (!e.ctrlKey && !e.metaKey) return;
     if (!isInsideAllowedTarget(e.target)) return;
 
@@ -636,5 +638,12 @@
     e.preventDefault();
     e.stopPropagation();
     createPopover(text, e.clientX, e.clientY);
+  };
+  document.addEventListener('click', onGlossaryClick);
+
+  // ── Cleanup registration ──────────────────────────────────────────────
+  window.__litCleanupHandlers.push(() => {
+    document.removeEventListener('click', onGlossaryClick);
+    removeExistingPopover();
   });
 })();

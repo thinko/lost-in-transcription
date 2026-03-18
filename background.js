@@ -68,10 +68,28 @@ async function reinjectContentScripts(forceReinject = false) {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => {
+          // Run all registered cleanup handlers (observers, listeners, DOM, timers)
+          if (Array.isArray(window.__litCleanupHandlers)) {
+            for (const fn of window.__litCleanupHandlers) {
+              try { fn(); } catch (e) { console.debug('[LiT] Cleanup handler error:', e); }
+            }
+          }
+          window.__litCleanupHandlers = [];
+
+          // Clear all init flags
           window.__litInitialized = false;
           window.__litSidePanelInit = false;
           window.__litExportInit = false;
           window.__litGlossaryPopoverInit = false;
+
+          // Clear all window globals
+          window.__litReconnect = undefined;
+          window.__litSidePanelUpdate = undefined;
+          window.__litSidePanelClear = undefined;
+          window.__litCreateSidePanel = undefined;
+          window.__litTranscriptHistory = undefined;
+          window.__litTriggerExport = undefined;
+          window.__litPersistSession = undefined;
         },
       });
 

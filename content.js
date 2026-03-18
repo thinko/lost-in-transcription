@@ -23,13 +23,14 @@
   'use strict';
 
   // ── Re-injection guard ──────────────────────────────────────────────────
-  // When the extension re-injects scripts into an existing tab, prevent
-  // duplicate observers and state by checking a window-level flag.
   if (window.__litInitialized) {
     console.debug('[LiT] Content script already active, skipping duplicate init');
     return;
   }
   window.__litInitialized = true;
+
+  // ── Cleanup registry ───────────────────────────────────────────────────
+  if (!window.__litCleanupHandlers) window.__litCleanupHandlers = [];
 
   // ── State ────────────────────────────────────────────────────────────────
 
@@ -41,6 +42,7 @@
   const processedTexts = new Map();
   let connectionAlive = true;
   let debugMode = false;
+  const activeObservers = [];
 
   function dbg(...args) {
     if (debugMode) console.log('[LiT]', ...args);
@@ -100,8 +102,7 @@
   };
 
   // ── Connection health heartbeat ─────────────────────────────────────────
-  // Periodically ping the background to detect silent disconnections
-  setInterval(() => {
+  const heartbeatId = setInterval(() => {
     if (!connectionAlive || !enabled) return;
     try {
       if (!chrome.runtime?.id) {
@@ -240,17 +241,19 @@
     }
   }
 
-  window.addEventListener('beforeunload', () => {
+  const onBeforeUnload = () => {
     if (sessionId && transcriptHistory.length > 0) {
       persistSession();
     }
-  });
+  };
+  window.addEventListener('beforeunload', onBeforeUnload);
 
-  document.addEventListener('visibilitychange', () => {
+  const onVisChange = () => {
     if (document.visibilityState === 'hidden' && sessionId && transcriptHistory.length > 0) {
       persistSession();
     }
-  });
+  };
+  document.addEventListener('visibilitychange', onVisChange);
 
   // ── Bootstrap ────────────────────────────────────────────────────────────
 
@@ -267,7 +270,7 @@
 
   // ── Listen for messages from background / popup ──────────────────────────
 
-  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  const onContentMessage = (msg, _sender, sendResponse) => {
     switch (msg.type) {
       case 'translation-result':
         applyTranslation(msg.captionId, msg.original, msg.translated);
@@ -363,7 +366,8 @@
         sendResponse({ ok: true });
         break;
     }
-  });
+  };
+  chrome.runtime.onMessage.addListener(onContentMessage);
 
   // ── Wait for the caption container to appear ─────────────────────────────
 
@@ -383,6 +387,7 @@
     });
 
     bodyObserver.observe(document.body, { childList: true, subtree: true });
+    activeObservers.push(bodyObserver);
   }
 
   function findCaptionContainer() {
@@ -428,6 +433,7 @@
       subtree: true,
       characterData: true,
     });
+    activeObservers.push(observer);
 
     const reattachObserver = new MutationObserver(() => {
       const newContainer = findCaptionContainer();
@@ -439,6 +445,7 @@
       }
     });
     reattachObserver.observe(document.body, { childList: true, subtree: true });
+    activeObservers.push(reattachObserver);
   }
 
   function processExistingCaptions(container) {
@@ -609,4 +616,31 @@
   window.__litTranscriptHistory = transcriptHistory;
   window.__litTriggerExport = triggerExport;
   window.__litPersistSession = persistSession;
+
+  // ── Cleanup registration ──────────────────────────────────────────────
+  window.__litCleanupHandlers.push(() => {
+    // Persist any unsaved data before teardown
+    if (saveTimer) clearTimeout(saveTimer);
+    if (sessionId && transcriptHistory.length > 0) persistSession();
+
+    // Stop heartbeat
+    clearInterval(heartbeatId);
+
+    // Disconnect all MutationObservers
+    for (const obs of activeObservers) obs.disconnect();
+    activeObservers.length = 0;
+
+    // Remove message listener
+    chrome.runtime.onMessage.removeListener(onContentMessage);
+
+    // Remove event listeners
+    window.removeEventListener('beforeunload', onBeforeUnload);
+    document.removeEventListener('visibilitychange', onVisChange);
+
+    // Remove inline translation elements and data attributes
+    document.querySelectorAll('.lit-inline').forEach((el) => el.remove());
+    document.querySelectorAll('[data-lit-id]').forEach((el) => el.removeAttribute('data-lit-id'));
+
+    connectionAlive = false;
+  });
 })();

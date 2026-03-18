@@ -25,6 +25,8 @@
   if (window.__litSidePanelInit) return;
   window.__litSidePanelInit = true;
 
+  if (!window.__litCleanupHandlers) window.__litCleanupHandlers = [];
+
   const PANEL_ID = 'lit-side-panel-host';
   const DEFAULT_WIDTH = 400;
   const MIN_WIDTH = 200;
@@ -51,8 +53,7 @@
     if (countBadge) countBadge.textContent = '0';
   };
 
-  // Listen for settings changes (e.g. historyBufferSize)
-  chrome.runtime.onMessage.addListener((msg) => {
+  const onSidePanelMessage = (msg) => {
     if (msg.type === 'settings-changed' && msg.settings.historyBufferSize !== undefined) {
       historyBufferSize = msg.settings.historyBufferSize;
       const host = document.getElementById(PANEL_ID);
@@ -62,7 +63,12 @@
         if (entries) pruneEntries(entries, countBadge);
       }
     }
-  });
+  };
+  chrome.runtime.onMessage.addListener(onSidePanelMessage);
+
+  let sidePanelResizeObserver = null;
+  let sidePanelMouseMove = null;
+  let sidePanelMouseUp = null;
 
   // ── Create the side panel ──────────────────────────────────────────────
 
@@ -140,19 +146,21 @@
       e.preventDefault();
     });
 
-    document.addEventListener('mousemove', (e) => {
+    sidePanelMouseMove = (e) => {
       if (!dragging) return;
       const delta = startX - e.clientX;
       panelWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, startW + delta));
       panel.style.width = panelWidth + 'px';
-    });
+    };
+    document.addEventListener('mousemove', sidePanelMouseMove);
 
-    document.addEventListener('mouseup', () => {
+    sidePanelMouseUp = () => {
       if (dragging) {
         dragging = false;
         chrome.storage.sync.set({ sidePanelWidth: panelWidth });
       }
-    });
+    };
+    document.addEventListener('mouseup', sidePanelMouseUp);
 
     // ── Collapse toggle ────────────────────────────────────────────────
 
@@ -215,14 +223,14 @@
 
     // ── ResizeObserver to track caption pane movement ──────────────────
 
-    const ro = new ResizeObserver(() => {
+    sidePanelResizeObserver = new ResizeObserver(() => {
       const rect = captionWrapper.getBoundingClientRect();
       host.style.position = 'absolute';
       host.style.top = '0';
       host.style.right = '0';
       host.style.height = rect.height + 'px';
     });
-    ro.observe(captionWrapper);
+    sidePanelResizeObserver.observe(captionWrapper);
   };
 
   // ── Append a single entry ──────────────────────────────────────────────
@@ -496,4 +504,14 @@
       }
     `;
   }
+
+  // ── Cleanup registration ──────────────────────────────────────────────
+  window.__litCleanupHandlers.push(() => {
+    chrome.runtime.onMessage.removeListener(onSidePanelMessage);
+    if (sidePanelResizeObserver) sidePanelResizeObserver.disconnect();
+    if (sidePanelMouseMove) document.removeEventListener('mousemove', sidePanelMouseMove);
+    if (sidePanelMouseUp) document.removeEventListener('mouseup', sidePanelMouseUp);
+    const host = document.getElementById(PANEL_ID);
+    if (host) host.remove();
+  });
 })();

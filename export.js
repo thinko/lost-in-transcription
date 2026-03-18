@@ -25,6 +25,8 @@
   if (window.__litExportInit) return;
   window.__litExportInit = true;
 
+  if (!window.__litCleanupHandlers) window.__litCleanupHandlers = [];
+
   // Expose export trigger that content.js calls
   window.__litTriggerExport = function () {
     const history = window.__litTranscriptHistory;
@@ -49,4 +51,8 @@
       });
     });
   };
+
+  window.__litCleanupHandlers.push(() => {
+    window.__litTriggerExport = undefined;
+  });
 })();
