@@ -3,6 +3,10 @@
 Thumbs.db
 Desktop.ini
 
+# Local agent / IDE pointers (machine-specific paths — never publish)
+CLAUDE.md
+CLAUDE.local.md
+
 # Editors / IDEs
 .vscode/
 .idea/
@@ -28,12 +32,11 @@ teams-chat-example-*.html
 .env
 .env.*
 
-# Dev workspace
-_dev_tests_/
-_dev_docs_/
+# Local / agent notes (optional folder name: dev_docs)
 dev_docs/
-# Chrome doesn't like an extension subdirectory name that starts/ends with an underscore
-__*__/
+
+# Chrome extension packages reject some paths; avoid folder names that start/end with
+# underscores inside the extension root. Use dev_tests/ and dev_docs/ as named.
 
 # Pseudo-locale (dev-only, not shipped)
 _locales/qps-ploc/
