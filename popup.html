@@ -84,8 +84,9 @@
             <button id="exportBtn" type="button" data-i18n="btn_export"></button>
           </div>
         </section>
-        <section class="section">
+        <section class="section" id="sessionSection">
           <h2 data-i18n="section_sessions"></h2>
+          <p id="sessionHistoryDisabledHint" class="field-hint session-history-off-hint hidden" data-i18n="hint_session_history_off"></p>
           <button id="saveAndNewBtn" type="button" class="btn-primary btn-sm" data-i18n="btn_save_start_new"></button>
           <div id="sessionList" class="session-list">
             <p class="session-empty" data-i18n="status_no_sessions"></p>
@@ -227,6 +228,14 @@
               <option value="keep" data-i18n="option_keep_panel"></option>
             </select>
           </div>
+          <div class="field glossary-enabled-row">
+            <span data-i18n="label_session_history"></span>
+            <label class="toggle">
+              <input type="checkbox" id="sessionHistoryEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <p class="field-hint" data-i18n="hint_session_history"></p>
         </section>
       </div>
 
@@ -286,7 +295,13 @@
           </ul>
         </section>
         <section class="section">
-          <a href="#" id="githubLink" data-i18n="about_link"></a>
+          <h2 data-i18n="section_why_extension"></h2>
+          <div class="about-rich" data-i18n-html="about_why_html"></div>
+        </section>
+        <section class="section about-links-row">
+          <a href="#" id="githubLink" class="about-external-link" data-i18n="about_link"></a>
+          <span class="about-links-sep" aria-hidden="true">·</span>
+          <a href="#" id="privacyLink" class="about-external-link" data-i18n="about_privacy_link"></a>
         </section>
         <section class="section">
           <p class="about-text" data-i18n="about_text"></p>
@@ -297,6 +312,9 @@
             <input type="checkbox" id="debugMode">
             <span class="toggle-slider"></span>
           </label>
+        </section>
+        <section class="section legal-disclaimer-section">
+          <div class="legal-disclaimer" data-i18n-html="about_disclaimer_html"></div>
         </section>
       </div>
     </div>

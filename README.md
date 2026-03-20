@@ -31,6 +31,17 @@ A Chrome/Edge extension that translates Microsoft Teams® Closed Captions (meeti
 4. Click **Load unpacked** and select the project folder
 5. The extension icon will appear in the toolbar
 
+## Teams URLs and tenants
+
+The extension’s `manifest.json` matches Microsoft-documented Teams-related origins, including:
+
+- **Commercial:** `teams.microsoft.com`, `*.teams.microsoft.com`, `teams.cloud.microsoft`, `*.teams.cloud.microsoft`
+- **Skype / legacy:** `*.skype.com`, `*.lync.com`, `*.partner.lync.cn`
+- **US Government / DOD:** `*.gov.teams.microsoft.us`, `gov.teams.microsoft.us`, `*.dod.teams.microsoft.us`, `dod.teams.microsoft.us`, `*.online.dod.skypeforbusiness.us`
+- **China:** `teams.microsoftonline.cn`, `*.teams.microsoftonline.cn`
+
+Most meeting links redirect to one of these hosts once the meeting opens. If your organization uses a **custom domain** that never resolves to these patterns, the content scripts will not run—file an issue with the exact browser URL (origin) if that happens.
+
 ## Configuration
 
 Click the extension icon to open the settings popup. The UI is organized into five tabs:
@@ -72,7 +83,7 @@ Shows a live summary of current settings (mode, backend, languages, frequency, g
 
 ## Usage
 
-1. Join a Teams meeting in Chrome/Edge at `teams.microsoft.com`
+1. Join a Teams meeting in Chrome/Edge on a supported Teams host (e.g. `teams.microsoft.com` or `teams.cloud.microsoft`)
 2. Turn on **Live Captions** in the meeting (or have the organizer enable them)
 3. The extension automatically detects caption text and begins translating
 4. Use `Alt+Shift+T` to toggle between inline and side panel display
@@ -137,8 +148,15 @@ The UI language follows the browser's language setting. The target translation l
 
 ### Development QA
 
-- `_dev_tests/locale-preview.html` — renders the popup at actual width with a locale switcher and overflow detection
-- `node _dev_tests/generate-pseudo-locale.js` — generates a pseudo-locale (`_locales/qps-ploc/`) with accented, padded strings for stress-testing UI layouts
+- [`dev_tests/locale-preview.html`](dev_tests/locale-preview.html) — renders the popup at actual width with a locale switcher and overflow detection
+- `node dev_tests/generate-pseudo-locale.js` — generates a pseudo-locale (`_locales/qps-ploc/`) with accented, padded strings for stress-testing UI layouts
+
+## Privacy
+
+- **Privacy policy:** [`docs/PRIVACY.md`](docs/PRIVACY.md)
+- **In-extension copy** (keep in sync when you change the policy): [`docs/privacy-policy.html`](docs/privacy-policy.html)
+
+For the Chrome Web Store, host the policy at a public HTTPS URL (e.g. GitHub **raw** link to `docs/PRIVACY.md` on `main`, or GitHub Pages) and enter that URL in the listing.
 
 ## How It Works
 
@@ -146,7 +164,7 @@ The extension uses a `MutationObserver` to watch for Teams caption DOM nodes ide
 
 Caption updates for the same speech block are tracked by `captionId` and updated in-place in the transcript history, so exports contain only the final version of each caption — not every intermediate update.
 
-The caption list in Teams is virtualized (old entries are recycled), so the extension maintains its own in-memory transcript history for export. Transcript sessions are persisted to `chrome.storage.local` and survive page refreshes, browser restarts, and meeting reconnections. Sessions are isolated per meeting using a derived meeting ID.
+The caption list in Teams is virtualized (old entries are recycled), so the extension maintains its own in-memory transcript history for export. Transcript sessions can be persisted to `chrome.storage.local` (optional via **Display → Behavior → Remember session history**) so they survive page refreshes, browser reconnects, and browser restarts. When enabled, stored caption/translation data for each session is **kept for at most 48 hours** since the last update, then removed automatically. When session history is off, nothing is written for continuity and the translation view starts empty after reload or rejoin.
 
 ## Edge Compatibility
 
@@ -159,3 +177,7 @@ Copyright (c) 2026 Alex Handy <ahandy@gmail.com>
 This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 See [LICENSE](LICENSE) for the full text.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) (repository URL in `manifest.json` → `homepage_url`, store checklist under [_dev_docs_/CHROME_WEB_STORE_LISTING.md](_dev_docs_/CHROME_WEB_STORE_LISTING.md)).

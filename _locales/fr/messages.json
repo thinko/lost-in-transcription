@@ -80,6 +80,9 @@
   "section_quickstart": {
     "message": "Démarrage rapide"
   },
+  "section_why_extension": {
+    "message": "Pourquoi cette extension ?"
+  },
   "label_from": {
     "message": "De"
   },
@@ -121,6 +124,15 @@
   },
   "label_disable_action": {
     "message": "À la désactivation de la traduction"
+  },
+  "label_session_history": {
+    "message": "Mémoriser l’historique des sessions"
+  },
+  "hint_session_history": {
+    "message": "Enregistre sous-titres et traductions sur cet appareil jusqu’à 48 h pour survivre aux actualisations et reconnexions. Désactiver pour ne plus enregistrer : rechargements et retours en réunion affichent une traduction vide, et les sessions enregistrées sont supprimées de cet appareil."
+  },
+  "hint_session_history_off": {
+    "message": "L’historique des sessions est désactivé. Activez-le dans Affichage → Comportement pour enregistrer à nouveau les transcriptions."
   },
   "label_custom_instructions": {
     "message": "Instructions personnalisées"
@@ -314,6 +326,15 @@
   "summary_glossary": {
     "message": "Glossaire"
   },
+  "summary_session_history": {
+    "message": "Mémoire de session"
+  },
+  "summary_session_history_on": {
+    "message": "Activée (48 h max sur l’appareil)"
+  },
+  "summary_session_history_off": {
+    "message": "Désactivée (non enregistré)"
+  },
   "summary_inline": {
     "message": "Intégré"
   },
@@ -454,8 +475,17 @@
   "about_link": {
     "message": "GitHub"
   },
+  "about_privacy_link": {
+    "message": "Politique de confidentialité"
+  },
   "about_text": {
     "message": "Lost in Transcription — Traduction en temps réel des sous-titres Microsoft Teams®."
+  },
+  "about_why_html": {
+    "message": "<p>Microsoft Teams propose une traduction des sous-titres en direct, mais elle est souvent <strong>limitée aux langues prises en charge</strong>. Dans de nombreux cas, <strong>la traduction s’arrête lorsque la réunion est enregistrée</strong>, ce qui interrompt l’accès aux sous-titres au moment où vous en avez le plus besoin.</p><p>Les sous-titres automatiques peinent aussi avec les <strong>noms de produits, le jargon technique et le vocabulaire propre à l’entreprise</strong>. Lost in Transcription fonctionne aux côtés des sous-titres Teams, envoie le texte vers <em>le service de traduction que vous choisissez</em> et inclut un <strong>glossaire</strong> modifiable pour corriger les erreurs de transcription récurrentes avant et après traduction.</p>"
+  },
+  "about_disclaimer_html": {
+    "message": "© 2026 Alex Handy. All rights reserved.<br><br><em>Lost in Transcription</em> is free software licensed under the <strong>GNU General Public License v3.0</strong> (GPLv3). You should have received a copy of the GNU General Public License along with this program; if not, see <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.gnu.org/licenses/gpl-3.0.html</a>.<br><br><strong>Trademarks:</strong> Microsoft, Microsoft Teams, and other Microsoft marks are trademarks of the Microsoft group of companies. This project is independent and is not affiliated with, endorsed by, or sponsored by Microsoft. LibreTranslate, DeepL, Google Cloud, Google Cloud Translation, OpenAI, and other service names are trademarks of their respective owners; mention of third-party services does not imply endorsement.<br><br>Translations are produced by services you configure; accuracy and availability are not guaranteed. This software is provided “as is,” without warranty of any kind. Use at your own risk."
   },
   "content_unknown_meeting": {
     "message": "Réunion inconnue"

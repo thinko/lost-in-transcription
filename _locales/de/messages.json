@@ -80,6 +80,9 @@
   "section_quickstart": {
     "message": "Schnellstart"
   },
+  "section_why_extension": {
+    "message": "Warum diese Erweiterung?"
+  },
   "label_from": {
     "message": "Von"
   },
@@ -121,6 +124,15 @@
   },
   "label_disable_action": {
     "message": "Beim Deaktivieren der Übersetzung"
+  },
+  "label_session_history": {
+    "message": "Sitzungsverlauf speichern"
+  },
+  "hint_session_history": {
+    "message": "Speichert Untertitel und Übersetzungen bis zu 48 Stunden auf diesem Gerät für Aktualisierungen und Wiederverbindungen. Aus: kein Speichern — nach Neuladen oder erneutem Beitritt ist die Übersetzungsansicht leer, gespeicherte Sitzungen werden von diesem Gerät entfernt."
+  },
+  "hint_session_history_off": {
+    "message": "Sitzungsverlauf ist aus. Aktivieren Sie ihn unter Anzeige → Verhalten, um Transkripte wieder zu speichern."
   },
   "label_custom_instructions": {
     "message": "Eigene Anweisungen"
@@ -314,6 +326,15 @@
   "summary_glossary": {
     "message": "Glossar"
   },
+  "summary_session_history": {
+    "message": "Sitzungsspeicher"
+  },
+  "summary_session_history_on": {
+    "message": "Ein (max. 48 h auf dem Gerät)"
+  },
+  "summary_session_history_off": {
+    "message": "Aus (nicht gespeichert)"
+  },
   "summary_inline": {
     "message": "Inline"
   },
@@ -454,8 +475,17 @@
   "about_link": {
     "message": "GitHub"
   },
+  "about_privacy_link": {
+    "message": "Datenschutzerklärung"
+  },
   "about_text": {
     "message": "Lost in Transcription — Echtzeit-Übersetzung von Microsoft Teams® Untertiteln."
+  },
+  "about_why_html": {
+    "message": "<p>Microsoft Teams bietet Live-Übersetzung von Untertiteln, aber sie ist oft <strong>auf unterstützte Sprachen beschränkt</strong>. In vielen Umgebungen <strong>endet die Übersetzung, während eine Besprechung aufgezeichnet wird</strong> — genau dann, wenn barrierefreie Untertitel besonders wichtig sind.</p><p>Automatisch erkannte Untertitel haben zudem Schwierigkeiten mit <strong>Produktnamen, Fachjargon und unternehmensspezifischen Begriffen</strong>. Lost in Transcription arbeitet neben den Teams-Untertiteln, sendet Text an <em>von Ihnen gewählte</em> Übersetzungsdienste und bietet ein bearbeitbares <strong>Glossar</strong>, um wiederkehrende Transkriptionsfehler vor und nach der Übersetzung zu korrigieren.</p>"
+  },
+  "about_disclaimer_html": {
+    "message": "© 2026 Alex Handy. All rights reserved.<br><br><em>Lost in Transcription</em> is free software licensed under the <strong>GNU General Public License v3.0</strong> (GPLv3). You should have received a copy of the GNU General Public License along with this program; if not, see <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.gnu.org/licenses/gpl-3.0.html</a>.<br><br><strong>Trademarks:</strong> Microsoft, Microsoft Teams, and other Microsoft marks are trademarks of the Microsoft group of companies. This project is independent and is not affiliated with, endorsed by, or sponsored by Microsoft. LibreTranslate, DeepL, Google Cloud, Google Cloud Translation, OpenAI, and other service names are trademarks of their respective owners; mention of third-party services does not imply endorsement.<br><br>Translations are produced by services you configure; accuracy and availability are not guaranteed. This software is provided “as is,” without warranty of any kind. Use at your own risk."
   },
   "content_unknown_meeting": {
     "message": "Unbekannte Besprechung"

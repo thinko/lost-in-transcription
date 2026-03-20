@@ -80,6 +80,9 @@
   "section_quickstart": {
     "message": "クイックスタート"
   },
+  "section_why_extension": {
+    "message": "この拡張機能の目的"
+  },
   "label_from": {
     "message": "元の言語"
   },
@@ -121,6 +124,15 @@
   },
   "label_disable_action": {
     "message": "翻訳を無効にする時"
+  },
+  "label_session_history": {
+    "message": "セッション履歴を保存"
+  },
+  "hint_session_history": {
+    "message": "字幕と翻訳を最大 48 時間この端末に保存し、再読み込みや再接続後も続きを表示できます。オフにすると保存しません。再読み込みや再参加後は翻訳表示が空になり、保存済みセッションはこの端末から削除されます。"
+  },
+  "hint_session_history_off": {
+    "message": "セッション履歴はオフです。表示 → 動作 で有効にすると、再度トランスクリプトを保存できます。"
   },
   "label_custom_instructions": {
     "message": "カスタム指示"
@@ -314,6 +326,15 @@
   "summary_glossary": {
     "message": "用語集"
   },
+  "summary_session_history": {
+    "message": "セッション記憶"
+  },
+  "summary_session_history_on": {
+    "message": "オン（端末に最大 48 時間）"
+  },
+  "summary_session_history_off": {
+    "message": "オフ（保存しない）"
+  },
   "summary_inline": {
     "message": "インライン"
   },
@@ -454,8 +475,17 @@
   "about_link": {
     "message": "GitHub"
   },
+  "about_privacy_link": {
+    "message": "プライバシーポリシー"
+  },
   "about_text": {
     "message": "Lost in Transcription — Microsoft Teams® のクローズドキャプションのリアルタイム翻訳。"
+  },
+  "about_why_html": {
+    "message": "<p>Microsoft Teams にはライブ字幕の翻訳がありますが、<strong>対応言語が限られる</strong>ことが多く、多くの環境では<strong>会議の録画中に翻訳が停止する</strong>ため、必要なときに字幕アクセシビリティが途切れることがあります。</p><p>自動生成の字幕は<strong>製品名、専門用語、社内用語</strong>でもつまずきがちです。Lost in Transcription は Teams の字幕と併用でき、テキストを<em>お選びの</em>翻訳バックエンドへ送り、ユーザー編集可能な<strong>用語集</strong>で、繰り返し起こる聞き取り誤りを翻訳の前後に修正できます。</p>"
+  },
+  "about_disclaimer_html": {
+    "message": "© 2026 Alex Handy. All rights reserved.<br><br><em>Lost in Transcription</em> is free software licensed under the <strong>GNU General Public License v3.0</strong> (GPLv3). You should have received a copy of the GNU General Public License along with this program; if not, see <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">https://www.gnu.org/licenses/gpl-3.0.html</a>.<br><br><strong>Trademarks:</strong> Microsoft, Microsoft Teams, and other Microsoft marks are trademarks of the Microsoft group of companies. This project is independent and is not affiliated with, endorsed by, or sponsored by Microsoft. LibreTranslate, DeepL, Google Cloud, Google Cloud Translation, OpenAI, and other service names are trademarks of their respective owners; mention of third-party services does not imply endorsement.<br><br>Translations are produced by services you configure; accuracy and availability are not guaranteed. This software is provided “as is,” without warranty of any kind. Use at your own risk."
   },
   "content_unknown_meeting": {
     "message": "不明なミーティング"

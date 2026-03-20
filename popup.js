@@ -19,6 +19,17 @@
 
 /* global chrome, t, applyI18n */
 
+/** Source repo URL from manifest `homepage_url` (set before GitHub / Web Store release). */
+function getSourceRepositoryUrl() {
+  try {
+    const u = chrome.runtime.getManifest().homepage_url;
+    if (typeof u === 'string' && /^https?:\/\//i.test(u.trim())) return u.trim();
+  } catch (_) {
+    /* ignore */
+  }
+  return 'https://github.com/thinko/lost-in-transcription';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
 
@@ -73,6 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
     restartStatus: document.getElementById('restartStatus'),
     onPanelClose: document.getElementById('onPanelClose'),
     onDisable: document.getElementById('onDisable'),
+    sessionHistoryEnabled: document.getElementById('sessionHistoryEnabled'),
+    sessionSection: document.getElementById('sessionSection'),
+    sessionHistoryDisabledHint: document.getElementById('sessionHistoryDisabledHint'),
     debugMode: document.getElementById('debugMode'),
   };
 
@@ -99,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     historyBufferSize: 100,
     onPanelClose: 'ask',
     onDisable: 'ask',
+    sessionHistoryEnabled: true,
     lastTab: 'tab-dashboard',
     debugMode: false,
   };
@@ -180,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
       els.onPanelClose.value = settings.onPanelClose || 'ask';
       els.onDisable.value = settings.onDisable || 'ask';
       els.glossaryEnabled.checked = settings.glossaryEnabled !== false;
+      els.sessionHistoryEnabled.checked = settings.sessionHistoryEnabled !== false;
       els.debugMode.checked = !!settings.debugMode;
 
       const histVal = settings.historyBufferSize;
@@ -198,8 +214,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       loadGlossary();
       loadSessions();
+      updateSessionUiState();
       updateDashboard(settings);
     });
+  }
+
+  function updateSessionUiState() {
+    const on = currentSettings.sessionHistoryEnabled !== false;
+    if (els.sessionSection) els.sessionSection.classList.toggle('session-history-off', !on);
+    if (els.sessionHistoryDisabledHint) els.sessionHistoryDisabledHint.classList.toggle('hidden', on);
+    if (els.saveAndNewBtn) els.saveAndNewBtn.disabled = !on;
+    if (els.clearAllBtn) els.clearAllBtn.disabled = !on;
   }
 
   loadAllSettings();
@@ -248,6 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const glossaryVal = s.glossaryEnabled !== false && glossaryCount > 0
       ? t('status_entries_active', [String(glossaryCount)])
       : t('status_disabled');
+    const sessionHistVal = s.sessionHistoryEnabled !== false
+      ? t('summary_session_history_on')
+      : t('summary_session_history_off');
 
     els.dashboardSummary.innerHTML = `
       <div class="summary-item" data-target="tab-display">
@@ -269,6 +297,10 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="summary-item" data-target="tab-prompt">
         <span class="summary-label">${esc(t('summary_glossary'))}</span>
         <span class="summary-value">${esc(glossaryVal)}</span>
+      </div>
+      <div class="summary-item" data-target="tab-display">
+        <span class="summary-label">${esc(t('summary_session_history'))}</span>
+        <span class="summary-value">${esc(sessionHistVal)}</span>
       </div>
     `;
   }
@@ -332,6 +364,30 @@ document.addEventListener('DOMContentLoaded', () => {
         type: 'settings-changed',
         settings: changedSettings,
       });
+    });
+  }
+
+  function getTeamsMeetingUrlMatchPatterns() {
+    try {
+      const blocks = chrome.runtime.getManifest().content_scripts || [];
+      const block = blocks.find(
+        (c) => Array.isArray(c.js) && c.js.some((f) => f === 'content.js')
+      );
+      if (block?.matches?.length) return block.matches;
+    } catch (_) {
+      /* ignore */
+    }
+    return ['*://teams.microsoft.com/*'];
+  }
+
+  function notifyAllTeamsTabs(settingsPatch) {
+    chrome.tabs.query({ url: getTeamsMeetingUrlMatchPatterns() }, (tabs) => {
+      for (const tab of tabs) {
+        chrome.tabs.sendMessage(tab.id, {
+          type: 'settings-changed',
+          settings: settingsPatch,
+        }).catch(() => {});
+      }
     });
   }
 
@@ -507,6 +563,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   els.onDisable.addEventListener('change', () => {
     save('onDisable', els.onDisable.value);
+  });
+
+  els.sessionHistoryEnabled.addEventListener('change', () => {
+    const on = els.sessionHistoryEnabled.checked;
+    if (!on) {
+      chrome.runtime.sendMessage({ type: 'clear-lit-session-storage' }, () => {
+        currentSettings.sessionHistoryEnabled = false;
+        chrome.storage.sync.set({ sessionHistoryEnabled: false }, () => {
+          notifyAllTeamsTabs({ sessionHistoryEnabled: false });
+          loadSessions();
+          updateSessionUiState();
+          updateDashboard(currentSettings);
+        });
+      });
+    } else {
+      currentSettings.sessionHistoryEnabled = true;
+      chrome.storage.sync.set({ sessionHistoryEnabled: true }, () => {
+        notifyAllTeamsTabs({ sessionHistoryEnabled: true });
+        loadSessions();
+        updateSessionUiState();
+        updateDashboard(currentSettings);
+      });
+    }
   });
 
   els.glossaryEnabled.addEventListener('change', () => {
@@ -859,6 +938,21 @@ document.addEventListener('DOMContentLoaded', () => {
       versionEl.textContent = '—';
     }
   }
+
+  const githubLink = document.getElementById('githubLink');
+  if (githubLink) {
+    const repoUrl = getSourceRepositoryUrl();
+    githubLink.href = repoUrl;
+    githubLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: repoUrl });
+    });
+  }
+
+  document.getElementById('privacyLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('docs/privacy-policy.html') });
+  });
 
   // ── Utilities ────────────────────────────────────────────────────────────
 
