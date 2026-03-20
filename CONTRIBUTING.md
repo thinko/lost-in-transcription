@@ -9,16 +9,17 @@ The Help → About **GitHub** link reads **`homepage_url`** from [`manifest.json
 1. Set `"homepage_url"` to your public repository (e.g. `https://github.com/your-org/lost-in-transcription`).
 2. Reload the extension.
 
-See also [_dev_docs_/CHROME_WEB_STORE_LISTING.md](_dev_docs_/CHROME_WEB_STORE_LISTING.md) for store checklist.
+See also [docs/CHROME_WEB_STORE_LISTING.md](docs/CHROME_WEB_STORE_LISTING.md) for the Chrome Web Store checklist.
 
 ## Copyright headers
 
-GPLv3 source files carry a standard copyright line. Project policy is documented in [_dev_docs_/COPYRIGHT_AND_ATTRIBUTION.md](_dev_docs_/COPYRIGHT_AND_ATTRIBUTION.md).
+GPLv3 source files carry a standard copyright line (name + email in headers and [README.md](README.md)). The GPL expects those notices to be preserved. If you prefer a neutral line (e.g. “Lost in Transcription contributors”), update headers and README in one consistent pass.
 
 ## Development tooling
 
 - Optional QA helpers live under [`dev_tests/`](dev_tests/) (see [README.md](README.md)).
 - Do not commit machine-specific agent files; `CLAUDE.md` / `CLAUDE.local.md` are listed in `.gitignore`.
+- The folder **`_dev_docs_/`** is **gitignored** — use it only on your machine for private notes (pre-push audits, etc.). Anything meant for contributors belongs in **`docs/`**.
 
 ## Git commits
 

@@ -35,6 +35,9 @@ teams-chat-example-*.html
 # Local / agent notes (optional folder name: dev_docs)
 dev_docs/
 
+# Maintainer/agent-only notes (not published to the public repo)
+_dev_docs_/
+
 # Chrome extension packages reject some paths; avoid folder names that start/end with
 # underscores inside the extension root. Use dev_tests/ and dev_docs/ as named.
 

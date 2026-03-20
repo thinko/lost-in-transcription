@@ -180,4 +180,4 @@ See [LICENSE](LICENSE) for the full text.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) (repository URL in `manifest.json` → `homepage_url`, store checklist under [_dev_docs_/CHROME_WEB_STORE_LISTING.md](_dev_docs_/CHROME_WEB_STORE_LISTING.md)).
+See [CONTRIBUTING.md](CONTRIBUTING.md) (repository URL in `manifest.json` → `homepage_url`; Chrome Web Store checklist in [docs/CHROME_WEB_STORE_LISTING.md](docs/CHROME_WEB_STORE_LISTING.md)).
