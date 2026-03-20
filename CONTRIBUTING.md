@@ -4,12 +4,11 @@ Thank you for helping improve **Lost in Transcription**.
 
 ## Repository URL (source link)
 
-The Help → About **GitHub** link reads **`homepage_url`** from [`manifest.json`](manifest.json). Before publishing:
+The Help → About **GitHub** link reads **`homepage_url`** from [`manifest.json`](manifest.json) (currently `https://github.com/thinko/lost-in-transcription`). Change it if you fork under another org/user.
 
-1. Set `"homepage_url"` to your public repository (e.g. `https://github.com/your-org/lost-in-transcription`).
-2. Reload the extension.
+**Store ZIP:** run `bash dev_tests/build-store-zip.sh` from the repo root, or publish a **`v*`** tag to trigger the release workflow (see [docs/RELEASING.md](docs/RELEASING.md)).
 
-See also [docs/CHROME_WEB_STORE_LISTING.md](docs/CHROME_WEB_STORE_LISTING.md) for the Chrome Web Store checklist.
+**Chrome Web Store:** [docs/CHROME_WEB_STORE_LISTING.md](docs/CHROME_WEB_STORE_LISTING.md) (URLs, copy, permission text).
 
 ## Copyright headers
 

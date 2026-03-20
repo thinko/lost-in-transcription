@@ -5,7 +5,7 @@
  * Reads _locales/en/messages.json and produces _locales/qps-ploc/messages.json
  * with accented, padded strings wrapped in brackets for stress-testing UI layouts.
  *
- * Usage:  node _dev_tests/generate-pseudo-locale.js
+ * Usage:  node dev_tests/generate-pseudo-locale.js
  */
 
 const fs = require('fs');

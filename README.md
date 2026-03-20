@@ -150,15 +150,22 @@ The UI language follows the browser's language setting. The target translation l
 
 - [`dev_tests/locale-preview.html`](dev_tests/locale-preview.html) — renders the popup at actual width with a locale switcher and overflow detection
 - `node dev_tests/generate-pseudo-locale.js` — generates a pseudo-locale (`_locales/qps-ploc/`) with accented, padded strings for stress-testing UI layouts
+- [`dev_tests/build-store-zip.sh`](dev_tests/build-store-zip.sh) — builds `dist/lost-in-transcription-<version>.zip` for the Chrome Web Store (excludes dev-only files)
 
 ## Privacy
 
-- **Privacy policy:** [`docs/PRIVACY.md`](docs/PRIVACY.md)
-- **In-extension copy** (keep in sync when you change the policy): [`docs/privacy-policy.html`](docs/privacy-policy.html)
+- **Privacy policy (source):** [`docs/PRIVACY.md`](docs/PRIVACY.md)
+- **In-extension copy** (keep in sync): [`docs/privacy-policy.html`](docs/privacy-policy.html)
+- **Public URL (Chrome Web Store listing):** https://thinko.github.io/lost-in-transcription/privacy-policy.html
 
-For the Chrome Web Store, host the policy at a public HTTPS URL (e.g. GitHub **raw** link to `docs/PRIVACY.md` on `main`, or GitHub Pages) and enter that URL in the listing.
+**Project site (GitHub Pages, Jekyll leap-day):** https://thinko.github.io/lost-in-transcription/ — see [`docs/index.html`](docs/index.html). Configure `baseurl` / `url` in [`docs/_config.yml`](docs/_config.yml) if the repo or domain changes.
 
-If **GitHub Pages** is enabled with source **/docs** on `main`, the project site (Jekyll **leap-day** theme) includes [`docs/index.html`](docs/index.html) — e.g. `https://<user>.github.io/lost-in-transcription/` (set `baseurl` in [`docs/_config.yml`](docs/_config.yml) if the repo name changes).
+## Releases & Chrome Web Store
+
+- **GitHub Releases:** https://github.com/thinko/lost-in-transcription/releases — tagged releases (`v1.4.0`, …) attach a **store-ready ZIP** via [`.github/workflows/release.yml`](.github/workflows/release.yml).
+- **Build the ZIP locally:** `bash dev_tests/build-store-zip.sh` → `dist/lost-in-transcription-<version>.zip`
+- **Store checklist & copy:** [`docs/CHROME_WEB_STORE_LISTING.md`](docs/CHROME_WEB_STORE_LISTING.md) · **Maintainer flow:** [`docs/RELEASING.md`](docs/RELEASING.md)
+- After the extension is live on the **Chrome Web Store**, add that link to the docs site ([`docs/index.html`](docs/index.html), [`docs/install.html`](docs/install.html)).
 
 ## How It Works
 
@@ -182,4 +189,4 @@ See [LICENSE](LICENSE) for the full text.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) (repository URL in `manifest.json` → `homepage_url`; Chrome Web Store checklist in [docs/CHROME_WEB_STORE_LISTING.md](docs/CHROME_WEB_STORE_LISTING.md)).
+See [CONTRIBUTING.md](CONTRIBUTING.md) (`homepage_url` in [manifest.json](manifest.json); release & store docs under [docs/](docs/)).

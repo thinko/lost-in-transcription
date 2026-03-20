@@ -1,0 +1,25 @@
+# Build and attach Chrome Web Store ZIP when a version tag is pushed (e.g. v1.4.0).
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package extension (Chrome Web Store layout)
+        run: bash dev_tests/build-store-zip.sh
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/lost-in-transcription-*.zip
+          generate_release_notes: true

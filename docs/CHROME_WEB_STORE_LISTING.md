@@ -1,11 +1,28 @@
 # Chrome Web Store — listing and packaging
 
-Use this as a checklist when submitting **Lost in Transcription**. Revise all bracketed placeholders.
+Checklist for **Lost in Transcription**. Repository: **https://github.com/thinko/lost-in-transcription**
 
-## Privacy
+## Canonical URLs (use in the store dashboard)
 
-- **Privacy policy URL:** Host [`PRIVACY.md`](PRIVACY.md) at a stable **HTTPS** URL (e.g. GitHub raw on `main`, or GitHub Pages) and paste that URL in the listing.
-- In-app copy: [`privacy-policy.html`](privacy-policy.html) (keep in sync with the Markdown file).
+| Field | URL |
+|--------|-----|
+| **Privacy policy** | **https://thinko.github.io/lost-in-transcription/privacy-policy.html** |
+| **Homepage / marketing site** | https://thinko.github.io/lost-in-transcription/ |
+| **Source code** | https://github.com/thinko/lost-in-transcription |
+| **Support / contact** | https://github.com/thinko/lost-in-transcription/issues |
+
+- **Privacy:** Use the **GitHub Pages** `privacy-policy.html` URL above (HTTPS, stable). It matches the copy bundled in the extension under `docs/privacy-policy.html`.
+- **Canonical edits:** [`PRIVACY.md`](PRIVACY.md) — keep [`privacy-policy.html`](privacy-policy.html) in sync when you change the policy.
+
+## Package build
+
+```bash
+bash dev_tests/build-store-zip.sh
+```
+
+Produces **`dist/lost-in-transcription-<version>.zip`**. Same layout is built by [`.github/workflows/release.yml`](../.github/workflows/release.yml) when you push a tag `v*`.
+
+See [**RELEASING.md**](RELEASING.md) for tag → GitHub Release flow.
 
 ## Single purpose
 
@@ -38,31 +55,15 @@ Lost in Transcription adds real-time translation on top of **Microsoft Teams** l
 
 ## Host permission justification (paste into Store form)
 
-Summarize by category:
-
 1. **Teams family (`*.teams.microsoft.com`, `teams.cloud.microsoft`, gov/dod/cn/skype/lync patterns):** Required to run content scripts on official Microsoft Teams and related meeting clients so the extension can observe live caption elements and render translations.  
 2. **translation.googleapis.com, api.cognitive.microsofttranslator.com, api.deepl.com, api.openai.com, libretranslate.com / libretranslate.de:** Required so the service worker can call the translation backend selected in settings.  
 3. **`http://localhost/*` and `http://*/*`:** Optional connectivity to user-operated HTTP endpoints (self-hosted LibreTranslate, LAN LLM). No data is sent except to URLs the user configures.
 
-## ZIP layout (upload package)
+## ZIP contents (sanity check)
 
-Include **only** runtime files needed by `manifest.json`:
+The build script includes only runtime files: `manifest.json`, content/background/popup scripts and CSS, `translators/`, `icons/`, `_locales/` (excluding dev pseudo-locale `qps-ploc`), and `docs/privacy-policy.html`.
 
-| Include | Exclude (examples) |
-|--------|----------------------|
-| `manifest.json`, `*.js`, `*.css`, `*.html`, `translators/`, `icons/`, `_locales/`, `docs/privacy-policy.html` | `.git/`, `dev_tests/`, `*.md` in repo root (optional in zip), `.cursor/`, `teams-chat-example-*.html`, `_locales/qps-ploc/`, `.env*` |
-
-**Example:**
-
-```bash
-cd /path/to/live-translate-cc
-zip -r ../lost-in-transcription-store.zip \
-  manifest.json background.js content.js sidepanel.js export.js glossary-popover.js \
-  i18n.js languages.js glossary.js popup.html popup.js popup.css content.css \
-  translators icons _locales docs/privacy-policy.html
-```
-
-Adjust if you add/remove files. Do **not** ship `README.md` unless you want it inside the CRX (not required).
+**Excluded:** `dev_tests/`, `.github/`, Jekyll site files under `docs/` except `privacy-policy.html`, `.git`, etc.
 
 ## Screenshots
 
@@ -70,4 +71,4 @@ Capture from a **sanitized** meeting or mock UI: no real PII, no internal compan
 
 ## Limited Use (Google APIs)
 
-If you use Google Cloud Translation, the listing should reflect adherence to the Chrome Web Store User Data Policy (already referenced in [`PRIVACY.md`](PRIVACY.md)).
+If you use Google Cloud Translation, the listing should reflect adherence to the Chrome Web Store User Data Policy (see [`PRIVACY.md`](PRIVACY.md) — Limited Use Policy section).

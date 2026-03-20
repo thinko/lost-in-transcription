@@ -2,6 +2,8 @@
 
 **Last updated:** March 19, 2026
 
+**Public copy (Chrome Web Store / browsers):** https://thinko.github.io/lost-in-transcription/privacy-policy.html
+
 ## Summary
 
 Lost in Transcription is a browser extension that reads **live closed captions** in **Microsoft Teams** in your browser, optionally adjusts them using settings you provide (including a glossary), and sends caption text to **translation services you choose** (such as LibreTranslate, Google Cloud Translation, DeepL, or an OpenAI-compatible API).
@@ -65,7 +67,7 @@ We may update this policy when the extension’s behavior or Web Store requireme
 
 ## Contact
 
-For privacy questions about this open-source project, please use the contact method published in the project’s public repository (e.g., GitHub Issues).
+For privacy questions about this open-source project, open an issue at **https://github.com/thinko/lost-in-transcription/issues**.
 
 ## Disclaimer
 
