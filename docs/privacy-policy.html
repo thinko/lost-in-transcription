@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Lost in Transcription</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, Segoe UI, Roboto, sans-serif; line-height: 1.5; max-width: 42rem; margin: 0 auto; padding: 1.25rem 1rem 2rem; font-size: 14px; }
+    h1 { font-size: 1.35rem; margin-top: 0; }
+    h2 { font-size: 1.05rem; margin-top: 1.5rem; }
+    p, li { color: #333; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a1a; color: #e8e8e8; }
+      p, li { color: #ccc; }
+    }
+    .meta { font-size: 12px; opacity: 0.85; margin-bottom: 1rem; }
+    ul { padding-left: 1.25rem; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy — Lost in Transcription</h1>
+  <p class="meta"><strong>Last updated:</strong> March 19, 2026<br>
+  <em>Canonical source for edits: <code>docs/PRIVACY.md</code> in the repository.</em></p>
+
+  <h2>Summary</h2>
+  <p>Lost in Transcription is a browser extension that reads <strong>live closed captions</strong> in <strong>Microsoft Teams</strong> in your browser, optionally adjusts them using settings you provide (including a glossary), and sends caption text to <strong>translation services you choose</strong> (such as LibreTranslate, Google Cloud Translation, DeepL, or an OpenAI-compatible API).</p>
+  <p>We do <strong>not</strong> operate a central server for this extension. <strong>We do not sell your data, nor do we use it for advertising.</strong> What leaves your device is determined entirely by <strong>your configuration</strong> and the <strong>third-party services</strong> you actively enable. Data is processed solely to provide the extension’s core translation functionality.</p>
+
+  <h2>What data the extension processes</h2>
+  <ul>
+    <li><strong>Caption and meeting text:</strong> Text visible in Teams captions on pages you use with the extension, including speaker labels and timestamps as shown in the UI, may be processed locally and/or sent to backends you enable for translation.</li>
+    <li><strong>Settings:</strong> Stored using the browser’s extension storage APIs (e.g., <code>chrome.storage</code>). This includes your backend choice, API keys or URLs you enter, language pairs, glossary entries, and display preferences. This data is <strong>not</strong> sent to the extension authors.</li>
+  </ul>
+
+  <h2>Caption / session continuity (on-device)</h2>
+  <p>To survive <strong>page refreshes</strong>, <strong>browser restarts</strong>, and <strong>brief disconnects</strong> during the same meeting, the extension can store <strong>caption and translation text</strong> together with minimal session metadata (e.g., meeting identifier derived from the Teams URL, timestamps, optional title text) in <strong><code>chrome.storage.local</code></strong> on your device.</p>
+  <ul>
+    <li><strong>Retention:</strong> That stored transcript data is kept for <strong>at most 48 hours</strong> since the last update to the session. Older sessions are <strong>deleted automatically</strong>.</li>
+    <li><strong>Opt-out:</strong> In the extension popup (<strong>Display → Behavior</strong>), you can turn <strong>“Remember session history”</strong> <strong>off</strong>. When it is off, the extension <strong>does not write</strong> caption/transcript data to disk for continuity; <strong>reloading the meeting or rejoining starts with an empty translation view</strong>, and any previously saved sessions are <strong>removed from this device</strong> when you disable the option.</li>
+  </ul>
+  <p>Live captions you see in Teams are still processed for translation while the meeting page is open; the toggle only affects <strong>whether text is persisted</strong> for later continuity and the saved-session list.</p>
+
+  <h2>Where data is sent</h2>
+  <p>Depending on your settings, caption text may be sent to:</p>
+  <ul>
+    <li><strong>Microsoft:</strong> Teams runs in your browser on Microsoft-controlled pages; Microsoft’s own privacy terms apply to Teams.</li>
+    <li><strong>Translation / LLM providers:</strong> Endpoints you configure (e.g., Google, DeepL, public or self-hosted LibreTranslate, OpenAI, or compatible local/cloud APIs). Each provider’s privacy policy governs the data they receive.</li>
+  </ul>
+  <p>The extension’s <code>manifest.json</code> declares host permissions for common provider endpoints and for local development (<code>localhost</code> / <code>http://*/*</code>) to allow for self-hosted tools. <strong>Only the specific services you configure receive your text.</strong></p>
+
+  <h2>Security</h2>
+  <p>All communications between the extension and your configured third-party translation providers are transmitted securely using standard web encryption protocols (HTTPS/TLS).</p>
+
+  <h2>Storage and sync</h2>
+  <p>Settings are stored locally. If you use Chrome sync for extensions, these settings may be <strong>synced by Google</strong> according to your Google account preferences. The extension authors do not control or access Google’s sync infrastructure.</p>
+
+  <h2>User rights &amp; data deletion</h2>
+  <p>Because we do not store your data on our servers, you retain full control over it. You can delete all saved settings, glossary terms, and session history at any time by turning off the session history toggle, uninstalling the extension, or clearing the extension’s local storage within your browser.</p>
+
+  <h2>Downloads and exports</h2>
+  <p>If you use the <strong>export</strong> features, files are created on your device via the browser’s download mechanism. You are responsible for how you securely store or share those files.</p>
+
+  <h2>Optional debug logging</h2>
+  <p>If you enable <strong>debug logging</strong> in the extension UI, additional diagnostic messages may be written to the <strong>browser’s developer console</strong> on your local machine. This is intended solely for troubleshooting and does not serve as a telemetry pipeline to the authors unless you manually extract and share the logs.</p>
+
+  <h2>Children’s privacy</h2>
+  <p>This extension is not directed at children under 13 (or the age required in your jurisdiction). We do not knowingly collect personal information from children.</p>
+
+  <h2>Limited use policy</h2>
+  <p>The extension’s use and transfer to any other app of information received from Google APIs will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.</p>
+
+  <h2>Changes</h2>
+  <p>We may update this policy when the extension’s behavior or Web Store requirements change. The “Last updated” date at the top will be revised accordingly.</p>
+
+  <h2>Contact</h2>
+  <p>For privacy questions about this open-source project, please use the contact method published in the project’s public repository (e.g., GitHub Issues).</p>
+
+  <h2>Disclaimer</h2>
+  <p>This policy describes the extension’s design and typical behavior. <strong>Third-party services (Microsoft, translation APIs, etc.) have their own terms of service and privacy policies.</strong> Nothing in this document limits your rights under applicable law.</p>
+</body>
+</html>
