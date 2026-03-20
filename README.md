@@ -158,6 +158,8 @@ The UI language follows the browser's language setting. The target translation l
 
 For the Chrome Web Store, host the policy at a public HTTPS URL (e.g. GitHub **raw** link to `docs/PRIVACY.md` on `main`, or GitHub Pages) and enter that URL in the listing.
 
+If **GitHub Pages** is enabled with source **/docs** on `main`, the project site (Jekyll **leap-day** theme) includes [`docs/index.html`](docs/index.html) — e.g. `https://<user>.github.io/lost-in-transcription/` (set `baseurl` in [`docs/_config.yml`](docs/_config.yml) if the repo name changes).
+
 ## How It Works
 
 The extension uses a `MutationObserver` to watch for Teams caption DOM nodes identified by `data-tid="closed-caption-text"`. When new captions appear or existing ones update (Teams refines text as speech recognition improves), the text is debounced and sent to the configured translation API via the extension's service worker. Translated text is then displayed inline or in the side panel.

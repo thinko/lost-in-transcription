@@ -1,0 +1,46 @@
+---
+layout: default
+title: Settings tabs
+---
+<p><a href="{{ '/' | relative_url }}">← Home</a></p>
+
+<p>Open the extension from the toolbar — the popup is organized into <strong>five tabs</strong>. Click items on the <strong>Dashboard</strong> to jump to the matching tab.</p>
+
+<h2>Dashboard</h2>
+<p>Live summary: display mode, backend, language pair, send frequency, glossary status, and session memory (on/off). Each row is a shortcut into the right tab.</p>
+
+<h2>Translation</h2>
+<ul>
+  <li><strong>Backend</strong> — LibreTranslate, Google, DeepL, or OpenAI-compatible.</li>
+  <li><strong>API key &amp; URLs</strong> — as required by the backend (LibreTranslate base URL, OpenAI base URL + model, etc.).</li>
+  <li><strong>Languages</strong> — source and target, with optional <strong>dialect</strong> submenus where supported.</li>
+  <li><strong>Send frequency</strong> — realtime (~300&nbsp;ms), end of sentence, stable text (~1.5&nbsp;s pause), or timed batch (slider).</li>
+  <li><strong>Test connection</strong> — verify reachability and (where applicable) list models or languages.</li>
+</ul>
+
+<h2>Display</h2>
+<ul>
+  <li><strong>Mode</strong> — inline vs side panel.</li>
+  <li><strong>Font size</strong> — for translated text.</li>
+  <li><strong>History buffer</strong> — cap visible lines in the panel or allow unlimited.</li>
+  <li><strong>When closing panel / disabling translation</strong> — ask, stop translation, hide panel, etc.</li>
+  <li><strong>Remember session history</strong> — persist caption/translation data on device (48&nbsp;h retention) or keep meetings ephemeral.</li>
+</ul>
+
+<h2>Prompt &amp; Glossary</h2>
+<ul>
+  <li><strong>System prompt</strong> — for OpenAI-compatible backends; template variables and <strong>Reset</strong> for a dialect-aware default.</li>
+  <li><strong>Glossary</strong> — list of pattern → replacement entries; per-entry enable/disable.</li>
+</ul>
+
+<h2>Help &amp; About</h2>
+<ul>
+  <li>Extension version</li>
+  <li>Keyboard shortcuts and quick start</li>
+  <li>Why this extension exists (vs built-in Teams translation)</li>
+  <li>Links to <strong>GitHub</strong> (from <code>manifest.json</code> <code>homepage_url</code>) and <strong>privacy policy</strong></li>
+  <li>Legal / trademark / GPLv3 footer</li>
+  <li>Optional <strong>debug logging</strong> toggle for the browser console</li>
+</ul>
+
+<p><a href="{{ '/' | relative_url }}">← Home</a></p>

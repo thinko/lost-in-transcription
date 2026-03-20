@@ -1,0 +1,48 @@
+---
+layout: default
+title: Features
+---
+<p><a href="{{ '/' | relative_url }}">← Home</a></p>
+
+<h2>Core behavior</h2>
+<ul>
+  <li><strong>Real-time translation</strong> — captions are sent to your chosen backend with configurable timing (per update, end of sentence, stable pause, or timed batch).</li>
+  <li><strong>Display modes</strong> — translations below each caption <em>inline</em>, or in a resizable <em>side panel</em> next to the caption area.</li>
+  <li><strong>MutationObserver-driven</strong> — follows Teams caption DOM updates as recognition refines text.</li>
+</ul>
+
+<h2>Translation backends</h2>
+<ul>
+  <li><strong>LibreTranslate</strong> — optional API key; great with public or self-hosted instances.</li>
+  <li><strong>Google Cloud Translation</strong> — API key; high-volume neural translation.</li>
+  <li><strong>DeepL</strong> — API key; strong for many European language pairs.</li>
+  <li><strong>OpenAI-compatible</strong> — API key optional for local use; supports <strong>Ollama</strong>, LM Studio, vLLM, and cloud endpoints. Dialect-aware <strong>system prompts</strong> with <code>{{SOURCE_LANG}}</code>, <code>{{TARGET_LANG}}</code>, <code>{{GLOSSARY}}</code> placeholders.</li>
+</ul>
+<p>Built-in <strong>Test connection</strong> and (for OpenAI-compatible) <strong>model discovery</strong>.</p>
+
+<h2>Glossary</h2>
+<p>
+  User-editable find/replace rules fix mangled <strong>technical or product terms</strong> before and after translation.
+  <strong>Ctrl+Click</strong> (or Cmd on Mac) on a word in captions or the translation panel opens a quick popover to add or adjust entries.
+</p>
+
+<h2>Sessions &amp; export</h2>
+<ul>
+  <li><strong>Session memory</strong> — optional on-device persistence in <code>chrome.storage.local</code> so transcripts can survive refresh and reconnect (up to <strong>48 hours</strong> after last update; can be turned off in Display → Behavior).</li>
+  <li><strong>Save &amp; start new</strong> — snapshot the current meeting transcript and begin a fresh session.</li>
+  <li><strong>Export</strong> — <strong>TXT</strong>, <strong>CSV</strong>, or <strong>SRT</strong> via toolbar or <kbd>Alt+Shift+E</kbd>.</li>
+  <li><strong>Re-apply glossary</strong> — update saved sessions after glossary changes.</li>
+</ul>
+
+<h2>Internationalization</h2>
+<p>
+  UI ships in <strong>English, French, Spanish, German, and Japanese</strong>. Language dropdowns can show native names alongside English (e.g. “Français (French)”).
+</p>
+
+<h2>Teams hosts</h2>
+<p>
+  The extension is enabled on Microsoft-documented origins, including commercial Teams, <code>teams.cloud.microsoft</code>, government clouds, China tenants, and related Skype/Lync patterns.
+  See the <a href="https://github.com/thinko/lost-in-transcription/blob/main/README.md#teams-urls-and-tenants">README</a> for the full list.
+</p>
+
+<p><a href="{{ '/' | relative_url }}">← Home</a></p>

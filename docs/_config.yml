@@ -1,1 +1,9 @@
+# GitHub Pages / Jekyll (docs/ folder)
 theme: jekyll-theme-leap-day
+
+title: Lost in Transcription
+description: Real-time translation for Microsoft Teams® live closed captions — in your browser.
+
+# Project site URL — change if you rename the repo or use a custom domain
+url: https://thinko.github.io
+baseurl: /lost-in-transcription
