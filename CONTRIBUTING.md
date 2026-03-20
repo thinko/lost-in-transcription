@@ -20,6 +20,14 @@ GPLv3 source files carry a standard copyright line. Project policy is documented
 - Optional QA helpers live under [`dev_tests/`](dev_tests/) (see [README.md](README.md)).
 - Do not commit machine-specific agent files; `CLAUDE.md` / `CLAUDE.local.md` are listed in `.gitignore`.
 
+## Git commits
+
+Prefer **one logical change per commit** so history and `git bisect` stay useful:
+
+- **Conventional-style subject:** `feat:`, `fix:`, `docs:`, `chore:`, `refactor:` … plus a short imperative summary.
+- **Split large work** into ordered commits (e.g. docs only, then backend, then manifest, then UI + i18n) when changes would otherwise mix unrelated concerns.
+- If you already have a mixed working tree, use **`git add -p`** (patch staging) or **`git stash -p`** to stage hunks into separate commits.
+
 ## Pull requests
 
 - Keep `manifest.json` version bumps coherent with user-visible changes.
