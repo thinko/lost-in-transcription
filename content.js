@@ -93,6 +93,7 @@
         displayMode = settings.displayMode || 'inline';
         enabled = settings.enabled !== false;
         debugMode = !!settings.debugMode;
+        sessionPersistenceEnabled = settings.sessionHistoryEnabled !== false;
       }
       waitForCaptionContainer();
       const container = findCaptionContainer();
@@ -120,14 +121,40 @@
 
   // ── Session persistence ────────────────────────────────────────────────
 
-  const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-  const SESSION_RESUME_WINDOW_MS = 4 * 60 * 60 * 1000; // 4 hours
+  /** Max age for stored caption/transcript data (privacy policy). */
+  const SESSION_DATA_MAX_AGE_MS = 48 * 60 * 60 * 1000; // 48 hours
   const MAX_SESSIONS = 10;
   const SAVE_DEBOUNCE_MS = 3000;
   let sessionId = null;
   let sessionMeetingUrl = null;
   let saveTimer = null;
   let sessionRestored = false;
+  let sessionPersistenceEnabled = true;
+
+  async function pruneExpiredSessionsFromStorage() {
+    const data = await chrome.storage.local.get({ litSessions: [] });
+    const sessions = data.litSessions || [];
+    const now = Date.now();
+    const kept = [];
+    const removeKeys = [];
+    for (const s of sessions) {
+      const ref = s.lastUpdated || s.startedAt || 0;
+      if (now - ref > SESSION_DATA_MAX_AGE_MS) {
+        removeKeys.push(`litHistory_${s.id}`);
+      } else {
+        kept.push(s);
+      }
+    }
+    if (removeKeys.length > 0 || kept.length !== sessions.length) {
+      await chrome.storage.local.remove(removeKeys);
+      await chrome.storage.local.set({ litSessions: kept });
+    }
+    return kept;
+  }
+
+  function shouldPersistToDisk() {
+    return sessionPersistenceEnabled;
+  }
 
   function deriveMeetingId() {
     const url = new URL(window.location.href);
@@ -177,22 +204,36 @@
     const meetingId = deriveMeetingId();
     sessionMeetingUrl = window.location.href;
 
-    const data = await chrome.storage.local.get({ litSessions: [] });
-    const sessions = data.litSessions || [];
+    if (!sessionPersistenceEnabled) {
+      sessionId = `ephemeral_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      transcriptHistory = [];
+      sessionRestored = false;
+      captionStartTime = Date.now();
+      window.__litTranscriptHistory = transcriptHistory;
+      dbg('Session persistence disabled — ephemeral in-memory only');
+      return;
+    }
+
+    const sessions = await pruneExpiredSessionsFromStorage();
 
     const existing = sessions.find((s) => s.meetingId === meetingId);
-    const isStale = existing && (Date.now() - (existing.lastUpdated || existing.startedAt) > SESSION_RESUME_WINDOW_MS);
+    const refTime = existing ? (existing.lastUpdated || existing.startedAt) : 0;
+    const isStale = existing && (Date.now() - refTime > SESSION_DATA_MAX_AGE_MS);
     if (existing && !isStale) {
       sessionId = existing.id;
       const entryData = await chrome.storage.local.get({ [`litHistory_${sessionId}`]: [] });
       const restored = entryData[`litHistory_${sessionId}`] || [];
+      transcriptHistory = restored;
+      sessionRestored = restored.length > 0;
+      captionStartTime = existing.startedAt || Date.now();
       if (restored.length > 0) {
-        transcriptHistory = restored;
-        sessionRestored = true;
-        captionStartTime = existing.startedAt || Date.now();
         dbg(`Restored session with ${restored.length} entries`);
       }
     } else {
+      transcriptHistory = [];
+      sessionRestored = false;
+      captionStartTime = Date.now();
+
       sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       const meta = {
         id: sessionId,
@@ -202,15 +243,15 @@
         startedAt: Date.now(),
         entryCount: 0,
       };
-      sessions.unshift(meta);
+      const next = [meta, ...sessions.filter((s) => s.meetingId !== meetingId)];
 
-      while (sessions.length > MAX_SESSIONS) {
-        const old = sessions.pop();
+      while (next.length > MAX_SESSIONS) {
+        const old = next.pop();
         await chrome.storage.local.remove(`litHistory_${old.id}`);
       }
 
       const now = Date.now();
-      const pruned = sessions.filter((s) => now - s.startedAt < SESSION_MAX_AGE_MS);
+      const pruned = next.filter((s) => now - (s.lastUpdated || s.startedAt) < SESSION_DATA_MAX_AGE_MS);
       await chrome.storage.local.set({ litSessions: pruned });
     }
 
@@ -218,6 +259,7 @@
   }
 
   function scheduleSave() {
+    if (!shouldPersistToDisk()) return;
     if (saveTimer) return;
     saveTimer = setTimeout(() => {
       saveTimer = null;
@@ -226,7 +268,7 @@
   }
 
   async function persistSession() {
-    if (!sessionId) return;
+    if (!sessionId || !shouldPersistToDisk()) return;
     try {
       await chrome.storage.local.set({ [`litHistory_${sessionId}`]: transcriptHistory });
       const data = await chrome.storage.local.get({ litSessions: [] });
@@ -243,15 +285,41 @@
     }
   }
 
+  async function applySessionPersistenceChange(enabled) {
+    sessionPersistenceEnabled = enabled;
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+    }
+    if (!enabled) {
+      transcriptHistory.length = 0;
+      processedTexts.clear();
+      captionIdCounter = 0;
+      captionStartTime = Date.now();
+      sessionRestored = false;
+      sessionId = `ephemeral_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      document.querySelectorAll('.lit-inline').forEach((el) => el.remove());
+      if (typeof window.__litSidePanelClear === 'function') {
+        window.__litSidePanelClear();
+      }
+      window.__litTranscriptHistory = transcriptHistory;
+      dbg('Session persistence disabled — cleared in-meeting history');
+    } else {
+      await initSession();
+      dbg('Session persistence enabled — reloaded from storage if available');
+    }
+    onDisplayModeChanged();
+  }
+
   const onBeforeUnload = () => {
-    if (sessionId && transcriptHistory.length > 0) {
+    if (shouldPersistToDisk() && sessionId && transcriptHistory.length > 0) {
       persistSession();
     }
   };
   window.addEventListener('beforeunload', onBeforeUnload);
 
   const onVisChange = () => {
-    if (document.visibilityState === 'hidden' && sessionId && transcriptHistory.length > 0) {
+    if (shouldPersistToDisk() && document.visibilityState === 'hidden' && sessionId && transcriptHistory.length > 0) {
       persistSession();
     }
   };
@@ -264,6 +332,7 @@
       displayMode = settings.displayMode || 'inline';
       enabled = settings.enabled !== false;
       debugMode = !!settings.debugMode;
+      sessionPersistenceEnabled = settings.sessionHistoryEnabled !== false;
     }
     await initSession();
     waitForCaptionContainer();
@@ -288,6 +357,13 @@
         if (msg.settings.displayMode) displayMode = msg.settings.displayMode;
         if (msg.settings.enabled !== undefined) enabled = msg.settings.enabled;
         if (msg.settings.debugMode !== undefined) debugMode = !!msg.settings.debugMode;
+        if (msg.settings.sessionHistoryEnabled !== undefined) {
+          (async () => {
+            await applySessionPersistenceChange(msg.settings.sessionHistoryEnabled !== false);
+            sendResponse?.({ ok: true });
+          })();
+          return true;
+        }
         onDisplayModeChanged();
         break;
       case 'trigger-export':
@@ -322,32 +398,36 @@
         break;
       case 'save-and-new-session':
         (async () => {
-          await persistSession();
-
-          sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-          const meta = {
-            id: sessionId,
-            meetingId: deriveMeetingId(),
-            title: getMeetingTitle(),
-            url: window.location.href,
-            startedAt: Date.now(),
-            entryCount: 0,
-          };
-
-          const data = await chrome.storage.local.get({ litSessions: [] });
-          const sessions = data.litSessions || [];
-          sessions.unshift(meta);
-          while (sessions.length > MAX_SESSIONS) {
-            const old = sessions.pop();
-            await chrome.storage.local.remove(`litHistory_${old.id}`);
+          if (sessionPersistenceEnabled) {
+            await persistSession();
           }
-          await chrome.storage.local.set({ litSessions: sessions });
 
           transcriptHistory.length = 0;
           processedTexts.clear();
           captionIdCounter = 0;
           captionStartTime = Date.now();
           sessionRestored = false;
+
+          if (sessionPersistenceEnabled) {
+            sessionId = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+            const meta = {
+              id: sessionId,
+              meetingId: deriveMeetingId(),
+              title: getMeetingTitle(),
+              url: window.location.href,
+              startedAt: Date.now(),
+              entryCount: 0,
+            };
+            const sessions = await pruneExpiredSessionsFromStorage();
+            const next = [meta, ...sessions];
+            while (next.length > MAX_SESSIONS) {
+              const old = next.pop();
+              await chrome.storage.local.remove(`litHistory_${old.id}`);
+            }
+            await chrome.storage.local.set({ litSessions: next });
+          } else {
+            sessionId = `ephemeral_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+          }
 
           if (typeof window.__litSidePanelClear === 'function') {
             window.__litSidePanelClear();
@@ -630,7 +710,7 @@
   window.__litCleanupHandlers.push(() => {
     // Persist any unsaved data before teardown
     if (saveTimer) clearTimeout(saveTimer);
-    if (sessionId && transcriptHistory.length > 0) persistSession();
+    if (shouldPersistToDisk() && sessionId && transcriptHistory.length > 0) persistSession();
 
     // Stop heartbeat
     clearInterval(heartbeatId);

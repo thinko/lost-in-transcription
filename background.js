@@ -36,6 +36,36 @@ const translators = {
   openai: openaiTranslate,
 };
 
+/** Must match content.js — max retention for stored caption/transcript data. */
+const SESSION_DATA_MAX_AGE_MS = 48 * 60 * 60 * 1000;
+
+async function pruneExpiredLitSessions() {
+  const data = await chrome.storage.local.get({ litSessions: [] });
+  const sessions = data.litSessions || [];
+  const now = Date.now();
+  const kept = [];
+  const removeKeys = [];
+  for (const s of sessions) {
+    const ref = s.lastUpdated || s.startedAt || 0;
+    if (now - ref > SESSION_DATA_MAX_AGE_MS) {
+      removeKeys.push(`litHistory_${s.id}`);
+    } else {
+      kept.push(s);
+    }
+  }
+  if (removeKeys.length > 0 || kept.length !== sessions.length) {
+    await chrome.storage.local.remove(removeKeys);
+    await chrome.storage.local.set({ litSessions: kept });
+  }
+}
+
+async function clearAllLitSessionStorage() {
+  const data = await chrome.storage.local.get(null);
+  const removeKeys = Object.keys(data).filter((k) => k.startsWith('litHistory_'));
+  await chrome.storage.local.remove(removeKeys);
+  await chrome.storage.local.set({ litSessions: [] });
+}
+
 // --- Content script re-injection ------------------------------------------
 // After extension install/update, re-inject into any existing Teams tabs
 // so users don't have to reload the meeting page.
@@ -43,8 +73,25 @@ const translators = {
 const CONTENT_SCRIPTS = ['content.js', 'sidepanel.js', 'export.js', 'glossary-popover.js'];
 const CONTENT_CSS = ['content.css'];
 
+/**
+ * Teams / Skype / Lync host patterns — sourced from manifest.json
+ * `content_scripts` entry that loads content.js (single source of truth).
+ */
+function getTeamsMeetingUrlMatchPatterns() {
+  try {
+    const blocks = chrome.runtime.getManifest().content_scripts || [];
+    const block = blocks.find(
+      (c) => Array.isArray(c.js) && c.js.some((f) => f === 'content.js')
+    );
+    if (block?.matches?.length) return block.matches;
+  } catch (_) {
+    /* ignore */
+  }
+  return ['*://teams.microsoft.com/*'];
+}
+
 async function reinjectContentScripts(forceReinject = false) {
-  const tabs = await chrome.tabs.query({ url: '*://teams.microsoft.com/*' });
+  const tabs = await chrome.tabs.query({ url: getTeamsMeetingUrlMatchPatterns() });
   const results = [];
 
   for (const tab of tabs) {
@@ -133,6 +180,7 @@ async function reinjectContentScripts(forceReinject = false) {
 }
 
 chrome.runtime.onInstalled.addListener((details) => {
+  pruneExpiredLitSessions().catch(() => {});
   if (details.reason === 'install' || details.reason === 'update') {
     reinjectContentScripts(true).then((results) => {
       const ok = results.filter((r) => r.ok).length;
@@ -210,6 +258,7 @@ async function getSettings() {
     historyBufferSize: 200,
     onPanelClose: 'ask',
     onDisable: 'ask',
+    sessionHistoryEnabled: true,
     lastTab: 'dashboard',
     modelFilterPatterns: ['nsfw', 'naughty', 'sutra'],
     debugMode: false,
@@ -352,9 +401,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === 'get-sessions') {
-    chrome.storage.local.get({ litSessions: [] }, (data) => {
-      sendResponse(data.litSessions || []);
+    pruneExpiredLitSessions().then(() => {
+      chrome.storage.local.get({ litSessions: [] }, (data) => {
+        sendResponse(data.litSessions || []);
+      });
     });
+    return true;
+  }
+
+  if (msg.type === 'clear-lit-session-storage') {
+    clearAllLitSessionStorage().then(() => sendResponse({ ok: true })).catch((e) => sendResponse({ ok: false, error: e.message }));
     return true;
   }
 
