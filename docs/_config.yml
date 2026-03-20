@@ -1,5 +1,5 @@
 # GitHub Pages / Jekyll (docs/ folder)
-theme: jekyll-theme-leap-day
+theme: jekyll-theme-midnight
 
 title: Lost in Transcription
 description: Real-time translation for Microsoft Teams® live closed captions — in your browser.
